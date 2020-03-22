@@ -1,3 +1,12 @@
+use super::validation::{
+    check_validation_layer_support, populate_debug_messenger_create_info, VALIDATION,
+};
+use crate::error::UrnError;
+use crate::util::CString;
+use crate::util::StringContainer;
+
+use ash::version::EntryV1_0;
+
 /// Shallow wapper
 pub struct Instance(ash::Instance);
 
@@ -9,10 +18,9 @@ impl Instance {
         version_patch: u32,
         extension_names: &[&str],
         entry: &ash::Entry,
-    ) -> Result<Instance, ash::InstanceError> {
-        /*
-        if debug::VALIDATION.is_enable {
-            debug::check_validation_layer_support(entry)?;
+    ) -> Result<Instance, UrnError> {
+        if VALIDATION.is_enabled {
+            check_validation_layer_support(entry)?;
         }
 
         let name_buf = CString::new(name)?;
@@ -25,51 +33,26 @@ impl Instance {
             ))
             .application_name(&name_buf);
 
-
-        let all_extension_name_bufs: Vec<CString> = extension_names
-            .iter()
-            .chain(device_creation::INSTANCE_EXTENSIONS.names)
-            .map(|name| CString::new(*name))
-            .collect::<Result<_, _>>()?;
-        let all_extension_name_ptrs: Vec<*const i8> = all_extension_name_bufs
-            .iter()
-            .map(|name| name.as_ptr())
-            .collect();
-
+        let extension_names_cs = StringContainer::new(extension_names);
         let create_info = ash::vk::InstanceCreateInfo::builder()
             .application_info(&app_info)
-            .enabled_extension_names(all_extension_name_ptrs.as_slice());
+            .enabled_extension_names(extension_names_cs.pointer.as_slice());
 
-        let required_validation_layer_name_bufs: Vec<CString> = debug::VALIDATION
-            .required_validation_layers
-            .iter()
-            .map(|layer_name| CString::new(*layer_name))
-            .collect::<Result<_, _>>()?;
-        let required_validation_layer_name_ptrs: Vec<*const std::os::raw::c_char> =
-            required_validation_layer_name_bufs
-                .iter()
-                .map(|name| name.as_ptr())
-                .collect();
+        let required_validation_layer_names_cs =
+            StringContainer::new(VALIDATION.required_layer_names);
 
-        let mut debug_utils_messenger_create_info = debug::populate_debug_messenger_create_info();
+        let mut debug_utils_messenger_create_info = populate_debug_messenger_create_info();
 
-        let create_info = if debug::VALIDATION.is_enable {
+        let create_info = if VALIDATION.is_enabled {
             create_info
-                .enabled_layer_names(required_validation_layer_name_ptrs.as_slice())
+                .enabled_layer_names(required_validation_layer_names_cs.pointer.as_slice())
                 .push_next(&mut debug_utils_messenger_create_info)
         } else {
             create_info
         };
 
-        let instance = unsafe {
-            entry
-                .create_instance(&create_info, None)
-                .map_err(ash::InstanceError)?
-        };
+        let instance = unsafe { entry.create_instance(&create_info, None)? };
 
-        Ok(Instance { instance })
-        */
-        unimplemented!();
+        Ok(Instance(instance))
     }
-
 }

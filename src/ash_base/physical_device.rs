@@ -1,3 +1,1 @@
-pub struct PhysicalDevice {
-
-}
+pub struct PhysicalDevice {}
