@@ -10,3 +10,5 @@ edition = "2018"
 #ash       = "0.29.0" Doesn't have 1.2 support
 ash        = { git = "https://github.com/MaikKlein/ash.git", branch = "master" }
 
+[dev-dependencies]
+sdl2      = "0.32"
