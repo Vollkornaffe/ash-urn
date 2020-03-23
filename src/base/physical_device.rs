@@ -119,4 +119,93 @@ impl PhysicalDevice {
         };
         subgroup_properties
     }
+
+    pub fn print_details(
+        &self,
+        instance: &ash::Instance,
+    ) {
+        let device_properties = unsafe { instance.get_physical_device_properties(self.0) };
+        let device_features = unsafe { instance.get_physical_device_features(self.0) };
+        let device_queue_families =
+            unsafe { instance.get_physical_device_queue_family_properties(self.0) };
+
+        let device_type = match device_properties.device_type {
+            ash::vk::PhysicalDeviceType::CPU => "Cpu",
+            ash::vk::PhysicalDeviceType::INTEGRATED_GPU => "Integrated GPU",
+            ash::vk::PhysicalDeviceType::DISCRETE_GPU => "Discrete GPU",
+            ash::vk::PhysicalDeviceType::VIRTUAL_GPU => "Virtual GPU",
+            ash::vk::PhysicalDeviceType::OTHER => "Unknown",
+            _ => panic!(),
+        };
+
+        let device_name = vk_to_string(&device_properties.device_name);
+        println!(
+            "\tDevice Name: {}, id: {}, type: {}",
+            device_name, device_properties.device_id, device_type
+        );
+
+        let major_version = ash::vk::version_major(device_properties.api_version);
+        let minor_version = ash::vk::version_minor(device_properties.api_version);
+        let patch_version = ash::vk::version_patch(device_properties.api_version);
+
+        println!(
+            "\tAPI Version: {}.{}.{}",
+            major_version, minor_version, patch_version
+        );
+
+        println!("\tSupport Queue Family: {}", device_queue_families.len());
+        println!("\t\tQueue Count | Graphics, Compute, Transfer, Sparse Binding");
+        for queue_family in device_queue_families.iter() {
+            let is_graphics_support = if queue_family
+                .queue_flags
+                .contains(ash::vk::QueueFlags::GRAPHICS)
+            {
+                "support"
+            } else {
+                "unsupport"
+            };
+            let is_compute_support = if queue_family
+                .queue_flags
+                .contains(ash::vk::QueueFlags::COMPUTE)
+            {
+                "support"
+            } else {
+                "unsupport"
+            };
+            let is_transfer_support = if queue_family
+                .queue_flags
+                .contains(ash::vk::QueueFlags::TRANSFER)
+            {
+                "support"
+            } else {
+                "unsupport"
+            };
+            let is_sparse_support = if queue_family
+                .queue_flags
+                .contains(ash::vk::QueueFlags::SPARSE_BINDING)
+            {
+                "support"
+            } else {
+                "unsupport"
+            };
+
+            println!(
+                "\t\t{}\t    | {},  {},  {},  {}",
+                queue_family.queue_count,
+                is_graphics_support,
+                is_compute_support,
+                is_transfer_support,
+                is_sparse_support
+            );
+        }
+    }
+
+    pub fn print_limits(
+        &self,
+        instance: &ash::Instance,
+    ) {
+        let device_properties = unsafe { instance.get_physical_device_properties(self.0) };
+        println!("{:?}", device_properties.limits,);
+    }
+
 }

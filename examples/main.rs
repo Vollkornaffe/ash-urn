@@ -46,6 +46,12 @@ fn main() {
     };
     let surface = sdl.create_surface(&instance.0).unwrap();
 
+    let physical_devices = PhysicalDevice::enumerate(&instance.0).unwrap();
+    for pd in physical_devices {
+        pd.print_details(&instance.0);
+    }
+
+
     'running: loop {
         for e in sdl.get_events() {
             match e {
