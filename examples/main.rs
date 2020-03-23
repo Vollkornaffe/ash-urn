@@ -8,6 +8,7 @@ use ash_urn::base::{
 const ENABLE_VALIDATION: bool = cfg!(debug_assertions);
 
 fn main() {
+    // first of all create sdl context
     let mut sdl = sdl::SDL::new(sdl::WindowSettings {
         title: "Test",
         w: 800,
@@ -16,6 +17,7 @@ fn main() {
     })
     .unwrap();
 
+    // Get our requriements ready
     let mut instance_extension_names = sdl.required_extension_names().unwrap();
     instance_extension_names.push(
         ash::extensions::ext::DebugUtils::name()
@@ -27,6 +29,7 @@ fn main() {
     let validation_layer_names = vec!["VK_LAYER_KHRONOS_validation".to_string()];
 
     let entry = Entry::new().unwrap();
+    // Instance needs vulkan version
     let instance = Instance::new(
         InstanceSettings {
             name: "Test".to_string(),
@@ -40,17 +43,22 @@ fn main() {
         &entry.0,
     )
     .unwrap();
+    // Get our input validated!
     let validation = if ENABLE_VALIDATION {
         Some(Validation::new(&entry.0, &instance.0).unwrap())
     } else {
         None
     };
+    // Ready for the surface to draw on
     let surface_loader = ash::extensions::khr::Surface::new(&entry.0, &instance.0);
     let surface = sdl.create_surface(&instance.0).unwrap();
+
+    // Time to think about devices
     let device_extensions = vec![
         "VK_KHR_swapchain".to_string(),
         "VK_KHR_timeline_semaphore".to_string(),
     ];
+    // First get the actual gpu
     let physical_device = PhysicalDevice::pick_gpu(
         &instance.0,
         device_extensions.clone(),
@@ -58,7 +66,11 @@ fn main() {
         surface,
     )
     .unwrap();
-
+    
+    // Then the logical device that does all of the heavy lifting
+    //let logical_device = LogicalDevice::new(
+    //     TODO
+    //);
 
     'running: loop {
         for e in sdl.get_events() {
