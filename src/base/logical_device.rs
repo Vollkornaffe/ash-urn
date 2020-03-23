@@ -2,6 +2,7 @@ use crate::error::UrnError;
 use crate::util::StringContainer;
 
 use ash::version::InstanceV1_0;
+use ash::version::DeviceV1_0;
 
 pub struct LogicalDevice(pub ash::Device);
 
@@ -58,5 +59,13 @@ impl LogicalDevice {
         };
 
         Ok(Self(logical_device))
+    }
+}
+
+impl Drop for LogicalDevice {
+    fn drop(&mut self) {
+        unsafe {
+            self.0.destroy_device(None);
+        }
     }
 }

@@ -113,4 +113,10 @@ fn main() {
             }
         }
     }
+
+    unsafe {
+        surface_loader.destroy_surface(surface, None);
+    }
+    drop(base.validation);
+    drop(base.logical_device);
 }

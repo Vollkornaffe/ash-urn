@@ -4,6 +4,7 @@ use crate::util::CString;
 use crate::util::StringContainer;
 
 use ash::version::EntryV1_0;
+use ash::version::InstanceV1_0;
 
 /// Shallow wapper
 pub struct Instance(pub ash::Instance);
@@ -55,5 +56,13 @@ impl Instance {
         let instance = unsafe { entry.create_instance(&create_info, None)? };
 
         Ok(Instance(instance))
+    }
+}
+
+impl Drop for Instance {
+    fn drop(&mut self) {
+        unsafe {
+            self.0.destroy_instance(None);
+        }
     }
 }
