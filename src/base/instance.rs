@@ -1,6 +1,4 @@
-use super::validation::{
-    check_validation_layer_support, populate_debug_messenger_create_info,
-};
+use super::validation::{check_validation_layer_support, populate_debug_messenger_create_info};
 use crate::error::UrnError;
 use crate::util::CString;
 use crate::util::StringContainer;
@@ -22,9 +20,7 @@ impl Instance {
         entry: &ash::Entry,
     ) -> Result<Instance, UrnError> {
         if enable_validation {
-            check_validation_layer_support(
-                validation_layer_names,
-                entry)?;
+            check_validation_layer_support(validation_layer_names, entry)?;
         }
 
         let name_buf = CString::new(name)?;
@@ -42,8 +38,7 @@ impl Instance {
             .application_info(&app_info)
             .enabled_extension_names(extension_names_cs.pointer.as_slice());
 
-        let validation_layer_names_cs =
-            StringContainer::new(validation_layer_names);
+        let validation_layer_names_cs = StringContainer::new(validation_layer_names);
 
         let mut debug_utils_messenger_create_info = populate_debug_messenger_create_info();
 

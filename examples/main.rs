@@ -19,13 +19,19 @@ fn main() {
     let validation_layer_names = ["VK_LAYER_KHRONOS_validation"];
 
     let entry = Entry::new().unwrap();
-    let instance = Instance::new("Test", 1, 2, 131, &instance_extension_names, 
-                                 ENABLE_VALIDATION, &validation_layer_names,
-                                 &entry.0).unwrap();
+    let instance = Instance::new(
+        "Test",
+        1,
+        2,
+        131,
+        &instance_extension_names,
+        ENABLE_VALIDATION,
+        &validation_layer_names,
+        &entry.0,
+    )
+    .unwrap();
     let validation = if ENABLE_VALIDATION {
-        Some(Validation::new(
-       &entry.0, &instance.0         
-        ).unwrap())
+        Some(Validation::new(&entry.0, &instance.0).unwrap())
     } else {
         None
     };
