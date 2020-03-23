@@ -4,15 +4,10 @@ use crate::util::vk_to_string;
 use ash::version::InstanceV1_0;
 use ash::version::InstanceV1_1;
 
+use super::SwapChainSupportDetail;
 use super::{QueueFamily, QueueFamilyKey};
 
 pub struct PhysicalDevice(pub ash::vk::PhysicalDevice);
-
-pub struct SwapChainSupportDetail {
-    pub capabilities: ash::vk::SurfaceCapabilitiesKHR,
-    pub formats: Vec<ash::vk::SurfaceFormatKHR>,
-    pub present_modes: Vec<ash::vk::PresentModeKHR>,
-}
 
 impl PhysicalDevice {
     pub fn enumerate(instance: &ash::Instance) -> Result<Vec<Self>, UrnError> {
@@ -26,7 +21,7 @@ impl PhysicalDevice {
     pub fn check_extensions(
         &self,
         instance: &ash::Instance,
-        extension_names: &[&str],
+        extension_names: Vec<String>,
     ) -> Result<Vec<bool>, UrnError> {
         let available_extensions: Vec<String> =
             unsafe { instance.enumerate_device_extension_properties(self.0)? }
@@ -102,7 +97,7 @@ impl PhysicalDevice {
             as *mut ash::vk::BaseOutStructure;
         physical_device_features2.p_next = next_ptr as _;
         unsafe { instance.get_physical_device_features2(self.0, &mut physical_device_features2) };
-        timeline_feature.timeline_semaphore == 0
+        timeline_feature.timeline_semaphore != 0
     }
 
     pub fn query_subgroup_properties(
@@ -120,10 +115,7 @@ impl PhysicalDevice {
         subgroup_properties
     }
 
-    pub fn print_details(
-        &self,
-        instance: &ash::Instance,
-    ) {
+    pub fn print_details(&self, instance: &ash::Instance) {
         let device_properties = unsafe { instance.get_physical_device_properties(self.0) };
         let device_features = unsafe { instance.get_physical_device_features(self.0) };
         let device_queue_families =
@@ -200,12 +192,90 @@ impl PhysicalDevice {
         }
     }
 
-    pub fn print_limits(
-        &self,
-        instance: &ash::Instance,
-    ) {
+    pub fn print_limits(&self, instance: &ash::Instance) {
         let device_properties = unsafe { instance.get_physical_device_properties(self.0) };
         println!("{:?}", device_properties.limits,);
     }
 
+    /// Optional function to pick a GPU
+    pub fn pick_gpu(
+        instance: &ash::Instance,
+        device_extensions: Vec<String>,
+        surface_loader: &ash::extensions::khr::Surface,
+        surface: ash::vk::SurfaceKHR,
+    ) -> Result<Self, UrnError> {
+        let physical_devices = Self::enumerate(&instance)?;
+        for pd in physical_devices {
+            pd.print_details(&instance);
+            let mut device_ok = true;
+
+            for (i, b) in pd
+                .check_extensions(&instance, device_extensions.clone())
+                .unwrap()
+                .iter()
+                .enumerate()
+            {
+                if !b {
+                    println!(
+                        "The following extension was not found: {}",
+                        device_extensions[i]
+                    );
+                    device_ok = false;
+                }
+            }
+
+            let swapchain_support = pd.query_swapchain_support(surface_loader, surface)?;
+
+            if swapchain_support.formats.is_empty() {
+                println!("Found no supported swapchain formats.");
+                device_ok = false;
+            }
+
+            if swapchain_support.present_modes.is_empty() {
+                println!("Found no supported present modes.");
+                device_ok = false;
+            }
+
+            if !pd.check_timeline_feature(instance) {
+                println!("Timeline not available.");
+                device_ok = false;
+            }
+
+            let subgroup_properties = pd.query_subgroup_properties(
+                instance,
+            );
+            if !subgroup_properties.supported_stages.contains(
+                ash::vk::ShaderStageFlags::COMPUTE
+            ) {
+                println!("Subgroup not supported in compute shader.");
+                device_ok = false;
+            }
+            if !subgroup_properties.supported_operations.contains(
+               ash::vk::SubgroupFeatureFlags::BASIC
+            ) {
+                println!("Subgroup basic not supported.");
+                device_ok = false;
+            }
+            if !subgroup_properties.supported_operations.contains(
+               ash::vk::SubgroupFeatureFlags::ARITHMETIC
+            ) {
+                println!("Subgroup artihmetic not supported.");
+                device_ok = false;
+            }
+            if !subgroup_properties.supported_operations.contains(
+               ash::vk::SubgroupFeatureFlags::BALLOT
+            ) {
+                println!("Subgroup ballot not supported.");
+                device_ok = false;
+            }
+
+            if device_ok {
+                println!("Found suitable device!");
+                return Ok(pd);
+            } else {
+                println!("This device was not suitable.");
+            }
+        }
+        Err(UrnError::Generic("Could not find a suitable device!"))
+    }
 }

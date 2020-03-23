@@ -1,7 +1,8 @@
 mod sdl;
 
 use ash_urn::base::{
-    Base, Entry, Instance, InstanceSettings, LogicalDevice, PhysicalDevice, Validation,
+    Base, Entry, Instance, InstanceSettings, LogicalDevice, PhysicalDevice, SwapChainSupportDetail,
+    Validation,
 };
 
 const ENABLE_VALIDATION: bool = cfg!(debug_assertions);
@@ -44,12 +45,19 @@ fn main() {
     } else {
         None
     };
+    let surface_loader = ash::extensions::khr::Surface::new(&entry.0, &instance.0);
     let surface = sdl.create_surface(&instance.0).unwrap();
-
-    let physical_devices = PhysicalDevice::enumerate(&instance.0).unwrap();
-    for pd in physical_devices {
-        pd.print_details(&instance.0);
-    }
+    let device_extensions = vec![
+        "VK_KHR_swapchain".to_string(),
+        "VK_KHR_timeline_semaphore".to_string(),
+    ];
+    let physical_device = PhysicalDevice::pick_gpu(
+        &instance.0,
+        device_extensions.clone(),
+        &surface_loader,
+        surface,
+    )
+    .unwrap();
 
 
     'running: loop {
