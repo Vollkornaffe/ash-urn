@@ -2,7 +2,6 @@ use crate::error::UrnError;
 use crate::util::StringContainer;
 
 use ash::version::InstanceV1_0;
-use ash::version::DeviceV1_0;
 
 pub struct LogicalDevice(pub ash::Device);
 
@@ -20,7 +19,6 @@ impl LogicalDevice {
         physical_device: ash::vk::PhysicalDevice,
         settings: LogicalDeviceSettings,
     ) -> Result<Self, UrnError> {
-
         let mut queue_create_infos = vec![];
         let queue_priority = [1.0_f32];
         for &queue_idx in settings.queues.iter() {
@@ -31,8 +29,7 @@ impl LogicalDevice {
             queue_create_infos.push(queue_create_info);
         }
 
-        let extension_names_cs =
-            StringContainer::new(settings.extension_names.clone());
+        let extension_names_cs = StringContainer::new(settings.extension_names.clone());
 
         let mut timeline_feature =
             ash::vk::PhysicalDeviceTimelineSemaphoreFeatures::builder().timeline_semaphore(true);
@@ -54,18 +51,9 @@ impl LogicalDevice {
             device_create_info
         };
 
-        let logical_device = unsafe {
-            instance.create_device(physical_device, &device_create_info, None)?
-        };
+        let logical_device =
+            unsafe { instance.create_device(physical_device, &device_create_info, None)? };
 
         Ok(Self(logical_device))
-    }
-}
-
-impl Drop for LogicalDevice {
-    fn drop(&mut self) {
-        unsafe {
-            self.0.destroy_device(None);
-        }
     }
 }

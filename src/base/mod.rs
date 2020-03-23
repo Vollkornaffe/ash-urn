@@ -14,6 +14,9 @@ pub use queue_families::{QueueFamily, QueueFamilyKey};
 pub use swapchain::SwapChainSupportDetail;
 pub use validation::Validation;
 
+use ash::version::DeviceV1_0;
+use ash::version::InstanceV1_0;
+
 /// Very basic setup for a vulkan app.
 pub struct Base {
     pub entry: Entry,
@@ -21,4 +24,19 @@ pub struct Base {
     pub validation: Option<Validation>,
     pub physical_device: PhysicalDevice,
     pub logical_device: LogicalDevice,
+}
+
+impl Drop for Base {
+    fn drop(&mut self) {
+        unsafe {
+            self.logical_device.0.destroy_device(None);
+            match &self.validation {
+                Some(v) => v
+                    .debug_utils_loader
+                    .destroy_debug_utils_messenger(v.debug_messenger, None),
+                None => {}
+            }
+            self.instance.0.destroy_instance(None);
+        }
+    }
 }

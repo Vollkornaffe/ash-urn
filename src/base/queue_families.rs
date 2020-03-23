@@ -13,7 +13,7 @@ pub const COMBINED: QueueFamilyKey = QueueFamilyKey {
     transfer: true,
     compute: true,
 };
-pub const DEDICATED_TRANSFER: QueueFamilyKey = QueueFamilyKey { 
+pub const DEDICATED_TRANSFER: QueueFamilyKey = QueueFamilyKey {
     graphics: false,
     present: false,
     transfer: true,
@@ -35,12 +35,14 @@ impl QueueFamilyKey {
         Ok(Self {
             graphics: flags.contains(ash::vk::QueueFlags::GRAPHICS),
             present: unsafe {
-                surface_loader
-                    .get_physical_device_surface_support(physical_device, queue_family.idx, surface)?
+                surface_loader.get_physical_device_surface_support(
+                    physical_device,
+                    queue_family.idx,
+                    surface,
+                )?
             },
             transfer: flags.contains(ash::vk::QueueFlags::TRANSFER),
             compute: flags.contains(ash::vk::QueueFlags::COMPUTE),
         })
     }
 }
-

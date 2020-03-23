@@ -58,11 +58,3 @@ impl Instance {
         Ok(Instance(instance))
     }
 }
-
-impl Drop for Instance {
-    fn drop(&mut self) {
-        unsafe {
-            self.0.destroy_instance(None);
-        }
-    }
-}

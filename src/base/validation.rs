@@ -92,11 +92,3 @@ impl Validation {
         })
     }
 }
-
-impl Drop for Validation {
-    fn drop(&mut self) {
-        unsafe {
-            self.debug_utils_loader.destroy_debug_utils_messenger(self.debug_messenger, None);
-        }
-    }
-}
