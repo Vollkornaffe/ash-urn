@@ -10,6 +10,11 @@ use super::queue_families::{COMBINED, DEDICATED_TRANSFER,};
 
 pub struct PhysicalDevice(pub ash::vk::PhysicalDevice);
 
+pub struct PhysicalDeviceSettings {
+    pub timelines: bool,
+    pub subgroups: bool,
+}
+
 impl PhysicalDevice {
     pub fn enumerate(instance: &ash::Instance) -> Result<Vec<Self>, UrnError> {
         let physical_devices = unsafe { instance.enumerate_physical_devices()? };
@@ -191,6 +196,7 @@ impl PhysicalDevice {
         device_extensions: Vec<String>,
         surface_loader: &ash::extensions::khr::Surface,
         surface: ash::vk::SurfaceKHR,
+        settings: PhysicalDeviceSettings,
     ) -> Result<Self, UrnError> {
         let physical_devices = Self::enumerate(&instance)?;
         for pd in physical_devices {
@@ -238,37 +244,39 @@ impl PhysicalDevice {
                 device_ok = false;
             }
 
-            if !pd.check_timeline_feature(instance) {
+            if settings.timelines && !pd.check_timeline_feature(instance) {
                 println!("Timeline not available.");
                 device_ok = false;
             }
 
-            let subgroup_properties = pd.query_subgroup_properties(
-                instance,
-            );
-            if !subgroup_properties.supported_stages.contains(
-                ash::vk::ShaderStageFlags::COMPUTE
-            ) {
-                println!("Subgroup not supported in compute shader.");
-                device_ok = false;
-            }
-            if !subgroup_properties.supported_operations.contains(
-               ash::vk::SubgroupFeatureFlags::BASIC
-            ) {
-                println!("Subgroup basic not supported.");
-                device_ok = false;
-            }
-            if !subgroup_properties.supported_operations.contains(
-               ash::vk::SubgroupFeatureFlags::ARITHMETIC
-            ) {
-                println!("Subgroup artihmetic not supported.");
-                device_ok = false;
-            }
-            if !subgroup_properties.supported_operations.contains(
-               ash::vk::SubgroupFeatureFlags::BALLOT
-            ) {
-                println!("Subgroup ballot not supported.");
-                device_ok = false;
+            if settings.subgroups {
+                let subgroup_properties = pd.query_subgroup_properties(
+                    instance,
+                );
+                if !subgroup_properties.supported_stages.contains(
+                    ash::vk::ShaderStageFlags::COMPUTE
+                ) {
+                    println!("Subgroup not supported in compute shader.");
+                    device_ok = false;
+                }
+                if !subgroup_properties.supported_operations.contains(
+                ash::vk::SubgroupFeatureFlags::BASIC
+                ) {
+                    println!("Subgroup basic not supported.");
+                    device_ok = false;
+                }
+                if !subgroup_properties.supported_operations.contains(
+                ash::vk::SubgroupFeatureFlags::ARITHMETIC
+                ) {
+                    println!("Subgroup artihmetic not supported.");
+                    device_ok = false;
+                }
+                if !subgroup_properties.supported_operations.contains(
+                ash::vk::SubgroupFeatureFlags::BALLOT
+                ) {
+                    println!("Subgroup ballot not supported.");
+                    device_ok = false;
+                }
             }
 
             if device_ok {

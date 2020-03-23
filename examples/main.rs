@@ -3,7 +3,7 @@ mod sdl;
 use ash_urn::base::{
     Base, Entry, Instance, InstanceSettings, LogicalDevice, LogicalDeviceSettings,
     PhysicalDevice, SwapChainSupportDetail,
-    Validation,
+    Validation, PhysicalDeviceSettings,
 };
 
 const ENABLE_VALIDATION: bool = cfg!(debug_assertions);
@@ -55,16 +55,23 @@ fn main() {
     let surface = sdl.create_surface(&instance.0).unwrap();
 
     // Time to think about devices
-    let device_extensions = vec![
+    let timelines = false;
+    let mut device_extensions = vec![
         "VK_KHR_swapchain".to_string(),
-        "VK_KHR_timeline_semaphore".to_string(),
     ];
+    if timelines {
+        device_extensions.push("VK_KHR_timeline_semaphore".to_string());
+    }
     // First get the actual gpu
     let physical_device = PhysicalDevice::pick_gpu(
         &instance.0,
         device_extensions.clone(),
         &surface_loader,
         surface,
+        PhysicalDeviceSettings {
+            timelines,
+            subgroups: true,
+        },
     )
     .unwrap();
     
@@ -85,7 +92,7 @@ fn main() {
             enable_validation: ENABLE_VALIDATION,
             validation_layer_names: validation_layer_names.clone(),
             queues: vec![transfer_queue, combined_queue],
-            timelines: true,
+            timelines,
         },
     ).unwrap();
 
