@@ -3,12 +3,12 @@ use crate::util::vk_to_string;
 
 use ash::version::EntryV1_0;
 
-pub struct Validation {
+pub struct ValidationInfo {
     pub is_enabled: bool,
     pub required_layer_names: &'static [&'static str],
 }
 
-pub const VALIDATION: Validation = Validation {
+pub const VALIDATION: ValidationInfo = ValidationInfo {
     is_enabled: cfg!(debug_assertions),
     required_layer_names: &["VK_LAYER_KHRONOS_validation"],
 };
@@ -77,4 +77,32 @@ pub fn check_validation_layer_support(ash_entry: &ash::Entry) -> Result<(), UrnE
     }
 
     Ok(())
+}
+
+pub struct Validation {
+    pub debug_utils_loader: ash::extensions::ext::DebugUtils,
+    pub debug_messenger: ash::vk::DebugUtilsMessengerEXT,
+}
+
+impl Validation {
+    pub fn new(ash_entry: &ash::Entry, ash_instance: &ash::Instance) -> Result<Self, UrnError> {
+        let debug_utils_loader = ash::extensions::ext::DebugUtils::new(ash_entry, ash_instance);
+
+        if !VALIDATION.is_enabled {
+            Ok(Self {
+                debug_utils_loader,
+                debug_messenger: ash::vk::DebugUtilsMessengerEXT::null(),
+            })
+        } else {
+            let debug_utils_messenger_create_info = populate_debug_messenger_create_info();
+            let debug_messenger = unsafe {
+                debug_utils_loader
+                    .create_debug_utils_messenger(&debug_utils_messenger_create_info, None)?
+            };
+            Ok(Self {
+                debug_utils_loader,
+                debug_messenger,
+            })
+        }
+    }
 }

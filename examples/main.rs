@@ -1,6 +1,6 @@
 mod sdl;
 
-use ash_urn::base::{Entry, Instance, LogicalDevice, PhysicalDevice, Validation};
+use ash_urn::base::{Base, Entry, Instance, LogicalDevice, PhysicalDevice, Validation};
 
 fn main() {
     let mut sdl = sdl::SDL::new(sdl::WindowSettings {
@@ -16,13 +16,14 @@ fn main() {
 
     let entry = Entry::new().unwrap();
     let instance = Instance::new("Test", 1, 2, 131, &instance_extension_names, &entry.0).unwrap();
+    let validation = Validation::new(&entry.0, &instance.0).unwrap();
     let surface = sdl.create_surface(&instance.0).unwrap();
 
     'running: loop {
         for e in sdl.get_events() {
             match e {
                 sdl::SdlEvent::Close => break 'running,
-                _ => {},
+                _ => {}
             }
         }
     }

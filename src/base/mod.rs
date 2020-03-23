@@ -11,7 +11,7 @@ pub use physical_device::PhysicalDevice;
 pub use validation::Validation;
 
 /// Very basic setup for a vulkan app.
-pub struct AshBase {
+pub struct Base {
     entry: Entry,
     instance: Instance,
     validation: Validation,
