@@ -9,7 +9,7 @@ pub mod validation;
 pub use entry::Entry;
 pub use instance::{Instance, InstanceSettings};
 pub use logical_device::{LogicalDevice, LogicalDeviceSettings};
-pub use physical_device::PhysicalDevice;
+pub use physical_device::{PhysicalDevice, PhysicalDeviceSettings};
 pub use queue_families::{QueueFamily, QueueFamilyKey};
 pub use swapchain::SwapChainSupportDetail;
 pub use validation::Validation;
