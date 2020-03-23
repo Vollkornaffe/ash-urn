@@ -3,16 +3,6 @@ use crate::util::vk_to_string;
 
 use ash::version::EntryV1_0;
 
-pub struct ValidationInfo {
-    pub is_enabled: bool,
-    pub required_layer_names: &'static [&'static str],
-}
-
-pub const VALIDATION: ValidationInfo = ValidationInfo {
-    is_enabled: cfg!(debug_assertions),
-    required_layer_names: &["VK_LAYER_KHRONOS_validation"],
-};
-
 unsafe extern "system" fn vulkan_debug_utils_callback(
     message_severity: ash::vk::DebugUtilsMessageSeverityFlagsEXT,
     message_type: ash::vk::DebugUtilsMessageTypeFlagsEXT,
@@ -55,14 +45,16 @@ pub fn populate_debug_messenger_create_info() -> ash::vk::DebugUtilsMessengerCre
         .build()
 }
 
-pub fn check_validation_layer_support(ash_entry: &ash::Entry) -> Result<(), UrnError> {
+pub fn check_validation_layer_support(
+    validation_layer_names: &[&str],
+    ash_entry: &ash::Entry) -> Result<(), UrnError> {
     let layer_properties = ash_entry.enumerate_instance_layer_properties()?;
 
     if layer_properties.is_empty() {
         return Err(UrnError::Generic("No available layers."));
     }
 
-    for layer_needed in VALIDATION.required_layer_names.iter() {
+    for layer_needed in validation_layer_names.iter() {
         let mut is_layer_found = false;
         for layer in layer_properties.iter() {
             if *layer_needed == vk_to_string(&layer.layer_name) {
@@ -88,21 +80,14 @@ impl Validation {
     pub fn new(ash_entry: &ash::Entry, ash_instance: &ash::Instance) -> Result<Self, UrnError> {
         let debug_utils_loader = ash::extensions::ext::DebugUtils::new(ash_entry, ash_instance);
 
-        if !VALIDATION.is_enabled {
-            Ok(Self {
-                debug_utils_loader,
-                debug_messenger: ash::vk::DebugUtilsMessengerEXT::null(),
-            })
-        } else {
-            let debug_utils_messenger_create_info = populate_debug_messenger_create_info();
-            let debug_messenger = unsafe {
-                debug_utils_loader
-                    .create_debug_utils_messenger(&debug_utils_messenger_create_info, None)?
-            };
-            Ok(Self {
-                debug_utils_loader,
-                debug_messenger,
-            })
-        }
+        let debug_utils_messenger_create_info = populate_debug_messenger_create_info();
+        let debug_messenger = unsafe {
+            debug_utils_loader
+                .create_debug_utils_messenger(&debug_utils_messenger_create_info, None)?
+        };
+        Ok(Self {
+            debug_utils_loader,
+            debug_messenger,
+        })
     }
 }

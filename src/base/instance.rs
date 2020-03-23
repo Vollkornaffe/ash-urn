@@ -1,5 +1,5 @@
 use super::validation::{
-    check_validation_layer_support, populate_debug_messenger_create_info, VALIDATION,
+    check_validation_layer_support, populate_debug_messenger_create_info,
 };
 use crate::error::UrnError;
 use crate::util::CString;
@@ -17,10 +17,14 @@ impl Instance {
         version_minor: u32,
         version_patch: u32,
         extension_names: &[&str],
+        enable_validation: bool,
+        validation_layer_names: &[&str],
         entry: &ash::Entry,
     ) -> Result<Instance, UrnError> {
-        if VALIDATION.is_enabled {
-            check_validation_layer_support(entry)?;
+        if enable_validation {
+            check_validation_layer_support(
+                validation_layer_names,
+                entry)?;
         }
 
         let name_buf = CString::new(name)?;
@@ -38,14 +42,14 @@ impl Instance {
             .application_info(&app_info)
             .enabled_extension_names(extension_names_cs.pointer.as_slice());
 
-        let required_validation_layer_names_cs =
-            StringContainer::new(VALIDATION.required_layer_names);
+        let validation_layer_names_cs =
+            StringContainer::new(validation_layer_names);
 
         let mut debug_utils_messenger_create_info = populate_debug_messenger_create_info();
 
-        let create_info = if VALIDATION.is_enabled {
+        let create_info = if enable_validation {
             create_info
-                .enabled_layer_names(required_validation_layer_names_cs.pointer.as_slice())
+                .enabled_layer_names(validation_layer_names_cs.pointer.as_slice())
                 .push_next(&mut debug_utils_messenger_create_info)
         } else {
             create_info

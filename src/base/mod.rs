@@ -14,7 +14,7 @@ pub use validation::Validation;
 pub struct Base {
     entry: Entry,
     instance: Instance,
-    validation: Validation,
+    validation: Option<Validation>,
     physical_device: PhysicalDevice,
     logical_device: LogicalDevice,
 }
