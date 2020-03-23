@@ -5,7 +5,8 @@ use ash::version::InstanceV1_0;
 use ash::version::InstanceV1_1;
 
 use super::SwapChainSupportDetail;
-use super::{QueueFamily, QueueFamilyKey};
+use super::{QueueFamily, QueueFamilyKey,};
+use super::queue_families::{COMBINED, DEDICATED_TRANSFER,};
 
 pub struct PhysicalDevice(pub ash::vk::PhysicalDevice);
 
@@ -233,6 +234,20 @@ impl PhysicalDevice {
 
             if swapchain_support.present_modes.is_empty() {
                 println!("Found no supported present modes.");
+                device_ok = false;
+            }
+
+            let queue_map = pd.query_queues(
+                instance,
+                surface_loader,
+                surface,
+            )?;
+            if queue_map.contains_key(&COMBINED) {
+                println!("Found no combined queue family.");
+                device_ok = false;
+            }
+            if queue_map.contains_key(&DEDICATED_TRANSFER) {
+                println!("Found no dedicated transfer queue family.");
                 device_ok = false;
             }
 

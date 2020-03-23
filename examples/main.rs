@@ -1,7 +1,8 @@
 mod sdl;
 
 use ash_urn::base::{
-    Base, Entry, Instance, InstanceSettings, LogicalDevice, PhysicalDevice, SwapChainSupportDetail,
+    Base, Entry, Instance, InstanceSettings, LogicalDevice, LogicalDeviceSettings,
+    PhysicalDevice, SwapChainSupportDetail,
     Validation,
 };
 
@@ -38,7 +39,7 @@ fn main() {
             version_patch: 131,
             extension_names: instance_extension_names,
             enable_validation: ENABLE_VALIDATION,
-            validation_layer_names: validation_layer_names,
+            validation_layer_names: validation_layer_names.clone(),
         },
         &entry.0,
     )
@@ -67,10 +68,26 @@ fn main() {
     )
     .unwrap();
     
+    let queue_map = physical_device.query_queues(
+        &instance.0,
+        &surface_loader,
+        surface,
+    ).unwrap();
+    let transfer_queue = queue_map.get(&ash_urn::base::queue_families::DEDICATED_TRANSFER).unwrap().idx;
+    let combined_queue = queue_map.get(&ash_urn::base::queue_families::COMBINED).unwrap().idx;
+
     // Then the logical device that does all of the heavy lifting
-    //let logical_device = LogicalDevice::new(
-    //     TODO
-    //);
+    let logical_device = LogicalDevice::new(
+        &instance.0,
+        physical_device.0,
+        LogicalDeviceSettings {
+            extension_names: device_extensions,
+            enable_validation: ENABLE_VALIDATION,
+            validation_layer_names: validation_layer_names.clone(),
+            queues: vec![transfer_queue, combined_queue],
+            timelines: true,
+        },
+    );
 
     'running: loop {
         for e in sdl.get_events() {

@@ -6,11 +6,11 @@ use ash::version::InstanceV1_0;
 pub struct LogicalDevice(pub ash::Device);
 
 pub struct LogicalDeviceSettings {
-    extension_names: Vec<String>,
-    enable_validation: bool,
-    validation_layer_names: Vec<String>,
-    queues: Vec<u32>,
-    timelines: bool,
+    pub extension_names: Vec<String>,
+    pub enable_validation: bool,
+    pub validation_layer_names: Vec<String>,
+    pub queues: Vec<u32>,
+    pub timelines: bool,
 }
 
 impl LogicalDevice {
