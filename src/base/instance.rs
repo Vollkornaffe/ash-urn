@@ -8,7 +8,7 @@ use crate::util::StringContainer;
 use ash::version::EntryV1_0;
 
 /// Shallow wapper
-pub struct Instance(ash::Instance);
+pub struct Instance(pub ash::Instance);
 
 impl Instance {
     pub fn new(
