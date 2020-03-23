@@ -19,10 +19,10 @@ pub fn vk_to_string(raw_string_array: &[i8]) -> String {
 
 impl StringContainer {
     /// Creates buffer & pointer
-    pub fn new(strs: &[&str]) -> Self {
+    pub fn new(strs: Vec<String>) -> Self {
         let buffer: Vec<CString> = strs
             .iter()
-            .map(|s| CString::new(*s))
+            .map(|s| CString::new(s.clone()))
             .collect::<Result<_, _>>()
             .unwrap();
         let pointer: Vec<*const i8> = buffer.iter().map(|cs| cs.as_ptr()).collect();

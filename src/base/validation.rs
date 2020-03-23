@@ -46,7 +46,7 @@ pub fn populate_debug_messenger_create_info() -> ash::vk::DebugUtilsMessengerCre
 }
 
 pub fn check_validation_layer_support(
-    validation_layer_names: &[&str],
+    validation_layer_names: Vec<String>,
     ash_entry: &ash::Entry,
 ) -> Result<(), UrnError> {
     let layer_properties = ash_entry.enumerate_instance_layer_properties()?;

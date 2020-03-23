@@ -67,8 +67,13 @@ impl SDL {
         })
     }
 
-    pub fn required_extension_names(&self) -> Result<Vec<&str>, SdlError> {
-        Ok(self.window.vulkan_instance_extensions()?)
+    pub fn required_extension_names(&self) -> Result<Vec<String>, SdlError> {
+        Ok(self
+            .window
+            .vulkan_instance_extensions()?
+            .iter()
+            .map(|s| s.to_string())
+            .collect())
     }
 
     pub fn create_surface(
