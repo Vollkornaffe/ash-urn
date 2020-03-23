@@ -91,4 +91,22 @@ impl Validation {
             debug_messenger,
         })
     }
+
+    pub fn name_object<T: ash::vk::Handle>(
+        &self,
+        logical_device: &ash::Device,
+        ash_object: T,
+        name: String,
+    ) -> Result<(), UrnError> {
+        let c_str = std::ffi::CString::new(name).unwrap();
+        let name_info = ash::vk::DebugUtilsObjectNameInfoEXT::builder()
+            .object_type(T::TYPE)
+            .object_handle(ash_object.as_raw())
+            .object_name(&c_str);
+        unsafe {
+            self.debug_utils_loader
+                .debug_utils_set_object_name(logical_device.handle(), &name_info)?
+        };
+        Ok(())
+    }
 }
