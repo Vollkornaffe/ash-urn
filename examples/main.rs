@@ -87,7 +87,16 @@ fn main() {
             queues: vec![transfer_queue, combined_queue],
             timelines: true,
         },
-    );
+    ).unwrap();
+
+    // Combine everything into the Base
+    let base = Base {
+        entry,
+        instance,
+        validation,
+        physical_device,
+        logical_device,
+    };
 
     'running: loop {
         for e in sdl.get_events() {

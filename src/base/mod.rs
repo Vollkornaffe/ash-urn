@@ -16,9 +16,9 @@ pub use validation::Validation;
 
 /// Very basic setup for a vulkan app.
 pub struct Base {
-    entry: Entry,
-    instance: Instance,
-    validation: Option<Validation>,
-    physical_device: PhysicalDevice,
-    logical_device: LogicalDevice,
+    pub entry: Entry,
+    pub instance: Instance,
+    pub validation: Option<Validation>,
+    pub physical_device: PhysicalDevice,
+    pub logical_device: LogicalDevice,
 }
