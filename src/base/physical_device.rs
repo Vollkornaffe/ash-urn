@@ -68,21 +68,19 @@ impl PhysicalDevice {
             if properties.queue_count == 0 {
                 continue;
             }
-            let flags = properties.queue_flags;
+            let queue_family = QueueFamily {
+                idx: idx as u32,
+                properties: *properties,
+            };
             res.insert(
-                QueueFamilyKey {
-                    graphics: flags.contains(ash::vk::QueueFlags::GRAPHICS),
-                    present: unsafe {
-                        surface_loader
-                            .get_physical_device_surface_support(self.0, idx as u32, surface)?
-                    },
-                    transfer: flags.contains(ash::vk::QueueFlags::TRANSFER),
-                    compute: flags.contains(ash::vk::QueueFlags::COMPUTE),
-                },
-                QueueFamily {
-                    idx: idx as u32,
-                    properties: *properties,
-                },
+                QueueFamilyKey::gen_key(
+                    &queue_family,
+                    self.0,
+                    instance,
+                    surface_loader,
+                    surface,
+                )?,
+                queue_family,
             );
         }
         Ok(res)
@@ -116,7 +114,12 @@ impl PhysicalDevice {
         subgroup_properties
     }
 
-    pub fn print_details(&self, instance: &ash::Instance) {
+    pub fn print_details(
+        &self,
+        instance: &ash::Instance,
+        surface_loader: &ash::extensions::khr::Surface,
+        surface: ash::vk::SurfaceKHR,
+    ) -> Result<(), UrnError> {
         let device_properties = unsafe { instance.get_physical_device_properties(self.0) };
         let device_features = unsafe { instance.get_physical_device_features(self.0) };
         let device_queue_families =
@@ -147,50 +150,34 @@ impl PhysicalDevice {
         );
 
         println!("\tSupport Queue Family: {}", device_queue_families.len());
-        println!("\t\tQueue Count | Graphics, Compute, Transfer, Sparse Binding");
-        for queue_family in device_queue_families.iter() {
-            let is_graphics_support = if queue_family
-                .queue_flags
-                .contains(ash::vk::QueueFlags::GRAPHICS)
-            {
+        println!("\t\tQueue Count | Graphics, Present, Transfer, Compute");
+        for (idx,properties) in device_queue_families.iter().enumerate() {
+            let queue_family = QueueFamily {
+                idx: idx as u32,
+                properties: *properties,
+            };
+            let key = QueueFamilyKey::gen_key(
+                &queue_family,
+                self.0,
+                instance,
+                surface_loader,
+                surface,
+            )?;
+            let support_string = |b| if b {
                 "support"
             } else {
                 "unsupport"
             };
-            let is_compute_support = if queue_family
-                .queue_flags
-                .contains(ash::vk::QueueFlags::COMPUTE)
-            {
-                "support"
-            } else {
-                "unsupport"
-            };
-            let is_transfer_support = if queue_family
-                .queue_flags
-                .contains(ash::vk::QueueFlags::TRANSFER)
-            {
-                "support"
-            } else {
-                "unsupport"
-            };
-            let is_sparse_support = if queue_family
-                .queue_flags
-                .contains(ash::vk::QueueFlags::SPARSE_BINDING)
-            {
-                "support"
-            } else {
-                "unsupport"
-            };
-
             println!(
                 "\t\t{}\t    | {},  {},  {},  {}",
-                queue_family.queue_count,
-                is_graphics_support,
-                is_compute_support,
-                is_transfer_support,
-                is_sparse_support
+                properties.queue_count,
+                support_string(key.graphics),
+                support_string(key.present),
+                support_string(key.transfer),
+                support_string(key.compute),
             );
         }
+        Ok(())
     }
 
     pub fn print_limits(&self, instance: &ash::Instance) {
@@ -207,7 +194,7 @@ impl PhysicalDevice {
     ) -> Result<Self, UrnError> {
         let physical_devices = Self::enumerate(&instance)?;
         for pd in physical_devices {
-            pd.print_details(&instance);
+            pd.print_details(&instance, surface_loader, surface);
             let mut device_ok = true;
 
             for (i, b) in pd
@@ -242,11 +229,11 @@ impl PhysicalDevice {
                 surface_loader,
                 surface,
             )?;
-            if queue_map.contains_key(&COMBINED) {
+            if !queue_map.contains_key(&COMBINED) {
                 println!("Found no combined queue family.");
                 device_ok = false;
             }
-            if queue_map.contains_key(&DEDICATED_TRANSFER) {
+            if !queue_map.contains_key(&DEDICATED_TRANSFER) {
                 println!("Found no dedicated transfer queue family.");
                 device_ok = false;
             }
