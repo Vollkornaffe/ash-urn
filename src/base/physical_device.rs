@@ -4,9 +4,9 @@ use crate::util::vk_to_string;
 use ash::version::InstanceV1_0;
 use ash::version::InstanceV1_1;
 
+use super::queue_families::{COMBINED, DEDICATED_TRANSFER};
 use super::SwapChainSupportDetail;
-use super::{QueueFamily, QueueFamilyKey,};
-use super::queue_families::{COMBINED, DEDICATED_TRANSFER,};
+use super::{QueueFamily, QueueFamilyKey};
 
 pub struct PhysicalDevice(pub ash::vk::PhysicalDevice);
 
@@ -78,13 +78,7 @@ impl PhysicalDevice {
                 properties: *properties,
             };
             res.insert(
-                QueueFamilyKey::gen_key(
-                    &queue_family,
-                    self.0,
-                    instance,
-                    surface_loader,
-                    surface,
-                )?,
+                QueueFamilyKey::gen_key(&queue_family, self.0, instance, surface_loader, surface)?,
                 queue_family,
             );
         }
@@ -156,23 +150,14 @@ impl PhysicalDevice {
 
         println!("\tSupport Queue Family: {}", device_queue_families.len());
         println!("\t\tQueue Count | Graphics, Present, Transfer, Compute");
-        for (idx,properties) in device_queue_families.iter().enumerate() {
+        for (idx, properties) in device_queue_families.iter().enumerate() {
             let queue_family = QueueFamily {
                 idx: idx as u32,
                 properties: *properties,
             };
-            let key = QueueFamilyKey::gen_key(
-                &queue_family,
-                self.0,
-                instance,
-                surface_loader,
-                surface,
-            )?;
-            let support_string = |b| if b {
-                "support"
-            } else {
-                "unsupport"
-            };
+            let key =
+                QueueFamilyKey::gen_key(&queue_family, self.0, instance, surface_loader, surface)?;
+            let support_string = |b| if b { "support" } else { "unsupport" };
             println!(
                 "\t\t{}\t    | {},  {},  {},  {}",
                 properties.queue_count,
@@ -230,11 +215,7 @@ impl PhysicalDevice {
                 device_ok = false;
             }
 
-            let queue_map = pd.query_queues(
-                instance,
-                surface_loader,
-                surface,
-            )?;
+            let queue_map = pd.query_queues(instance, surface_loader, surface)?;
             if !queue_map.contains_key(&COMBINED) {
                 println!("Found no combined queue family.");
                 device_ok = false;
@@ -250,30 +231,32 @@ impl PhysicalDevice {
             }
 
             if settings.subgroups {
-                let subgroup_properties = pd.query_subgroup_properties(
-                    instance,
-                );
-                if !subgroup_properties.supported_stages.contains(
-                    ash::vk::ShaderStageFlags::COMPUTE
-                ) {
+                let subgroup_properties = pd.query_subgroup_properties(instance);
+                if !subgroup_properties
+                    .supported_stages
+                    .contains(ash::vk::ShaderStageFlags::COMPUTE)
+                {
                     println!("Subgroup not supported in compute shader.");
                     device_ok = false;
                 }
-                if !subgroup_properties.supported_operations.contains(
-                ash::vk::SubgroupFeatureFlags::BASIC
-                ) {
+                if !subgroup_properties
+                    .supported_operations
+                    .contains(ash::vk::SubgroupFeatureFlags::BASIC)
+                {
                     println!("Subgroup basic not supported.");
                     device_ok = false;
                 }
-                if !subgroup_properties.supported_operations.contains(
-                ash::vk::SubgroupFeatureFlags::ARITHMETIC
-                ) {
+                if !subgroup_properties
+                    .supported_operations
+                    .contains(ash::vk::SubgroupFeatureFlags::ARITHMETIC)
+                {
                     println!("Subgroup artihmetic not supported.");
                     device_ok = false;
                 }
-                if !subgroup_properties.supported_operations.contains(
-                ash::vk::SubgroupFeatureFlags::BALLOT
-                ) {
+                if !subgroup_properties
+                    .supported_operations
+                    .contains(ash::vk::SubgroupFeatureFlags::BALLOT)
+                {
                     println!("Subgroup ballot not supported.");
                     device_ok = false;
                 }

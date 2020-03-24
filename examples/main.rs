@@ -1,9 +1,8 @@
 mod sdl;
 
 use ash_urn::base::{
-    Base, Entry, Instance, InstanceSettings, LogicalDevice, LogicalDeviceSettings,
-    PhysicalDevice, SwapChainSupportDetail,
-    Validation, PhysicalDeviceSettings,
+    Base, Entry, Instance, InstanceSettings, LogicalDevice, LogicalDeviceSettings, PhysicalDevice,
+    PhysicalDeviceSettings, SwapChainSupportDetail, Validation,
 };
 
 const ENABLE_VALIDATION: bool = cfg!(debug_assertions);
@@ -56,9 +55,7 @@ fn main() {
 
     // Time to think about devices
     let timelines = false;
-    let mut device_extensions = vec![
-        "VK_KHR_swapchain".to_string(),
-    ];
+    let mut device_extensions = vec!["VK_KHR_swapchain".to_string()];
     if timelines {
         device_extensions.push("VK_KHR_timeline_semaphore".to_string());
     }
@@ -74,14 +71,18 @@ fn main() {
         },
     )
     .unwrap();
-    
-    let queue_map = physical_device.query_queues(
-        &instance.0,
-        &surface_loader,
-        surface,
-    ).unwrap();
-    let transfer_queue = queue_map.get(&ash_urn::base::queue_families::DEDICATED_TRANSFER).unwrap().idx;
-    let combined_queue = queue_map.get(&ash_urn::base::queue_families::COMBINED).unwrap().idx;
+
+    let queue_map = physical_device
+        .query_queues(&instance.0, &surface_loader, surface)
+        .unwrap();
+    let transfer_queue = queue_map
+        .get(&ash_urn::base::queue_families::DEDICATED_TRANSFER)
+        .unwrap()
+        .idx;
+    let combined_queue = queue_map
+        .get(&ash_urn::base::queue_families::COMBINED)
+        .unwrap()
+        .idx;
 
     // Then the logical device that does all of the heavy lifting
     let logical_device = LogicalDevice::new(
@@ -94,7 +95,8 @@ fn main() {
             queues: vec![transfer_queue, combined_queue],
             timelines,
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     // Combine everything into the Base
     let base = Base {
@@ -112,5 +114,9 @@ fn main() {
                 _ => {}
             }
         }
+    }
+
+    unsafe {
+        surface_loader.destroy_surface(surface, None);
     }
 }
