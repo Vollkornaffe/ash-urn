@@ -1,5 +1,4 @@
 use crate::error::UrnError;
-
 use crate::base::Base;
 
 use ash::version::DeviceV1_0;
@@ -13,7 +12,6 @@ pub struct ImageSettings {
     tiling: ash::vk::ImageTiling,
     usage: ash::vk::ImageUsageFlags,
     sharing_mode: ash::vk::SharingMode,
-    properties: ash::vk::MemoryPropertyFlags,
     name: String,
 }
 

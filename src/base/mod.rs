@@ -19,6 +19,8 @@ pub use validation::Validation;
 use ash::version::DeviceV1_0;
 use ash::version::InstanceV1_0;
 
+use std::ops::BitAnd;
+
 /// Very basic setup for a vulkan app.
 pub struct Base {
     pub entry: Entry,
@@ -29,6 +31,7 @@ pub struct Base {
 }
 
 impl Base {
+
     pub fn name_object<T: ash::vk::Handle>(
         &self,
         ash_object: T,
@@ -38,6 +41,29 @@ impl Base {
             Some(v) => v.name_object(&self.logical_device.0, ash_object, name),
             None => Ok(()),
         }
+    }
+
+    pub fn find_memory_type_index(
+        &self,
+        memory_type_bits: ash::vk::MemoryPropertyFlags,
+        required_properties: ash::vk::MemoryPropertyFlags,
+    ) -> Result<u32, UrnError> {
+        let memory_properties = unsafe {
+            self.instance.0
+                .get_physical_device_memory_properties(self.physical_device.0)
+        };
+        for i in 0..memory_properties.memory_type_count {
+            if memory_type_bits.bitand(ash::vk::MemoryPropertyFlags::from_raw(1 << i))
+                == ash::vk::MemoryPropertyFlags::from_raw(1 << i)
+                && memory_properties.memory_types[i as usize]
+                    .property_flags
+                    .bitand(required_properties)
+                    == required_properties
+            {
+                return Ok(i);
+            }
+        }
+        Err(UrnError::Generic("failed to find suitable memory!"))
     }
 }
 
