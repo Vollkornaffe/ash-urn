@@ -41,7 +41,6 @@ impl Base {
     }
 }
 
-
 impl Drop for Base {
     fn drop(&mut self) {
         unsafe {

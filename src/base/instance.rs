@@ -4,7 +4,6 @@ use crate::util::CString;
 use crate::util::StringContainer;
 
 use ash::version::EntryV1_0;
-use ash::version::InstanceV1_0;
 
 /// Shallow wapper
 pub struct Instance(pub ash::Instance);
