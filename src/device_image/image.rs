@@ -6,13 +6,13 @@ use ash::version::DeviceV1_0;
 pub struct Image(pub ash::vk::Image);
 
 pub struct ImageSettings {
-    width: u32,
-    height: u32,
-    format: ash::vk::Format,
-    tiling: ash::vk::ImageTiling,
-    usage: ash::vk::ImageUsageFlags,
-    sharing_mode: ash::vk::SharingMode,
-    name: String,
+    pub width: u32,
+    pub height: u32,
+    pub format: ash::vk::Format,
+    pub tiling: ash::vk::ImageTiling,
+    pub usage: ash::vk::ImageUsageFlags,
+    pub sharing_mode: ash::vk::SharingMode,
+    pub name: String,
 }
 
 impl Image {
