@@ -1,3 +1,5 @@
+use crate::error::UrnError;
+
 pub mod entry;
 pub mod instance;
 pub mod logical_device;
@@ -25,6 +27,20 @@ pub struct Base {
     pub physical_device: PhysicalDevice,
     pub logical_device: LogicalDevice,
 }
+
+impl Base {
+    pub fn name_object<T: ash::vk::Handle>(
+        &self,
+        ash_object: T,
+        name: String,
+    ) -> Result<(), UrnError> {
+        match &self.validation {
+            Some(v) => v.name_object(&self.logical_device.0, ash_object, name),
+            None => Ok(()),
+        }
+    }
+}
+
 
 impl Drop for Base {
     fn drop(&mut self) {
