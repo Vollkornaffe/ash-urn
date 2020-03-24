@@ -1,4 +1,4 @@
-use crate::error::UrnError;
+use crate::UrnError;
 
 pub mod entry;
 pub mod instance;

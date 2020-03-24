@@ -1,4 +1,4 @@
-use crate::error::UrnError;
+use crate::UrnError;
 
 #[derive(PartialEq, Eq, Hash)]
 pub struct QueueFamilyKey {
