@@ -5,6 +5,7 @@ use ash::version::DeviceV1_0;
 
 pub struct Pool(pub ash::vk::CommandPool);
 
+/// All pools must be destroyed before the logical_device
 impl Pool {
     pub fn new(
         base: &Base,
