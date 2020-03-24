@@ -1,4 +1,4 @@
-use crate::base::Base;
+use crate::Base;
 
 pub struct Loader(pub ash::extensions::khr::Swapchain);
 
