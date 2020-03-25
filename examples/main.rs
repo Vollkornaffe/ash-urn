@@ -2,8 +2,13 @@ mod sdl;
 
 use ash_urn::base::{
     Base, Entry, Instance, InstanceSettings, LogicalDevice, LogicalDeviceSettings, PhysicalDevice,
-    PhysicalDeviceSettings, SwapChainSupportDetail, Validation,
+    PhysicalDeviceSettings, Validation,
 };
+
+use ash_urn::{SwapChain, SwapChainSettings};
+use ash_urn::{RenderPass, RenderPassSettings};
+
+use ash::version::DeviceV1_0;
 
 const ENABLE_VALIDATION: bool = cfg!(debug_assertions);
 
@@ -107,6 +112,33 @@ fn main() {
         logical_device,
     };
 
+    // Create swapchain
+    let swap_chain_support = base.physical_device.query_swap_chain_support(
+        &surface_loader,
+        surface,
+    ).unwrap();
+    let swap_chain = SwapChain::new(
+        &base,
+        &SwapChainSettings {
+            w: sdl.window.size().0,
+            h: sdl.window.size().1,
+            support: swap_chain_support,
+            surface: surface,
+            image_count: 2,
+            name: "SwapChain".to_string(),
+        },
+    ).unwrap();
+
+    // Create render pass
+    let render_pass = RenderPass::new(
+        &base,
+        &RenderPassSettings {
+            depth: false,
+            swap_chain_format: swap_chain.surface_format.0.format,
+            name: "RenderPass".to_string(),
+        },
+    ).unwrap();
+
     'running: loop {
         for e in sdl.get_events() {
             match e {
@@ -117,6 +149,8 @@ fn main() {
     }
 
     unsafe {
+        base.logical_device.0.destroy_render_pass(render_pass.0, None);
+        swap_chain.loader.0.destroy_swapchain(swap_chain.handle, None);
         surface_loader.destroy_surface(surface, None);
     }
 }

@@ -1,6 +1,6 @@
-pub struct Format(pub ash::vk::SurfaceFormatKHR);
+pub struct SurfaceFormat(pub ash::vk::SurfaceFormatKHR);
 
-impl Format {
+impl SurfaceFormat {
     pub fn choose(
         available_formats: &[ash::vk::SurfaceFormatKHR],
     ) -> Self {

@@ -40,7 +40,7 @@ impl PhysicalDevice {
             .collect())
     }
 
-    pub fn query_swapchain_support(
+    pub fn query_swap_chain_support(
         &self,
         surface_loader: &ash::extensions::khr::Surface,
         surface: ash::vk::SurfaceKHR,
@@ -203,7 +203,7 @@ impl PhysicalDevice {
                 }
             }
 
-            let swapchain_support = pd.query_swapchain_support(surface_loader, surface)?;
+            let swapchain_support = pd.query_swap_chain_support(surface_loader, surface)?;
 
             if swapchain_support.formats.is_empty() {
                 println!("Found no supported swapchain formats.");
