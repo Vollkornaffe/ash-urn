@@ -1,5 +1,5 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
 use ash::version::DeviceV1_0;
 
@@ -12,23 +12,20 @@ pub struct PoolSettings<'a> {
 }
 
 impl Pool {
-    pub fn new(
-        base: &Base,
-        settings: &PoolSettings,
-    ) -> Result<Self, UrnError> {
+    pub fn new(base: &Base, settings: &PoolSettings) -> Result<Self, UrnError> {
         let pool_info = ash::vk::DescriptorPoolCreateInfo::builder()
             .pool_sizes(&settings.pool_sizes)
             .max_sets(settings.max_sets);
-        let pool = unsafe { base.logical_device.0.create_descriptor_pool(&pool_info, None)? };
+        let pool = unsafe {
+            base.logical_device
+                .0
+                .create_descriptor_pool(&pool_info, None)?
+        };
         base.name_object(pool, "GraphicsDescriptorPool".to_string())?;
         Ok(Self(pool))
     }
 
-    pub fn graphics(
-        base: &Base,
-        image_count: u32,
-        name: String,
-    ) -> Result<Self, UrnError> {
+    pub fn graphics(base: &Base, image_count: u32, name: String) -> Result<Self, UrnError> {
         Self::new(
             base,
             &PoolSettings {

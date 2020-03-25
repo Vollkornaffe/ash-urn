@@ -1,4 +1,6 @@
-pub fn info(sample_mask: &[ash::vk::SampleMask]) -> ash::vk::PipelineMultisampleStateCreateInfoBuilder {
+pub fn info(
+    sample_mask: &[ash::vk::SampleMask],
+) -> ash::vk::PipelineMultisampleStateCreateInfoBuilder {
     ash::vk::PipelineMultisampleStateCreateInfo::builder()
         .sample_shading_enable(false)
         .rasterization_samples(ash::vk::SampleCountFlags::TYPE_1)

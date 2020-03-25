@@ -1,7 +1,9 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
-pub fn color_description(swapchain_format: ash::vk::Format) -> ash::vk::AttachmentDescriptionBuilder<'static> {
+pub fn color_description(
+    swapchain_format: ash::vk::Format,
+) -> ash::vk::AttachmentDescriptionBuilder<'static> {
     ash::vk::AttachmentDescription::builder()
         .format(swapchain_format)
         .samples(ash::vk::SampleCountFlags::TYPE_1)
@@ -13,8 +15,9 @@ pub fn color_description(swapchain_format: ash::vk::Format) -> ash::vk::Attachme
         .final_layout(ash::vk::ImageLayout::PRESENT_SRC_KHR)
 }
 
-pub fn depth_description(base: &Base) -> Result<ash::vk::AttachmentDescriptionBuilder<'static>, UrnError> { 
-
+pub fn depth_description(
+    base: &Base,
+) -> Result<ash::vk::AttachmentDescriptionBuilder<'static>, UrnError> {
     let format = base.find_supported_format(
         vec![
             ash::vk::Format::D32_SFLOAT,

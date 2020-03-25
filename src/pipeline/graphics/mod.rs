@@ -1,17 +1,17 @@
-use crate::UrnError;
-use crate::Base;
 use crate::mesh::Vertex;
+use crate::Base;
+use crate::UrnError;
 
 use ash::version::DeviceV1_0;
 
-mod rasterizer;
-mod multisampling;
-mod vertex_input;
 mod color_blend;
 mod depth_stencil;
-mod viewport;
-mod scissor;
 mod input_assembly;
+mod multisampling;
+mod rasterizer;
+mod scissor;
+mod vertex_input;
+mod viewport;
 
 pub struct GraphicsPipeline(pub ash::vk::Pipeline);
 
@@ -25,11 +25,7 @@ pub struct GraphicsPipelineSettings {
 }
 
 impl GraphicsPipeline {
-    pub fn new(
-        base: &Base,
-        settings: &GraphicsPipelineSettings,
-    ) -> Result<Self, UrnError> {
-        
+    pub fn new(base: &Base, settings: &GraphicsPipelineSettings) -> Result<Self, UrnError> {
         let shader_name = std::ffi::CString::new("main").unwrap();
 
         let vert_stage_info = ash::vk::PipelineShaderStageCreateInfo::builder()
@@ -88,7 +84,7 @@ impl GraphicsPipeline {
             )
         }
         .map_err(|(_, e)| e)?[0];
-        
+
         base.name_object(pipeline, settings.name.clone())?;
 
         Ok(Self(pipeline))

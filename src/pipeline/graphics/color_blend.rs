@@ -24,4 +24,3 @@ pub fn state_info<'a>(
         .attachments(&attachment_info)
         .blend_constants([0.0, 0.0, 0.0, 0.0])
 }
-

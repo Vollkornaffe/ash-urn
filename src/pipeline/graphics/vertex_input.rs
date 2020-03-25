@@ -1,15 +1,12 @@
 use crate::mesh::Vertex;
 
 impl Vertex {
-
     pub fn get_binding_description() -> [ash::vk::VertexInputBindingDescription; 1] {
-        [
-            ash::vk::VertexInputBindingDescription::builder()
-                .binding(0)
-                .stride(std::mem::size_of::<Self>() as u32)
-                .input_rate(ash::vk::VertexInputRate::VERTEX)
-                .build()
-        ]
+        [ash::vk::VertexInputBindingDescription::builder()
+            .binding(0)
+            .stride(std::mem::size_of::<Self>() as u32)
+            .input_rate(ash::vk::VertexInputRate::VERTEX)
+            .build()]
     }
 
     pub fn get_attribute_description() -> [ash::vk::VertexInputAttributeDescription; 4] {

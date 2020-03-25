@@ -1,5 +1,5 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
 use ash::version::DeviceV1_0;
 
@@ -16,10 +16,7 @@ pub struct ImageSettings {
 }
 
 impl Image {
-    pub fn new(
-        base: &Base,
-        settings: &ImageSettings,
-    ) -> Result<Self, UrnError> {
+    pub fn new(base: &Base, settings: &ImageSettings) -> Result<Self, UrnError> {
         let image_info = ash::vk::ImageCreateInfo::builder()
             .image_type(ash::vk::ImageType::TYPE_2D)
             .extent(ash::vk::Extent3D {

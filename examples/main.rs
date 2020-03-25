@@ -5,8 +5,8 @@ use ash_urn::base::{
     PhysicalDeviceSettings, Validation,
 };
 
-use ash_urn::{SwapChain, SwapChainSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
+use ash_urn::{SwapChain, SwapChainSettings};
 
 use ash::version::DeviceV1_0;
 
@@ -113,10 +113,10 @@ fn main() {
     };
 
     // Create swapchain
-    let swap_chain_support = base.physical_device.query_swap_chain_support(
-        &surface_loader,
-        surface,
-    ).unwrap();
+    let swap_chain_support = base
+        .physical_device
+        .query_swap_chain_support(&surface_loader, surface)
+        .unwrap();
     let swap_chain = SwapChain::new(
         &base,
         &SwapChainSettings {
@@ -127,7 +127,8 @@ fn main() {
             image_count: 2,
             name: "SwapChain".to_string(),
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     // Create render pass
     let render_pass = RenderPass::new(
@@ -137,23 +138,23 @@ fn main() {
             swap_chain_format: swap_chain.surface_format.0.format,
             name: "RenderPass".to_string(),
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     // Create a single graphics pipeline
     // TODO: need to make descriptors, shader modules and push constants first
     //let graphics_pipeline_layout = pipeline::Layout::new(
     //    &base,
     //    &pipeline::LayoutSettings {
-    //        
+    //
     //    }
     //).unwrap();
     //let graphics_pipeline = pipeline::Graphics::new(
     //    &base,
     //    &pipeline::GraphicsSettings {
-    //        
+    //
     //    },
     //).unwrap();
-    
 
     'running: loop {
         for e in sdl.get_events() {
@@ -165,8 +166,13 @@ fn main() {
     }
 
     unsafe {
-        base.logical_device.0.destroy_render_pass(render_pass.0, None);
-        swap_chain.loader.0.destroy_swapchain(swap_chain.handle, None);
+        base.logical_device
+            .0
+            .destroy_render_pass(render_pass.0, None);
+        swap_chain
+            .loader
+            .0
+            .destroy_swapchain(swap_chain.handle, None);
         surface_loader.destroy_surface(surface, None);
     }
 }

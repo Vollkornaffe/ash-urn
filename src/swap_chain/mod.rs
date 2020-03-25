@@ -1,16 +1,16 @@
-use crate::UrnError;
-use crate::Base;
 use crate::base::SwapChainSupportDetail;
+use crate::Base;
+use crate::UrnError;
 
-pub mod surface_format;
 pub mod extent;
-pub mod present_mode;
 pub mod loader;
+pub mod present_mode;
+pub mod surface_format;
 
-pub use surface_format::SurfaceFormat;
 pub use extent::Extent;
-pub use present_mode::PresentMode;
 pub use loader::Loader;
+pub use present_mode::PresentMode;
+pub use surface_format::SurfaceFormat;
 
 pub struct SwapChain {
     pub surface_format: SurfaceFormat,
@@ -30,22 +30,16 @@ pub struct SwapChainSettings {
 }
 
 impl SwapChain {
-    pub fn new(
-        base: &Base,
-        settings: &SwapChainSettings,
-    ) -> Result<Self, UrnError> {
-
+    pub fn new(base: &Base, settings: &SwapChainSettings) -> Result<Self, UrnError> {
         let surface_format = SurfaceFormat::choose(&settings.support.formats);
-        let extent = Extent::choose(
-            settings.w,
-            settings.h,
-            settings.support.capabilities,
-        );
+        let extent = Extent::choose(settings.w, settings.h, settings.support.capabilities);
         let present_mode = PresentMode::choose(&settings.support.present_modes);
         let loader = Loader::new(base);
 
         let image_count = if settings.support.capabilities.max_image_count > 0 {
-            settings.image_count.min(settings.support.capabilities.max_image_count)
+            settings
+                .image_count
+                .min(settings.support.capabilities.max_image_count)
         } else {
             settings.image_count
         };
@@ -64,10 +58,7 @@ impl SwapChain {
             .clipped(true)
             .image_array_layers(1);
 
-        let handle = unsafe {
-            loader.0
-                .create_swapchain(&swap_chain_create_info, None)?
-        };
+        let handle = unsafe { loader.0.create_swapchain(&swap_chain_create_info, None)? };
         base.name_object(handle, settings.name.clone())?;
 
         Ok(Self {

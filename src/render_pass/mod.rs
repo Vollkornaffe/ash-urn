@@ -1,5 +1,5 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
 mod attachment;
 mod subpass;
@@ -15,14 +15,9 @@ pub struct RenderPassSettings {
 }
 
 impl RenderPass {
-    pub fn new(
-        base: &Base,
-        settings: &RenderPassSettings,
-    ) -> Result<Self, UrnError> {
-        
-        let mut attachment_descriptions = vec![
-            attachment::color_description(settings.swap_chain_format).build(),
-        ];
+    pub fn new(base: &Base, settings: &RenderPassSettings) -> Result<Self, UrnError> {
+        let mut attachment_descriptions =
+            vec![attachment::color_description(settings.swap_chain_format).build()];
         if settings.depth {
             attachment_descriptions.push(attachment::depth_description(base)?.build());
         }
@@ -30,8 +25,7 @@ impl RenderPass {
         let color_attachment_refs = [ash::vk::AttachmentReference::builder()
             .attachment(0)
             .layout(ash::vk::ImageLayout::COLOR_ATTACHMENT_OPTIMAL)
-            .build()
-        ];
+            .build()];
         let depth_attachment_ref = ash::vk::AttachmentReference::builder()
             .attachment(1)
             .layout(ash::vk::ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
@@ -55,7 +49,8 @@ impl RenderPass {
             .dependencies(&subpass_dependencies);
 
         let render_pass = unsafe {
-            base.logical_device.0
+            base.logical_device
+                .0
                 .create_render_pass(&render_pass_info, None)?
         };
         base.name_object(render_pass, settings.name.clone())?;

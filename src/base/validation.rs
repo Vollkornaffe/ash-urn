@@ -1,5 +1,5 @@
-use crate::UrnError;
 use crate::util::vk_to_string;
+use crate::UrnError;
 
 use ash::version::EntryV1_0;
 
@@ -28,7 +28,8 @@ unsafe extern "system" fn vulkan_debug_utils_callback(
     ash::vk::FALSE
 }
 
-pub fn populate_debug_messenger_create_info() -> ash::vk::DebugUtilsMessengerCreateInfoEXTBuilder<'static> {
+pub fn populate_debug_messenger_create_info(
+) -> ash::vk::DebugUtilsMessengerCreateInfoEXTBuilder<'static> {
     ash::vk::DebugUtilsMessengerCreateInfoEXT::builder()
         .message_severity(
             ash::vk::DebugUtilsMessageSeverityFlagsEXT::WARNING
