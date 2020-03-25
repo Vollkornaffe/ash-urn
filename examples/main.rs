@@ -150,7 +150,7 @@ fn main() {
 
     unsafe {
         base.logical_device.0.destroy_render_pass(render_pass.0, None);
-        swap_chain.loader.0.destroy_swapchain(swap_chain.swap_chain, None);
+        swap_chain.loader.0.destroy_swapchain(swap_chain.handle, None);
         surface_loader.destroy_surface(surface, None);
     }
 }

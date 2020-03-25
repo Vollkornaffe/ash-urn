@@ -17,7 +17,7 @@ pub struct SwapChain {
     pub extent: Extent,
     pub present_mode: PresentMode,
     pub loader: Loader,
-    pub swap_chain: ash::vk::SwapchainKHR,
+    pub handle: ash::vk::SwapchainKHR,
 }
 
 pub struct SwapChainSettings {
@@ -64,18 +64,18 @@ impl SwapChain {
             .clipped(true)
             .image_array_layers(1);
 
-        let swap_chain = unsafe {
+        let handle = unsafe {
             loader.0
                 .create_swapchain(&swap_chain_create_info, None)?
         };
-        base.name_object(swap_chain, settings.name.clone())?;
+        base.name_object(handle, settings.name.clone())?;
 
         Ok(Self {
             surface_format,
             extent,
             present_mode,
             loader,
-            swap_chain,
+            handle,
         })
     }
 }
