@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 ash       = "0.30.0"
+memoffset = "0.5.3"
 
 [dev-dependencies]
 sdl2      = "0.32"
