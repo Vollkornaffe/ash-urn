@@ -9,6 +9,7 @@ pub mod render_pass;
 pub mod pipeline;
 pub mod mesh;
 pub mod memory_alignment;
+pub mod descriptor;
 
 pub use error::UrnError;
 pub use base::Base;
