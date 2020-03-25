@@ -9,9 +9,9 @@ use ash::version::DeviceV1_0;
 pub struct RenderPass(pub ash::vk::RenderPass);
 
 pub struct RenderPassSettings {
-        depth: bool,
-        swapchain_format: ash::vk::Format,
-        name: String,
+    pub depth: bool,
+    pub swap_chain_format: ash::vk::Format,
+    pub name: String,
 }
 
 impl RenderPass {
@@ -21,7 +21,7 @@ impl RenderPass {
     ) -> Result<Self, UrnError> {
         
         let mut attachment_descriptions = vec![
-            attachment::color_description(settings.swapchain_format),
+            attachment::color_description(settings.swap_chain_format),
         ];
         if settings.depth {
             attachment_descriptions.push(attachment::depth_description(base)?);
