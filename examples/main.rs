@@ -8,6 +8,8 @@ use ash_urn::base::{
 use ash_urn::{SwapChain, SwapChainSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
 
+use ash::version::DeviceV1_0;
+
 const ENABLE_VALIDATION: bool = cfg!(debug_assertions);
 
 fn main() {
@@ -147,6 +149,8 @@ fn main() {
     }
 
     unsafe {
+        base.logical_device.0.destroy_render_pass(render_pass.0, None);
+        swap_chain.loader.0.destroy_swapchain(swap_chain.swap_chain, None);
         surface_loader.destroy_surface(surface, None);
     }
 }
