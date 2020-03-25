@@ -17,9 +17,6 @@ pub struct SwapChain {
     pub present_mode: PresentMode,
     pub loader: Loader,
     pub swap_chain: ash::vk::SwapchainKHR,
-
-    // the images supplied by the chain
-    pub images: Vec<ash::vk::Image>,
 }
 
 pub struct SwapChainSettings {
@@ -74,18 +71,12 @@ impl SwapChain {
         };
         base.name_object(swap_chain, settings.name.clone())?;
 
-        let images = unsafe {
-            loader.0
-                .get_swapchain_images(swap_chain)?
-        };
-
         Ok(Self {
             format,
             extent,
             present_mode,
             loader,
             swap_chain,
-            images,
         })
     }
 }
