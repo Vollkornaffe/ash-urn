@@ -2,8 +2,8 @@
 # It is not intended for manual editing.
 [[package]]
 name = "ash"
-version = "0.29.0"
-source = "git+https://github.com/MaikKlein/ash.git#af6acb93e5302c3d76505069dfcdc3d796da6ee6"
+version = "0.30.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "libloading 0.5.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -12,7 +12,7 @@ dependencies = [
 name = "ash-urn"
 version = "0.1.0"
 dependencies = [
- "ash 0.29.0 (git+https://github.com/MaikKlein/ash.git)",
+ "ash 0.30.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "sdl2 0.32.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
@@ -256,7 +256,7 @@ version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [metadata]
-"checksum ash 0.29.0 (git+https://github.com/MaikKlein/ash.git)" = "<none>"
+"checksum ash 0.30.0 (registry+https://github.com/rust-lang/crates.io-index)" = "69daec0742947f33a85931fa3cb0ce5f07929159dcbd1f0cbb5b2912e2978509"
 "checksum autocfg 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)" = "1d49d90015b3c36167a20fe2810c5cd875ad504b39cff3d4eae7977e6b7c1cb2"
 "checksum autocfg 1.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "f8aac770f1885fd7e387acedd76065302551364496e46b3dd00860b2f8359b9d"
 "checksum bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
