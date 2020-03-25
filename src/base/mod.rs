@@ -65,6 +65,35 @@ impl Base {
         }
         Err(UrnError::Generic("failed to find suitable memory!"))
     }
+
+    pub fn find_supported_format(
+        &self,
+        candidates: Vec<ash::vk::Format>,
+        tiling: ash::vk::ImageTiling,
+        features: ash::vk::FormatFeatureFlags,
+    ) -> Result<ash::vk::Format, UrnError> {
+        for format in candidates {
+            let properties = unsafe {
+                self.instance.0
+                    .get_physical_device_format_properties(self.physical_device.0, format)
+            };
+
+            match tiling {
+                ash::vk::ImageTiling::LINEAR => {
+                    if properties.linear_tiling_features.bitand(features) == features {
+                        return Ok(format);
+                    }
+                }
+                ash::vk::ImageTiling::OPTIMAL => {
+                    if properties.optimal_tiling_features.bitand(features) == features {
+                        return Ok(format);
+                    }
+                }
+                _ => {}
+            }
+        }
+        Err(UrnError::Generic("Format is not supported"))
+    }
 }
 
 impl Drop for Base {
