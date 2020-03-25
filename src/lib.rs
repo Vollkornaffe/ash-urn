@@ -16,3 +16,6 @@ pub use swap_chain::{SwapChain, SwapChainSettings};
 pub use device_image::DeviceImage;
 pub use device_buffer::DeviceBuffer;
 pub use render_pass::{RenderPass, RenderPassSettings};
+pub use pipeline::{
+    PipelineLayout, PipelineLayoutSettings,
+    GraphicsPipeline, GraphicsPipelineSettings};

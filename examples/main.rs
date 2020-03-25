@@ -139,6 +139,22 @@ fn main() {
         },
     ).unwrap();
 
+    // Create a single graphics pipeline
+    // TODO: need to make descriptors, shader modules and push constants first
+    //let graphics_pipeline_layout = pipeline::Layout::new(
+    //    &base,
+    //    &pipeline::LayoutSettings {
+    //        
+    //    }
+    //).unwrap();
+    //let graphics_pipeline = pipeline::Graphics::new(
+    //    &base,
+    //    &pipeline::GraphicsSettings {
+    //        
+    //    },
+    //).unwrap();
+    
+
     'running: loop {
         for e in sdl.get_events() {
             match e {

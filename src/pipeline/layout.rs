@@ -3,18 +3,18 @@ use crate::Base;
 
 use ash::version::DeviceV1_0;
 
-pub struct Layout(pub ash::vk::PipelineLayout);
+pub struct PipelineLayout(pub ash::vk::PipelineLayout);
 
-pub struct LayoutSettings {
+pub struct PipelineLayoutSettings {
     set_layouts: Vec<ash::vk::DescriptorSetLayout>,
     push_constant_ranges: Vec<ash::vk::PushConstantRange>,
     name: String,
 }
 
-impl Layout {
+impl PipelineLayout {
     pub fn new(
         base: &Base,
-        settings: &LayoutSettings,
+        settings: &PipelineLayoutSettings,
     ) -> Result<Self, UrnError> {
 
         let pipeline_layout_info = ash::vk::PipelineLayoutCreateInfo::builder()
