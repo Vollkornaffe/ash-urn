@@ -1,4 +1,4 @@
-use crate::error::UrnError;
+use crate::UrnError;
 use crate::util::vk_to_string;
 
 use ash::version::EntryV1_0;

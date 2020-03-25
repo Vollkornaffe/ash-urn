@@ -1,12 +1,12 @@
-use crate::error::UrnError;
-use crate::base::{ Base, };
+use crate::UrnError;
+use crate::Base;
 
 use ash::version::DeviceV1_0;
 
 pub struct Buffer(pub ash::vk::CommandBuffer);
 
 impl Buffer {
-    pub fn new(
+    pub fn alloc(
         base: &Base,
         pool: ash::vk::CommandPool,
         name: String,
@@ -24,7 +24,7 @@ impl Buffer {
         Ok(Self(*buffer))
     }
 
-    pub fn new_vec(
+    pub fn alloc_vec(
         base: &Base,
         pool: ash::vk::CommandPool,
         n_buffer: u32,

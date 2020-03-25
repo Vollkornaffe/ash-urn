@@ -1,4 +1,4 @@
-use crate::error::UrnError;
+use crate::UrnError;
 use crate::util::StringContainer;
 
 use ash::version::InstanceV1_0;
