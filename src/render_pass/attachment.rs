@@ -1,7 +1,7 @@
 use crate::UrnError;
 use crate::Base;
 
-pub fn color_description(swapchain_format: ash::vk::Format) -> ash::vk::AttachmentDescription {
+pub fn color_description(swapchain_format: ash::vk::Format) -> ash::vk::AttachmentDescriptionBuilder<'static> {
     ash::vk::AttachmentDescription::builder()
         .format(swapchain_format)
         .samples(ash::vk::SampleCountFlags::TYPE_1)
@@ -11,10 +11,9 @@ pub fn color_description(swapchain_format: ash::vk::Format) -> ash::vk::Attachme
         .stencil_store_op(ash::vk::AttachmentStoreOp::DONT_CARE)
         .initial_layout(ash::vk::ImageLayout::UNDEFINED)
         .final_layout(ash::vk::ImageLayout::PRESENT_SRC_KHR)
-        .build()
 }
 
-pub fn depth_description(base: &Base) -> Result<ash::vk::AttachmentDescription, UrnError> { 
+pub fn depth_description(base: &Base) -> Result<ash::vk::AttachmentDescriptionBuilder<'static>, UrnError> { 
 
     let format = base.find_supported_format(
         vec![
@@ -34,6 +33,5 @@ pub fn depth_description(base: &Base) -> Result<ash::vk::AttachmentDescription, 
         .stencil_load_op(ash::vk::AttachmentLoadOp::DONT_CARE)
         .stencil_store_op(ash::vk::AttachmentStoreOp::DONT_CARE)
         .initial_layout(ash::vk::ImageLayout::UNDEFINED)
-        .final_layout(ash::vk::ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL)
-        .build())
+        .final_layout(ash::vk::ImageLayout::DEPTH_STENCIL_ATTACHMENT_OPTIMAL))
 }

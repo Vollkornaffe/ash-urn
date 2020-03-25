@@ -21,10 +21,10 @@ impl RenderPass {
     ) -> Result<Self, UrnError> {
         
         let mut attachment_descriptions = vec![
-            attachment::color_description(settings.swap_chain_format),
+            attachment::color_description(settings.swap_chain_format).build(),
         ];
         if settings.depth {
-            attachment_descriptions.push(attachment::depth_description(base)?);
+            attachment_descriptions.push(attachment::depth_description(base)?.build());
         }
 
         let color_attachment_refs = [ash::vk::AttachmentReference::builder()
@@ -48,7 +48,7 @@ impl RenderPass {
         let subpass_dependency = subpass::dependency();
 
         let subpass_descriptions = [subpass_description.build()];
-        let subpass_dependencies = [subpass_dependency];
+        let subpass_dependencies = [subpass_dependency.build()];
         let render_pass_info = ash::vk::RenderPassCreateInfo::builder()
             .attachments(&attachment_descriptions)
             .subpasses(&subpass_descriptions)

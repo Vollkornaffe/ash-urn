@@ -1,4 +1,4 @@
-pub fn dependency() -> ash::vk::SubpassDependency {
+pub fn dependency() -> ash::vk::SubpassDependencyBuilder<'static> {
     ash::vk::SubpassDependency::builder()
         .src_subpass(ash::vk::SUBPASS_EXTERNAL)
         .dst_subpass(0)
@@ -9,5 +9,4 @@ pub fn dependency() -> ash::vk::SubpassDependency {
             ash::vk::AccessFlags::COLOR_ATTACHMENT_READ
                 | ash::vk::AccessFlags::COLOR_ATTACHMENT_WRITE,
         )
-        .build()
 }
