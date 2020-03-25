@@ -7,6 +7,8 @@ pub mod device_image;
 pub mod device_buffer;
 pub mod render_pass;
 pub mod pipeline;
+pub mod mesh;
+pub mod memory_alignment;
 
 pub use error::UrnError;
 pub use base::Base;
