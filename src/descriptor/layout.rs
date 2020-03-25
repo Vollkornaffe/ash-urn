@@ -3,17 +3,17 @@ use crate::Base;
 
 use ash::version::DeviceV1_0;
 
-pub struct DescriptorSetLayout(pub ash::vk::DescriptorSetLayout);
+pub struct SetLayout(pub ash::vk::DescriptorSetLayout);
 
-pub struct DescriptorSetLayoutSettings<'a> {
+pub struct SetLayoutSettings<'a> {
     bindings: &'a [ash::vk::DescriptorSetLayoutBinding],
     name: String,
 }
 
-impl DescriptorSetLayout {
+impl SetLayout {
     pub fn new(
         base: &Base,
-        settings: &DescriptorSetLayoutSettings,
+        settings: &SetLayoutSettings,
     ) -> Result<Self, UrnError> {
         let layout_info = ash::vk::DescriptorSetLayoutCreateInfo::builder()
             .bindings(&settings.bindings);
@@ -31,7 +31,7 @@ impl DescriptorSetLayout {
     ) -> Result<Self, UrnError> {
         Self::new(
             base,
-            &DescriptorSetLayoutSettings {
+            &SetLayoutSettings {
                 bindings: &[
                     ash::vk::DescriptorSetLayoutBinding::builder()
                         .binding(0)
