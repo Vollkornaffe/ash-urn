@@ -5,8 +5,10 @@ use ash_urn::base::{
     PhysicalDeviceSettings, Validation,
 };
 
-use ash_urn::{SwapChain, SwapChainSettings};
+use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
+use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
+use ash_urn::{SwapChain, SwapChainSettings};
 
 use ash::version::DeviceV1_0;
 
@@ -113,10 +115,10 @@ fn main() {
     };
 
     // Create swapchain
-    let swap_chain_support = base.physical_device.query_swap_chain_support(
-        &surface_loader,
-        surface,
-    ).unwrap();
+    let swap_chain_support = base
+        .physical_device
+        .query_swap_chain_support(&surface_loader, surface)
+        .unwrap();
     let swap_chain = SwapChain::new(
         &base,
         &SwapChainSettings {
@@ -127,17 +129,41 @@ fn main() {
             image_count: 2,
             name: "SwapChain".to_string(),
         },
-    ).unwrap();
+    )
+    .unwrap();
 
     // Create render pass
     let render_pass = RenderPass::new(
         &base,
         &RenderPassSettings {
-            depth: false,
             swap_chain_format: swap_chain.surface_format.0.format,
             name: "RenderPass".to_string(),
         },
-    ).unwrap();
+    )
+    .unwrap();
+
+    // Create a single graphics pipeline
+    let graphics_pipeline_layout = PipelineLayout::new(
+        &base,
+        &PipelineLayoutSettings {
+            set_layouts: vec![],
+            push_constant_ranges: vec![],
+            name: "GraphicsPipelineLayout".to_string(),
+        },
+    )
+    .unwrap();
+    let graphics_pipeline = GraphicsPipeline::new(
+        &base,
+        &GraphicsPipelineSettings {
+            layout: graphics_pipeline_layout.0,
+            vert_spv: "examples/shaders/vert.spv".to_string(),
+            frag_spv: "examples/shaders/frag.spv".to_string(),
+            extent: swap_chain.extent.0,
+            render_pass: render_pass.0,
+            name: "GraphicsPipeline".to_string(),
+        },
+    )
+    .unwrap();
 
     'running: loop {
         for e in sdl.get_events() {
@@ -149,8 +175,19 @@ fn main() {
     }
 
     unsafe {
-        base.logical_device.0.destroy_render_pass(render_pass.0, None);
-        swap_chain.loader.0.destroy_swapchain(swap_chain.handle, None);
+        base.logical_device
+            .0
+            .destroy_pipeline_layout(graphics_pipeline_layout.0, None);
+        base.logical_device
+            .0
+            .destroy_pipeline(graphics_pipeline.0, None);
+        base.logical_device
+            .0
+            .destroy_render_pass(render_pass.0, None);
+        swap_chain
+            .loader
+            .0
+            .destroy_swapchain(swap_chain.handle, None);
         surface_loader.destroy_surface(surface, None);
     }
 }

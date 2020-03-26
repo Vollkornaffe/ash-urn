@@ -1,7 +1,7 @@
 use super::validation::{check_validation_layer_support, populate_debug_messenger_create_info};
-use crate::UrnError;
 use crate::util::CString;
 use crate::util::StringContainer;
+use crate::UrnError;
 
 use ash::version::EntryV1_0;
 

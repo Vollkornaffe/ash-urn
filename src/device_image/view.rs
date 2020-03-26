@@ -1,5 +1,5 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
 use ash::version::DeviceV1_0;
 
@@ -13,10 +13,7 @@ pub struct ViewSettings {
 }
 
 impl View {
-    pub fn new(
-        base: &Base,
-        settings: &ViewSettings,
-    ) -> Result<Self, UrnError> {
+    pub fn new(base: &Base, settings: &ViewSettings) -> Result<Self, UrnError> {
         let view_info = ash::vk::ImageViewCreateInfo::builder()
             .image(settings.image)
             .view_type(ash::vk::ImageViewType::TYPE_2D)

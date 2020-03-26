@@ -7,8 +7,8 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-#ash       = "0.29.0" Doesn't have 1.2 support
-ash        = { git = "https://github.com/MaikKlein/ash.git", branch = "master" }
+ash       = "0.30.0"
+memoffset = "0.5.3"
 
 [dev-dependencies]
 sdl2      = "0.32"

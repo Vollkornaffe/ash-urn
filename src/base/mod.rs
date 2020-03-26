@@ -31,7 +31,6 @@ pub struct Base {
 }
 
 impl Base {
-
     pub fn name_object<T: ash::vk::Handle>(
         &self,
         ash_object: T,
@@ -49,7 +48,8 @@ impl Base {
         required_properties: ash::vk::MemoryPropertyFlags,
     ) -> Result<u32, UrnError> {
         let memory_properties = unsafe {
-            self.instance.0
+            self.instance
+                .0
                 .get_physical_device_memory_properties(self.physical_device.0)
         };
         for i in 0..memory_properties.memory_type_count {
@@ -74,7 +74,8 @@ impl Base {
     ) -> Result<ash::vk::Format, UrnError> {
         for format in candidates {
             let properties = unsafe {
-                self.instance.0
+                self.instance
+                    .0
                     .get_physical_device_format_properties(self.physical_device.0, format)
             };
 

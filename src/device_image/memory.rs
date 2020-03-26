@@ -1,5 +1,5 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
 use ash::version::DeviceV1_0;
 
@@ -12,12 +12,12 @@ pub struct MemorySettings {
 }
 
 impl Memory {
-    pub fn alloc(
-        base: &Base,
-        settings: &MemorySettings,
-    ) -> Result<Self, UrnError> {
-        let memory_requirements =
-            unsafe { base.logical_device.0.get_image_memory_requirements(settings.image) };
+    pub fn alloc(base: &Base, settings: &MemorySettings) -> Result<Self, UrnError> {
+        let memory_requirements = unsafe {
+            base.logical_device
+                .0
+                .get_image_memory_requirements(settings.image)
+        };
 
         let alloc_info = ash::vk::MemoryAllocateInfo::builder()
             .allocation_size(memory_requirements.size)
@@ -29,11 +29,11 @@ impl Memory {
         base.name_object(image_memory, settings.name.clone())?;
 
         unsafe {
-            base.logical_device.0
+            base.logical_device
+                .0
                 .bind_image_memory(settings.image, image_memory, 0)?
         };
 
         Ok(Self(image_memory))
-
     }
 }
