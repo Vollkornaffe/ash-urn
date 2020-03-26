@@ -1,6 +1,5 @@
 pub mod base;
 pub mod commands;
-pub mod descriptor;
 pub mod device_buffer;
 pub mod device_image;
 pub mod error;
