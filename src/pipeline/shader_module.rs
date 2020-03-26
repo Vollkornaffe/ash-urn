@@ -6,8 +6,8 @@ use ash::version::DeviceV1_0;
 pub struct ShaderModule(pub ash::vk::ShaderModule);
 
 pub struct ShaderModuleSettings {
-    file_name: String,
-    name: String,
+    pub file_name: String,
+    pub name: String,
 }
 
 impl ShaderModule {

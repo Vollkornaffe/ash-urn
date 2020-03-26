@@ -9,18 +9,16 @@ use ash::version::DeviceV1_0;
 pub struct RenderPass(pub ash::vk::RenderPass);
 
 pub struct RenderPassSettings {
-    pub depth: bool,
     pub swap_chain_format: ash::vk::Format,
     pub name: String,
 }
 
 impl RenderPass {
     pub fn new(base: &Base, settings: &RenderPassSettings) -> Result<Self, UrnError> {
-        let mut attachment_descriptions =
-            vec![attachment::color_description(settings.swap_chain_format).build()];
-        if settings.depth {
-            attachment_descriptions.push(attachment::depth_description(base)?.build());
-        }
+        let attachment_descriptions = [
+            attachment::color_description(settings.swap_chain_format).build(),
+            attachment::depth_description(base)?.build(),
+        ];
 
         let color_attachment_refs = [ash::vk::AttachmentReference::builder()
             .attachment(0)
@@ -32,12 +30,8 @@ impl RenderPass {
 
         let subpass_description = ash::vk::SubpassDescription::builder()
             .pipeline_bind_point(ash::vk::PipelineBindPoint::GRAPHICS)
-            .color_attachments(&color_attachment_refs);
-        let subpass_description = if settings.depth {
-            subpass_description.depth_stencil_attachment(&depth_attachment_ref)
-        } else {
-            subpass_description
-        };
+            .color_attachments(&color_attachment_refs)
+            .depth_stencil_attachment(&depth_attachment_ref);
 
         let subpass_dependency = subpass::dependency();
 

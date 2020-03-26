@@ -2,6 +2,8 @@ use crate::mesh::Vertex;
 use crate::Base;
 use crate::UrnError;
 
+use crate::pipeline::{ShaderModule, ShaderModuleSettings};
+
 use ash::version::DeviceV1_0;
 
 mod color_blend;
@@ -17,8 +19,8 @@ pub struct GraphicsPipeline(pub ash::vk::Pipeline);
 
 pub struct GraphicsPipelineSettings {
     pub layout: ash::vk::PipelineLayout,
-    pub vert_module: ash::vk::ShaderModule,
-    pub frag_module: ash::vk::ShaderModule,
+    pub vert_spv: String,
+    pub frag_spv: String,
     pub extent: ash::vk::Extent2D,
     pub render_pass: ash::vk::RenderPass,
     pub name: String,
@@ -28,13 +30,28 @@ impl GraphicsPipeline {
     pub fn new(base: &Base, settings: &GraphicsPipelineSettings) -> Result<Self, UrnError> {
         let shader_name = std::ffi::CString::new("main").unwrap();
 
+        let shader_module_vert = ShaderModule::new(
+            &base,
+            &ShaderModuleSettings {
+                file_name: settings.vert_spv.clone(),
+                name: "VertexShader".to_string(),
+            },
+        )?;
+        let shader_module_frag = ShaderModule::new(
+            &base,
+            &ShaderModuleSettings {
+                file_name: settings.frag_spv.clone(),
+                name: "FragmentShader".to_string(),
+            },
+        )?;
+
         let vert_stage_info = ash::vk::PipelineShaderStageCreateInfo::builder()
             .stage(ash::vk::ShaderStageFlags::VERTEX)
-            .module(settings.vert_module)
+            .module(shader_module_vert.0)
             .name(&shader_name);
         let frag_stage_info = ash::vk::PipelineShaderStageCreateInfo::builder()
             .stage(ash::vk::ShaderStageFlags::FRAGMENT)
-            .module(settings.frag_module)
+            .module(shader_module_frag.0)
             .name(&shader_name);
         let shader_stage_infos = [vert_stage_info.build(), frag_stage_info.build()];
 
@@ -86,6 +103,15 @@ impl GraphicsPipeline {
         .map_err(|(_, e)| e)?[0];
 
         base.name_object(pipeline, settings.name.clone())?;
+
+        unsafe {
+            base.logical_device
+                .0
+                .destroy_shader_module(shader_module_vert.0, None);
+            base.logical_device
+                .0
+                .destroy_shader_module(shader_module_frag.0, None);
+        }
 
         Ok(Self(pipeline))
     }

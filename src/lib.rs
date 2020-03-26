@@ -16,6 +16,7 @@ pub use device_image::DeviceImage;
 pub use error::UrnError;
 pub use pipeline::{
     GraphicsPipeline, GraphicsPipelineSettings, PipelineLayout, PipelineLayoutSettings,
+    ShaderModule, ShaderModuleSettings,
 };
 pub use render_pass::{RenderPass, RenderPassSettings};
 pub use swap_chain::{SwapChain, SwapChainSettings};

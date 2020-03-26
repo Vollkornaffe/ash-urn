@@ -5,6 +5,8 @@ use ash_urn::base::{
     PhysicalDeviceSettings, Validation,
 };
 
+use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
+use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
 use ash_urn::{SwapChain, SwapChainSettings};
 
@@ -134,7 +136,6 @@ fn main() {
     let render_pass = RenderPass::new(
         &base,
         &RenderPassSettings {
-            depth: false,
             swap_chain_format: swap_chain.surface_format.0.format,
             name: "RenderPass".to_string(),
         },
@@ -142,19 +143,27 @@ fn main() {
     .unwrap();
 
     // Create a single graphics pipeline
-    // TODO: need to make descriptors, shader modules and push constants first
-    //let graphics_pipeline_layout = pipeline::Layout::new(
-    //    &base,
-    //    &pipeline::LayoutSettings {
-    //
-    //    }
-    //).unwrap();
-    //let graphics_pipeline = pipeline::Graphics::new(
-    //    &base,
-    //    &pipeline::GraphicsSettings {
-    //
-    //    },
-    //).unwrap();
+    let graphics_pipeline_layout = PipelineLayout::new(
+        &base,
+        &PipelineLayoutSettings {
+            set_layouts: vec![],
+            push_constant_ranges: vec![],
+            name: "GraphicsPipelineLayout".to_string(),
+        },
+    )
+    .unwrap();
+    let graphics_pipeline = GraphicsPipeline::new(
+        &base,
+        &GraphicsPipelineSettings {
+            layout: graphics_pipeline_layout.0,
+            vert_spv: "examples/shaders/vert.spv".to_string(),
+            frag_spv: "examples/shaders/frag.spv".to_string(),
+            extent: swap_chain.extent.0,
+            render_pass: render_pass.0,
+            name: "GraphicsPipeline".to_string(),
+        },
+    )
+    .unwrap();
 
     'running: loop {
         for e in sdl.get_events() {
@@ -166,6 +175,12 @@ fn main() {
     }
 
     unsafe {
+        base.logical_device
+            .0
+            .destroy_pipeline_layout(graphics_pipeline_layout.0, None);
+        base.logical_device
+            .0
+            .destroy_pipeline(graphics_pipeline.0, None);
         base.logical_device
             .0
             .destroy_render_pass(render_pass.0, None);

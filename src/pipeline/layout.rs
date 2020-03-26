@@ -6,9 +6,9 @@ use ash::version::DeviceV1_0;
 pub struct PipelineLayout(pub ash::vk::PipelineLayout);
 
 pub struct PipelineLayoutSettings {
-    set_layouts: Vec<ash::vk::DescriptorSetLayout>,
-    push_constant_ranges: Vec<ash::vk::PushConstantRange>,
-    name: String,
+    pub set_layouts: Vec<ash::vk::DescriptorSetLayout>,
+    pub push_constant_ranges: Vec<ash::vk::PushConstantRange>,
+    pub name: String,
 }
 
 impl PipelineLayout {
