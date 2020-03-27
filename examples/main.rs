@@ -116,8 +116,6 @@ fn main() {
     };
 
     // Create swapchain
-    // we need to specify the number of images
-    let image_count = 2;
     let swap_chain_support = base
         .physical_device
         .query_swap_chain_support(&surface_loader, surface)
@@ -129,7 +127,7 @@ fn main() {
             h: sdl.window.size().1,
             support: swap_chain_support,
             surface: surface,
-            image_count,
+            image_count: 2,
             name: "SwapChain".to_string(),
         },
     )
@@ -173,7 +171,7 @@ fn main() {
         &base,
         &CommandSettings {
             queue_family_idx: combined_queue_family_idx,
-            n_buffer: image_count,
+            n_buffer: swap_chain.image_count,
             name: "GraphicsCommand".to_string(),
         }
     ).unwrap();

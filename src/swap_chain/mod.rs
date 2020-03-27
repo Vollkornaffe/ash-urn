@@ -18,6 +18,7 @@ pub struct SwapChain {
     pub present_mode: PresentMode,
     pub loader: Loader,
     pub handle: ash::vk::SwapchainKHR,
+    pub image_count: u32,
 }
 
 pub struct SwapChainSettings {
@@ -67,6 +68,7 @@ impl SwapChain {
             present_mode,
             loader,
             handle,
+            image_count,
         })
     }
 }
