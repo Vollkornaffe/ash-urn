@@ -1,5 +1,5 @@
 pub mod base;
-pub mod commands;
+pub mod command;
 pub mod device_buffer;
 pub mod device_image;
 pub mod error;
@@ -11,6 +11,7 @@ pub mod swap_chain;
 pub mod util;
 
 pub use base::Base;
+pub use command::{Command, CommandSettings};
 pub use device_buffer::DeviceBuffer;
 pub use device_image::DeviceImage;
 pub use error::UrnError;

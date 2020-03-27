@@ -9,6 +9,7 @@ use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
 use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
 use ash_urn::{SwapChain, SwapChainSettings};
+use ash_urn::{command, Command, CommandSettings};
 
 use ash::version::DeviceV1_0;
 
@@ -82,11 +83,11 @@ fn main() {
     let queue_map = physical_device
         .query_queues(&instance.0, &surface_loader, surface)
         .unwrap();
-    let transfer_queue = queue_map
+    let transfer_queue_family_idx = queue_map
         .get(&ash_urn::base::queue_families::DEDICATED_TRANSFER)
         .unwrap()
         .idx;
-    let combined_queue = queue_map
+    let combined_queue_family_idx = queue_map
         .get(&ash_urn::base::queue_families::COMBINED)
         .unwrap()
         .idx;
@@ -99,7 +100,7 @@ fn main() {
             extension_names: device_extensions,
             enable_validation: ENABLE_VALIDATION,
             validation_layer_names: validation_layer_names.clone(),
-            queues: vec![transfer_queue, combined_queue],
+            queues: vec![transfer_queue_family_idx, combined_queue_family_idx],
             timelines,
         },
     )
@@ -115,6 +116,8 @@ fn main() {
     };
 
     // Create swapchain
+    // we need to specify the number of images
+    let image_count = 2;
     let swap_chain_support = base
         .physical_device
         .query_swap_chain_support(&surface_loader, surface)
@@ -126,7 +129,7 @@ fn main() {
             h: sdl.window.size().1,
             support: swap_chain_support,
             surface: surface,
-            image_count: 2,
+            image_count,
             name: "SwapChain".to_string(),
         },
     )
@@ -164,6 +167,21 @@ fn main() {
         },
     )
     .unwrap();
+
+    // Create command components
+    let graphics_command = Command::new(
+        &base,
+        &CommandSettings {
+            queue_family_idx: combined_queue_family_idx,
+            n_buffer: image_count,
+            name: "GraphicsCommand".to_string(),
+        }
+    ).unwrap();
+    let present_queue = command::Queue::new(
+        &base,
+        combined_queue_family_idx,
+        "PresentQueue".to_string(),
+    ).unwrap();
 
     'running: loop {
         for e in sdl.get_events() {
