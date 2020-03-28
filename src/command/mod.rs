@@ -1,5 +1,5 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
 pub mod buffer;
 pub mod pool;
@@ -23,11 +23,7 @@ pub struct CommandSettings {
 }
 
 impl Command {
-    pub fn new(
-        base: &Base,
-        settings: &CommandSettings,
-    ) -> Result<Self, UrnError> {
-    
+    pub fn new(base: &Base, settings: &CommandSettings) -> Result<Self, UrnError> {
         let queue = Queue::new(
             &base,
             settings.queue_family_idx,

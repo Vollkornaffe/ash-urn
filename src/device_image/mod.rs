@@ -1,5 +1,5 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
 pub mod image;
 pub mod memory;
@@ -12,6 +12,8 @@ pub use view::View;
 use image::ImageSettings;
 use memory::MemorySettings;
 use view::ViewSettings;
+
+use ash::version::DeviceV1_0;
 
 pub struct DeviceImage {
     pub image: Image,
@@ -26,18 +28,12 @@ pub struct DeviceImageSettings {
     tiling: ash::vk::ImageTiling,
     usage: ash::vk::ImageUsageFlags,
     properties: ash::vk::MemoryPropertyFlags,
-    image: ash::vk::Image,
     aspect_flags: ash::vk::ImageAspectFlags,
     name: String,
 }
 
 impl DeviceImage {
-
-    pub fn new(
-        base: &Base,
-        settings: &DeviceImageSettings,
-    ) -> Result<Self, UrnError> {
-
+    pub fn new(base: &Base, settings: &DeviceImageSettings) -> Result<Self, UrnError> {
         let image = Image::new(
             base,
             &ImageSettings {
@@ -76,4 +72,13 @@ impl DeviceImage {
         })
     }
 
+    pub fn destroy(&self, base: &Base) {
+        unsafe {
+            base.logical_device.0
+                .destroy_image_view(self.view.0, None);
+            base.logical_device.0.destroy_image(self.image.0, None);
+            base.logical_device.0
+                .free_memory(self.memory.0, None);
+        }
+    }
 }

@@ -1,5 +1,5 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
 mod buffer;
 mod memory;
@@ -10,6 +10,7 @@ pub use memory::Memory;
 use buffer::BufferSettings;
 use memory::MemorySettings;
 
+use ash::version::DeviceV1_0;
 
 pub struct DeviceBuffer {
     pub buffer: Buffer,
@@ -24,11 +25,7 @@ pub struct DeviceBufferSettings {
 }
 
 impl DeviceBuffer {
-
-    pub fn new(
-        base: &Base,
-        settings: &DeviceBufferSettings,
-    ) -> Result<Self, UrnError> {
+    pub fn new(base: &Base, settings: &DeviceBufferSettings) -> Result<Self, UrnError> {
         let buffer = Buffer::new(
             base,
             &BufferSettings {
@@ -47,9 +44,15 @@ impl DeviceBuffer {
             },
         )?;
 
-        Ok(Self {
-            buffer,
-            memory,
-        })
+        Ok(Self { buffer, memory })
+    }
+
+    pub fn destroy(&self, base: &Base) {
+        unsafe {
+            base.logical_device.0
+                .destroy_buffer(self.buffer.0, None);
+            base.logical_device.0
+                .free_memory(self.memory.0, None);
+        }
     }
 }

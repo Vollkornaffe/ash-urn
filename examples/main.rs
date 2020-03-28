@@ -5,11 +5,11 @@ use ash_urn::base::{
     PhysicalDeviceSettings, Validation,
 };
 
+use ash_urn::{command, Command, CommandSettings};
 use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
 use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
 use ash_urn::{SwapChain, SwapChainSettings};
-use ash_urn::{command, Command, CommandSettings};
 
 use ash::version::DeviceV1_0;
 
@@ -173,16 +173,13 @@ fn main() {
             queue_family_idx: combined_queue_family_idx,
             n_buffer: swap_chain.image_count,
             name: "GraphicsCommand".to_string(),
-        }
-    ).unwrap();
+        },
+    )
+    .unwrap();
 
     // Just need the queue for presenting
-    let present_queue = command::Queue::new(
-        &base,
-        combined_queue_family_idx,
-        "PresentQueue".to_string(),
-    ).unwrap();
-
+    let present_queue =
+        command::Queue::new(&base, combined_queue_family_idx, "PresentQueue".to_string()).unwrap();
 
     // Transfer only needs one buffer, because one-time commands only
     let transfer_command = Command::new(
@@ -191,12 +188,9 @@ fn main() {
             queue_family_idx: transfer_queue_family_idx,
             n_buffer: 0,
             name: "TransferCommand".to_string(),
-        }
-    ).unwrap();
-
-
-
-
+        },
+    )
+    .unwrap();
 
     /*
 
@@ -222,8 +216,6 @@ fn main() {
             "TestMesh".to_string(),
         )?;
     */
-
-
 
     'running: loop {
         for e in sdl.get_events() {

@@ -8,13 +8,13 @@ pub mod mesh;
 pub mod pipeline;
 pub mod render_pass;
 pub mod swap_chain;
-pub mod util;
 pub mod transfer;
+pub mod util;
 
 pub use base::Base;
 pub use command::{Command, CommandSettings};
-pub use device_buffer::DeviceBuffer;
-pub use device_image::DeviceImage;
+pub use device_buffer::{DeviceBuffer, DeviceBufferSettings};
+pub use device_image::{DeviceImage, DeviceImageSettings};
 pub use error::UrnError;
 pub use pipeline::{
     GraphicsPipeline, GraphicsPipelineSettings, PipelineLayout, PipelineLayoutSettings,
