@@ -9,6 +9,7 @@ pub mod pipeline;
 pub mod render_pass;
 pub mod swap_chain;
 pub mod util;
+pub mod transfer;
 
 pub use base::Base;
 pub use command::{Command, CommandSettings};

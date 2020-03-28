@@ -3,7 +3,7 @@ use crate::Base;
 
 use ash::version::DeviceV1_0;
 
-pub fn begin_single_time_commands(
+pub fn begin(
     base: &Base,
     pool: ash::vk::CommandPool,
     name: String,
@@ -27,7 +27,7 @@ pub fn begin_single_time_commands(
     Ok(command_buffer)
 }
 
-pub fn end_single_time_commands(
+pub fn end(
     base: &Base,
     queue: ash::vk::Queue,
     pool: ash::vk::CommandPool,
