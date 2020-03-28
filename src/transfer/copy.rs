@@ -1,5 +1,5 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
 use crate::command::single_time;
 
@@ -14,7 +14,6 @@ pub fn copy_buffer_to_image(
     width: u32,
     height: u32,
 ) -> Result<(), UrnError> {
-
     let command_buffer = single_time::begin(base, pool, "CopyBufferToImage".to_string())?;
 
     let region = ash::vk::BufferImageCopy::builder()
@@ -58,7 +57,6 @@ pub fn copy_buffer_to_buffer(
     dst_buffer: ash::vk::Buffer,
     size: ash::vk::DeviceSize,
 ) -> Result<(), UrnError> {
-
     let command_buffer = single_time::begin(base, pool, "CopyBufferToBuffer".to_string())?;
 
     let copy_region = ash::vk::BufferCopy::builder()
@@ -67,7 +65,8 @@ pub fn copy_buffer_to_buffer(
         .size(size);
     let regions = [copy_region.build()];
     unsafe {
-        base.logical_device.0
+        base.logical_device
+            .0
             .cmd_copy_buffer(command_buffer, src_buffer, dst_buffer, &regions)
     };
 
