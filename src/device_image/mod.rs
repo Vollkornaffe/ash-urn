@@ -74,11 +74,9 @@ impl DeviceImage {
 
     pub fn destroy(&self, base: &Base) {
         unsafe {
-            base.logical_device.0
-                .destroy_image_view(self.view.0, None);
+            base.logical_device.0.destroy_image_view(self.view.0, None);
             base.logical_device.0.destroy_image(self.image.0, None);
-            base.logical_device.0
-                .free_memory(self.memory.0, None);
+            base.logical_device.0.free_memory(self.memory.0, None);
         }
     }
 }

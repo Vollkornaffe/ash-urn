@@ -49,10 +49,8 @@ impl DeviceBuffer {
 
     pub fn destroy(&self, base: &Base) {
         unsafe {
-            base.logical_device.0
-                .destroy_buffer(self.buffer.0, None);
-            base.logical_device.0
-                .free_memory(self.memory.0, None);
+            base.logical_device.0.destroy_buffer(self.buffer.0, None);
+            base.logical_device.0.free_memory(self.memory.0, None);
         }
     }
 }
