@@ -4,6 +4,7 @@ use crate::Base;
 pub mod buffer;
 pub mod pool;
 pub mod queue;
+pub mod single_time;
 
 pub use buffer::Buffer;
 pub use pool::Pool;

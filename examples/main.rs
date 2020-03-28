@@ -166,7 +166,7 @@ fn main() {
     )
     .unwrap();
 
-    // Create command components
+    // Create graphic commands, one buffer per image
     let graphics_command = Command::new(
         &base,
         &CommandSettings {
@@ -175,11 +175,55 @@ fn main() {
             name: "GraphicsCommand".to_string(),
         }
     ).unwrap();
+
+    // Just need the queue for presenting
     let present_queue = command::Queue::new(
         &base,
         combined_queue_family_idx,
         "PresentQueue".to_string(),
     ).unwrap();
+
+
+    // Transfer only needs one buffer, because one-time commands only
+    let transfer_command = Command::new(
+        &base,
+        &CommandSettings {
+            queue_family_idx: transfer_queue_family_idx,
+            n_buffer: 0,
+            name: "TransferCommand".to_string(),
+        }
+    ).unwrap();
+
+
+
+
+
+    /*
+
+        // load resources with transfer queue
+        let test_texture = ash_base.create_device_image_texture(
+            command_components.transfer_queue,
+            command_components.transfer_pool,
+            "assets/meme.jpg",
+            "TestTexture".to_string(),
+        )?;
+        let texture_sampler = ash_base.create_texture_sampler()?;
+        let vertex_buffer = ash_base.create_vertex_buffer(
+            &mpm_mesh.vertices,
+            command_components.transfer_queue,
+            command_components.transfer_pool,
+            true,
+            "TestMesh".to_string(),
+        )?;
+        let index_buffer = ash_base.create_index_buffer(
+            &mpm_mesh.indices,
+            command_components.transfer_queue,
+            command_components.transfer_pool,
+            "TestMesh".to_string(),
+        )?;
+    */
+
+
 
     'running: loop {
         for e in sdl.get_events() {
