@@ -1,16 +1,9 @@
 use crate::memory_alignment::Align16;
 
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct Pos(pub [f32; 3]);
-#[repr(C)]
-#[derive(Copy, Clone)]
-pub struct Col(pub [f32; 4]);
-
 #[repr(C, align(64))]
 pub struct Vertex {
-    pub pos: Align16<Pos>,
-    pub col: Align16<Col>,
+    pub pos: Align16<[f32; 3]>,
+    pub col: Align16<[f32; 4]>,
 }
 
 #[repr(C)]
@@ -58,13 +51,13 @@ impl Mesh {
     }
 
     pub fn add_quad(
-        &mut self,
-        c0: Pos,
-        c1: Pos,
-        c2: Pos,
-        c3: Pos,
-        col: Col,
-    ) {
+        mut self,
+        c0: [f32; 3],
+        c1: [f32; 3],
+        c2: [f32; 3],
+        c3: [f32; 3],
+        col: [f32; 4],
+    ) -> Self {
         let offset = self.vertices.len() as u32;
         self.vertices.push(Vertex {pos: c0.into(), col: col.into()});
         self.vertices.push(Vertex {pos: c1.into(), col: col.into()});
@@ -72,5 +65,7 @@ impl Mesh {
         self.vertices.push(Vertex {pos: c3.into(), col: col.into()});
         self.indices.push(Indices([offset + 1, offset + 0, offset + 2]));
         self.indices.push(Indices([offset + 3, offset + 2, offset + 0]));
+
+        self
     }
 }

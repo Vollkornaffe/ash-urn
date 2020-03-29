@@ -10,12 +10,24 @@ use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
 use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
 use ash_urn::{SwapChain, SwapChainSettings};
+use ash_urn::{Mesh, Vertex, Indices};
 
 use ash::version::DeviceV1_0;
 
 const ENABLE_VALIDATION: bool = cfg!(debug_assertions);
 
 fn main() {
+
+    // create a mesh to render
+    let mesh = Mesh::new()
+        .add_quad(
+            [-1.0,-1.0, 0.0],
+            [ 1.0,-1.0, 0.0],
+            [ 1.0, 1.0, 0.0],
+            [-1.0, 1.0, 0.0],
+            [ 1.0, 0.0, 0.0, 1.0],
+        );
+
     // first of all create sdl context
     let mut sdl = sdl::SDL::new(sdl::WindowSettings {
         title: "Test",
