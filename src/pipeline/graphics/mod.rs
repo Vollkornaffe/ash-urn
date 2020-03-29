@@ -1,6 +1,6 @@
-use crate::mesh::Vertex;
-use crate::Base;
 use crate::UrnError;
+use crate::Base;
+use crate::mesh::Vertex;
 
 use crate::pipeline::{ShaderModule, ShaderModuleSettings};
 
@@ -12,7 +12,6 @@ mod input_assembly;
 mod multisampling;
 mod rasterizer;
 mod scissor;
-mod vertex_input;
 mod viewport;
 
 pub struct GraphicsPipeline(pub ash::vk::Pipeline);
