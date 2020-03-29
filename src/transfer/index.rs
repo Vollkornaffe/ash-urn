@@ -5,11 +5,11 @@ use crate::mesh::Indices;
 use crate::{DeviceBuffer, DeviceBufferSettings};
 
 use super::copy_buffer_to_buffer;
-use super::create_staging_buffer;
+use super::create_staging_device_buffer;
 
 use ash::version::DeviceV1_0;
 
-pub fn create_index_buffer(
+pub fn create_index_device_buffer(
     base: &Base,
     indices: &[Indices],
     queue: ash::vk::Queue,
@@ -19,7 +19,7 @@ pub fn create_index_buffer(
 
     let size = (indices.len() * std::mem::size_of::<Indices>()) as ash::vk::DeviceSize;
 
-    let staging = create_staging_buffer(base, size, format!("{}Staging", name.clone()))?;
+    let staging = create_staging_device_buffer(base, size, format!("{}Staging", name.clone()))?;
 
     let data_ptr = unsafe {
         base.logical_device.0.map_memory(

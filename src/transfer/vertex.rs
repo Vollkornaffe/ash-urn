@@ -1,24 +1,25 @@
-use crate::Base;
 use crate::UrnError;
+use crate::Base;
 
 use crate::mesh::Vertex;
 use crate::{DeviceBuffer, DeviceBufferSettings};
 
 use super::copy_buffer_to_buffer;
-use super::create_staging_buffer;
+use super::create_staging_device_buffer;
 
 use ash::version::DeviceV1_0;
 
-pub fn create_vertex_buffer(
+pub fn create_vertex_device_buffer(
     base: &Base,
     vertices: &[Vertex],
     queue: ash::vk::Queue,
     pool: ash::vk::CommandPool,
     name: String,
 ) -> Result<DeviceBuffer, UrnError> {
+
     let size = (vertices.len() * std::mem::size_of::<Vertex>()) as ash::vk::DeviceSize;
 
-    let staging = create_staging_buffer(base, size, format!("{}Staging", name.clone()))?;
+    let staging = create_staging_device_buffer(base, size, format!("{}Staging", name.clone()))?;
 
     let data_ptr = unsafe {
         base.logical_device.0.map_memory(

@@ -11,9 +11,9 @@ pub use pool::Pool;
 pub use queue::Queue;
 
 pub struct Command {
-    queue: Queue,
-    pool: Pool,
-    buffers: Vec<Buffer>,
+    pub queue: Queue,
+    pub pool: Pool,
+    pub buffers: Vec<Buffer>,
 }
 
 pub struct CommandSettings {

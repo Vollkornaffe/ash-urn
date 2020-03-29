@@ -11,6 +11,7 @@ use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
 use ash_urn::{SwapChain, SwapChainSettings};
 use ash_urn::{Mesh, Vertex, Indices};
+use ash_urn::transfer::{create_vertex_device_buffer, create_index_device_buffer};
 
 use ash::version::DeviceV1_0;
 
@@ -198,13 +199,29 @@ fn main() {
         &base,
         &CommandSettings {
             queue_family_idx: transfer_queue_family_idx,
-            n_buffer: 0,
+            n_buffer: 1,
             name: "TransferCommand".to_string(),
         },
     )
     .unwrap();
 
-    
+    // create vertex buffer 
+    let vertex_device_buffer = create_vertex_device_buffer(
+        &base,
+        mesh.vertices.as_slice(),
+        transfer_command.queue.0,
+        transfer_command.pool.0,
+        "VertexBuffer".to_string(),
+    ).unwrap();
+
+    // create index buffer
+    let index_device_buffer = create_index_device_buffer(
+        &base,
+        mesh.indices.as_slice(),
+        transfer_command.queue.0,
+        transfer_command.pool.0,
+        "IndexBuffer".to_string(),
+    ).unwrap();
 
     /*
 

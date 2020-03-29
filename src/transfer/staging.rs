@@ -3,7 +3,7 @@ use crate::UrnError;
 
 use crate::{DeviceBuffer, DeviceBufferSettings};
 
-pub fn create_staging_buffer(
+pub fn create_staging_device_buffer(
     base: &Base,
     size: ash::vk::DeviceSize,
     name: String,
