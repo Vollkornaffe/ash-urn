@@ -146,39 +146,6 @@ fn main() {
     )
     .unwrap();
 
-    // Create render pass
-    let render_pass = RenderPass::new(
-        &base,
-        &RenderPassSettings {
-            swap_chain_format: swap_chain.surface_format.0.format,
-            name: "RenderPass".to_string(),
-        },
-    )
-    .unwrap();
-
-    // Create a single graphics pipeline
-    let graphics_pipeline_layout = PipelineLayout::new(
-        &base,
-        &PipelineLayoutSettings {
-            set_layouts: vec![],
-            push_constant_ranges: vec![],
-            name: "GraphicsPipelineLayout".to_string(),
-        },
-    )
-    .unwrap();
-    let graphics_pipeline = GraphicsPipeline::new(
-        &base,
-        &GraphicsPipelineSettings {
-            layout: graphics_pipeline_layout.0,
-            vert_spv: "examples/shaders/vert.spv".to_string(),
-            frag_spv: "examples/shaders/frag.spv".to_string(),
-            extent: swap_chain.extent.0,
-            render_pass: render_pass.0,
-            name: "GraphicsPipeline".to_string(),
-        },
-    )
-    .unwrap();
-
     // Create graphic commands, one buffer per image
     let graphics_command = Command::new(
         &base,
@@ -232,30 +199,40 @@ fn main() {
         &graphics_command, // any command struct from the combined family is ok
     ).unwrap();
 
-    /*
+    // Create render pass
+    let render_pass = RenderPass::new(
+        &base,
+        &RenderPassSettings {
+            swap_chain_format: swap_chain.surface_format.0.format,
+            name: "RenderPass".to_string(),
+        },
+    )
+    .unwrap();
 
-        // load resources with transfer queue
-        let test_texture = ash_base.create_device_image_texture(
-            command_components.transfer_queue,
-            command_components.transfer_pool,
-            "assets/meme.jpg",
-            "TestTexture".to_string(),
-        )?;
-        let texture_sampler = ash_base.create_texture_sampler()?;
-        let vertex_buffer = ash_base.create_vertex_buffer(
-            &mpm_mesh.vertices,
-            command_components.transfer_queue,
-            command_components.transfer_pool,
-            true,
-            "TestMesh".to_string(),
-        )?;
-        let index_buffer = ash_base.create_index_buffer(
-            &mpm_mesh.indices,
-            command_components.transfer_queue,
-            command_components.transfer_pool,
-            "TestMesh".to_string(),
-        )?;
-    */
+    // Create a single graphics pipeline
+    let graphics_pipeline_layout = PipelineLayout::new(
+        &base,
+        &PipelineLayoutSettings {
+            set_layouts: vec![],
+            push_constant_ranges: vec![],
+            name: "GraphicsPipelineLayout".to_string(),
+        },
+    )
+    .unwrap();
+    let graphics_pipeline = GraphicsPipeline::new(
+        &base,
+        &GraphicsPipelineSettings {
+            layout: graphics_pipeline_layout.0,
+            vert_spv: "examples/shaders/vert.spv".to_string(),
+            frag_spv: "examples/shaders/frag.spv".to_string(),
+            extent: swap_chain.extent.0,
+            render_pass: render_pass.0,
+            name: "GraphicsPipeline".to_string(),
+        },
+    )
+    .unwrap();
+
+    // write to the command buffers
 
     'running: loop {
         for e in sdl.get_events() {
