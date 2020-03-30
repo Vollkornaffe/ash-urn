@@ -79,6 +79,7 @@ pub fn combined_acquire(
 
 }
 
+/// Assumes images are readonly in shader
 pub fn transfer_to_combined(
     base: &Base,
     device_buffers: &[&DeviceBuffer],

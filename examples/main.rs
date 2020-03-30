@@ -11,7 +11,7 @@ use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
 use ash_urn::{SwapChain, SwapChainSettings};
 use ash_urn::{Mesh, Vertex, Indices};
-use ash_urn::transfer::{create_vertex_device_buffer, create_index_device_buffer};
+use ash_urn::transfer::{create_vertex_device_buffer, create_index_device_buffer, ownership};
 
 use ash::version::DeviceV1_0;
 
@@ -221,6 +221,15 @@ fn main() {
         transfer_command.queue.0,
         transfer_command.pool.0,
         "IndexBuffer".to_string(),
+    ).unwrap();
+
+    // transfer the ownership to the combined queue family
+    ownership::transfer_to_combined(
+        &base,
+        &[&vertex_device_buffer, &index_device_buffer],
+        &[],
+        &transfer_command,
+        &graphics_command, // any command struct from the combined family is ok
     ).unwrap();
 
     /*
