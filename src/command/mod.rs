@@ -11,6 +11,7 @@ pub use pool::Pool;
 pub use queue::Queue;
 
 pub struct Command {
+    pub family_idx: u32,
     pub queue: Queue,
     pub pool: Pool,
     pub buffers: Vec<Buffer>,
@@ -44,6 +45,7 @@ impl Command {
         )?;
 
         Ok(Self {
+            family_idx: settings.queue_family_idx,
             queue,
             pool,
             buffers,

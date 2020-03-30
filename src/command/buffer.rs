@@ -29,6 +29,10 @@ impl Buffer {
         n_buffer: u32,
         name: String,
     ) -> Result<Vec<Self>, UrnError> {
+        if n_buffer == 0 {
+            return Ok(Vec::new())
+        }
+
         let alloc_info = ash::vk::CommandBufferAllocateInfo::builder()
             .command_pool(pool)
             .level(ash::vk::CommandBufferLevel::PRIMARY)

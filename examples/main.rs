@@ -194,12 +194,12 @@ fn main() {
     let present_queue =
         command::Queue::new(&base, combined_queue_family_idx, "PresentQueue".to_string()).unwrap();
 
-    // Transfer only needs one buffer, because one-time commands only
+    // Transfer no buffers allocated, because one-time commands only
     let transfer_command = Command::new(
         &base,
         &CommandSettings {
             queue_family_idx: transfer_queue_family_idx,
-            n_buffer: 1,
+            n_buffer: 0,
             name: "TransferCommand".to_string(),
         },
     )

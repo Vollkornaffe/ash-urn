@@ -2,6 +2,7 @@ pub mod copy;
 pub mod staging;
 pub mod vertex;
 pub mod index;
+pub mod ownership;
 
 pub use copy::{copy_buffer_to_buffer, copy_buffer_to_image};
 pub use staging::create_staging_device_buffer;
