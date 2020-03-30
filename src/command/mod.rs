@@ -5,6 +5,7 @@ pub mod buffer;
 pub mod pool;
 pub mod queue;
 pub mod single_time;
+pub mod draw;
 
 pub use buffer::Buffer;
 pub use pool::Pool;
