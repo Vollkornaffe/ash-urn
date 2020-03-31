@@ -233,6 +233,25 @@ fn main() {
     .unwrap();
 
     // write to the command buffers
+    /*
+    for command_buffer in graphics_command.buffers {
+        draw::indexed(
+            base: &base,
+            command::DrawIndexedSettings {
+                command_buffer: command_buffer.0,
+                render_pass: render_pass.0,
+                frame_buffer: ash::vk::Framebuffer, // TODO
+                extent: swap_chain.extent.0,
+                graphics_pipeline.0,
+                graphics_pipeline_layout.0,
+                descriptor_set: ash::vk::DescriptorSet, // TODO
+                vertex_buffer: vertex_device_buffer.0,
+                index_buffer: index_device_buffer.0,
+                n_indices: mesh.indices.len() as u32 * 3,
+            },
+        ).unwrap();
+    }
+    */
 
     'running: loop {
         for e in sdl.get_events() {

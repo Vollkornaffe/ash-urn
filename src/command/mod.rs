@@ -10,6 +10,7 @@ pub mod draw;
 pub use buffer::Buffer;
 pub use pool::Pool;
 pub use queue::Queue;
+pub use draw::DrawIndexedSettings;
 
 pub struct Command {
     pub family_idx: u32,
