@@ -100,8 +100,8 @@ impl Set {
         // create writes from the infos
         let writes: Vec<ash::vk::WriteDescriptorSet> = infos
             .iter()
-            .map(|info|
-                ash::vk::WriteDescriptorSet::builder()
+            .map(|info| {
+                let incomplete = ash::vk::WriteDescriptorSet::builder()
                     .dst_set(set)
                     .dst_binding(info.binding)
                     .dst_array_element(0)
@@ -109,11 +109,19 @@ impl Set {
                         .get(&info.binding)
                         .expect("Invalid binding for descriptor.")
                         .ty
-                    )
-                    .buffer_info(info.buffer_infos.as_slice())
-                    .image_info(info.image_infos.as_slice())
-                    .build()
-            )
+                    );
+                if !info.buffer_infos.is_empty() {
+                    return incomplete
+                        .buffer_info(info.buffer_infos.as_slice())
+                        .build();
+                }
+                if !info.image_infos.is_empty() {
+                    return incomplete
+                        .image_info(info.image_infos.as_slice())
+                        .build();
+                }
+                panic!("No buffer infos and no image infos");
+            })
             .collect();
 
         // no copying supported

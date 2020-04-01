@@ -70,22 +70,26 @@ impl Descriptor {
 
         let pool_sizes: Vec<ash::vk::DescriptorPoolSize> = DESCRIPTOR_TYPES
             .iter()
-            .map(|&ty|
-                ash::vk::DescriptorPoolSize::builder()
-                    .ty(ty)
-                    .descriptor_count(
-                        settings
-                            .setup_map
-                            .iter()
-                            .map(|(_, s)| if s.ty == ty {
-                                num_sets
-                            } else {
-                                0
-                            })
-                            .sum()
+            .filter_map(|&ty| {
+                let descriptor_count = settings
+                    .setup_map
+                    .iter()
+                    .map(|(_, s)| if s.ty == ty {
+                        num_sets
+                    } else {
+                        0
+                    })
+                    .sum();
+                if descriptor_count > 0 {
+                    Some(ash::vk::DescriptorPoolSize::builder()
+                        .ty(ty)
+                        .descriptor_count(descriptor_count)
+                        .build()
                     )
-                    .build()
-            )
+                } else {
+                    None
+                }
+            })
             .collect();
         let pool = Pool::new(
             base,
