@@ -24,3 +24,4 @@ pub use pipeline::{
 pub use render_pass::{RenderPass, RenderPassSettings};
 pub use swap_chain::{SwapChain, SwapChainSettings};
 pub use mesh::{Mesh, Vertex, Indices};
+pub use descriptor::{Descriptor, DescriptorSettings};

@@ -36,9 +36,9 @@ pub struct SetUsage {
 }
 
 pub struct DescriptorSettings {
-    setup_map: HashMap<u32, Setup>,
-    set_usages: Vec<SetUsage>,
-    name: String,
+    pub setup_map: HashMap<u32, Setup>,
+    pub set_usages: Vec<SetUsage>,
+    pub name: String,
 }
 
 impl Descriptor {

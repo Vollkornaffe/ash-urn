@@ -14,6 +14,8 @@ use ash_urn::{Mesh, Vertex, Indices};
 use ash_urn::transfer::{create_vertex_device_buffer, create_index_device_buffer, ownership};
 use ash_urn::{DeviceBuffer, DeviceBufferSettings};
 use ash_urn::device_image::create_depth_device_image;
+use ash_urn::{Descriptor, DescriptorSettings};
+use ash_urn::descriptor;
 
 use ash::version::DeviceV1_0;
 
@@ -182,42 +184,46 @@ fn main() {
         render_pass.0,
     ).unwrap();
 
-/*
     // UBO for each fram in flight
     let mut uniform_buffers = Vec::new();
     for i in 0..swap_chain.image_count {
-        // create uniform buffer
-        let uniform_buffer = DeviceBuffer::new(
+        uniform_buffers.push(DeviceBuffer::new(
             &base,
             &DeviceBufferSettings {
                 size: std::mem::size_of::<UBO>() as ash::vk::DeviceSize,
                 usage: ash::vk::BufferUsageFlags::UNIFORM_BUFFER,
                 properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
                     | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
-                name: "UniformBuffer".to_string(),
+                name: format!("UniformBuffer_{}", i),
             },
-        ).unwrap();
-
-
+        ).unwrap());
     }
 
     // create descriptor sets
-    let descriptor = Descriptor::new(
-        &base,
-        &DescriptorSettings {
-            setup_map: HashMap::new()
-                .insert(0, descriptor::Setup {
-                    ty: ash::vk::DescriptorType::UNIFORM_BUFFER,
-                    stage: ash::vk::ShaderStageFlags::VERTEX,
-                }),
-            set_usages: vec![
-                HashMap::new()
-                    .insert()
-            ],
-            name: "Descriptor".to_string(),
+    let descriptor = {
+        let mut setup_map = HashMap::new();
+        setup_map.insert(0, descriptor::Setup {
+            ty: ash::vk::DescriptorType::UNIFORM_BUFFER,
+            stage: ash::vk::ShaderStageFlags::VERTEX,
+        });
+        let mut set_usages = Vec::new();
+        for (i, uniform_buffer) in uniform_buffers.iter().enumerate() {
+            let mut usages = HashMap::new();
+            usages.insert(0, descriptor::Usage::Buffer(uniform_buffer.buffer.0));
+            set_usages.push(descriptor::SetUsage {
+                usages,
+                name: format!("DescriptorSet_{}", i),
+            });
         }
-    )
-*/
+        Descriptor::new(
+            &base,
+            &DescriptorSettings {
+                setup_map,
+                set_usages,
+                name: "Descriptor".to_string(),
+            },
+        ).unwrap()
+    };
 
     // Create graphic commands, one buffer per image
     let graphics_command = Command::new(
