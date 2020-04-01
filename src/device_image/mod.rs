@@ -4,14 +4,16 @@ use crate::UrnError;
 pub mod image;
 pub mod memory;
 pub mod view;
+pub mod depth;
 
 pub use image::Image;
 pub use memory::Memory;
 pub use view::View;
+pub use depth::create_depth_device_image;
 
-use image::ImageSettings;
-use memory::MemorySettings;
-use view::ViewSettings;
+pub use image::ImageSettings;
+pub use memory::MemorySettings;
+pub use view::ViewSettings;
 
 use ash::version::DeviceV1_0;
 

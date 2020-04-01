@@ -35,9 +35,9 @@ pub struct SetUsage {
     pub name: String,
 }
 
-pub struct DescriptorSettings<'a> {
-    setup_map: &'a HashMap<u32, Setup>,
-    set_usages: &'a [SetUsage],
+pub struct DescriptorSettings {
+    setup_map: HashMap<u32, Setup>,
+    set_usages: Vec<SetUsage>,
     name: String,
 }
 
@@ -95,13 +95,13 @@ impl Descriptor {
         )?;
 
         let mut sets = Vec::new();
-        for set_usage in settings.set_usages {
+        for set_usage in &settings.set_usages {
             sets.push(Set::new(
                 base,
                 layout.0,
                 pool.0,
-                settings.setup_map,
-                set_usage,
+                &settings.setup_map,
+                &set_usage,
             )?);
         }
                 

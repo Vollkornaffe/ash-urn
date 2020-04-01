@@ -13,12 +13,15 @@ use ash_urn::{SwapChain, SwapChainSettings};
 use ash_urn::{Mesh, Vertex, Indices};
 use ash_urn::transfer::{create_vertex_device_buffer, create_index_device_buffer, ownership};
 use ash_urn::{DeviceBuffer, DeviceBufferSettings};
+use ash_urn::device_image::create_depth_device_image;
 
 use ash::version::DeviceV1_0;
 
 const ENABLE_VALIDATION: bool = cfg!(debug_assertions);
 
 use ash_urn::memory_alignment::Align16;
+
+use std::collections::HashMap;
 
 #[repr(C)]
 struct UBO {
@@ -143,7 +146,7 @@ fn main() {
         .physical_device
         .query_swap_chain_support(&surface_loader, surface)
         .unwrap();
-    let swap_chain = SwapChain::new(
+    let mut swap_chain = SwapChain::new(
         &base,
         &SwapChainSettings {
             w: sdl.window.size().0,
@@ -155,6 +158,66 @@ fn main() {
         },
     )
     .unwrap();
+
+    // Create render pass
+    let render_pass = RenderPass::new(
+        &base,
+        &RenderPassSettings {
+            swap_chain_format: swap_chain.surface_format.0.format,
+            name: "RenderPass".to_string(),
+        },
+    )
+    .unwrap();
+
+    // create one depth image
+    let depth_device_image = create_depth_device_image(
+        &base,
+        swap_chain.extent.0,
+    ).unwrap();
+
+    // now we can fill out the swapchain elements
+    swap_chain.fill_elements(
+        &base,
+        depth_device_image.view.0,
+        render_pass.0,
+    ).unwrap();
+
+/*
+    // UBO for each fram in flight
+    let mut uniform_buffers = Vec::new();
+    for i in 0..swap_chain.image_count {
+        // create uniform buffer
+        let uniform_buffer = DeviceBuffer::new(
+            &base,
+            &DeviceBufferSettings {
+                size: std::mem::size_of::<UBO>() as ash::vk::DeviceSize,
+                usage: ash::vk::BufferUsageFlags::UNIFORM_BUFFER,
+                properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
+                    | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
+                name: "UniformBuffer".to_string(),
+            },
+        ).unwrap();
+
+
+    }
+
+    // create descriptor sets
+    let descriptor = Descriptor::new(
+        &base,
+        &DescriptorSettings {
+            setup_map: HashMap::new()
+                .insert(0, descriptor::Setup {
+                    ty: ash::vk::DescriptorType::UNIFORM_BUFFER,
+                    stage: ash::vk::ShaderStageFlags::VERTEX,
+                }),
+            set_usages: vec![
+                HashMap::new()
+                    .insert()
+            ],
+            name: "Descriptor".to_string(),
+        }
+    )
+*/
 
     // Create graphic commands, one buffer per image
     let graphics_command = Command::new(
@@ -209,15 +272,6 @@ fn main() {
         &graphics_command, // any command struct from the combined family is ok
     ).unwrap();
 
-    // Create render pass
-    let render_pass = RenderPass::new(
-        &base,
-        &RenderPassSettings {
-            swap_chain_format: swap_chain.surface_format.0.format,
-            name: "RenderPass".to_string(),
-        },
-    )
-    .unwrap();
 
     // Create a single graphics pipeline
     let graphics_pipeline_layout = PipelineLayout::new(
@@ -241,18 +295,6 @@ fn main() {
         },
     )
     .unwrap();
-
-    // create uniform buffer
-    let uniform_buffer = DeviceBuffer::new(
-        &base,
-        &DeviceBufferSettings {
-            size: std::mem::size_of::<UBO>() as ash::vk::DeviceSize,
-            usage: ash::vk::BufferUsageFlags::UNIFORM_BUFFER,
-            properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
-                | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
-            name: "UniformBuffer".to_string(),
-        },
-    ).unwrap();
 
 
     // write to the command buffers
