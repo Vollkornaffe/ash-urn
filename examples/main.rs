@@ -12,10 +12,20 @@ use ash_urn::{RenderPass, RenderPassSettings};
 use ash_urn::{SwapChain, SwapChainSettings};
 use ash_urn::{Mesh, Vertex, Indices};
 use ash_urn::transfer::{create_vertex_device_buffer, create_index_device_buffer, ownership};
+use ash_urn::{DeviceBuffer, DeviceBufferSettings};
 
 use ash::version::DeviceV1_0;
 
 const ENABLE_VALIDATION: bool = cfg!(debug_assertions);
+
+use ash_urn::memory_alignment::Align16;
+
+#[repr(C)]
+struct UBO {
+    model: Align16<cgmath::Matrix4<f32>>,
+    view: Align16<cgmath::Matrix4<f32>>,
+    proj: Align16<cgmath::Matrix4<f32>>,
+}
 
 fn main() {
 
@@ -231,6 +241,19 @@ fn main() {
         },
     )
     .unwrap();
+
+    // create uniform buffer
+    let uniform_buffer = DeviceBuffer::new(
+        &base,
+        &DeviceBufferSettings {
+            size: std::mem::size_of::<UBO>() as ash::vk::DeviceSize,
+            usage: ash::vk::BufferUsageFlags::UNIFORM_BUFFER,
+            properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
+                | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
+            name: "UniformBuffer".to_string(),
+        },
+    ).unwrap();
+
 
     // write to the command buffers
     /*
