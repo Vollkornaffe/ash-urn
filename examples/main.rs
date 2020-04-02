@@ -304,25 +304,23 @@ fn main() {
 
 
     // write to the command buffers
-    /*
-    for command_buffer in graphics_command.buffers {
-        draw::indexed(
-            base: &base,
-            command::DrawIndexedSettings {
+    for (i, command_buffer) in graphics_command.buffers.iter().enumerate() {
+        command::draw::indexed(
+            &base,
+            &command::DrawIndexedSettings {
                 command_buffer: command_buffer.0,
                 render_pass: render_pass.0,
-                frame_buffer: ash::vk::Framebuffer, // TODO
+                frame_buffer: swap_chain.elements[i].frame_buffer,
                 extent: swap_chain.extent.0,
-                graphics_pipeline.0,
-                graphics_pipeline_layout.0,
-                descriptor_set: ash::vk::DescriptorSet, // TODO
-                vertex_buffer: vertex_device_buffer.0,
-                index_buffer: index_device_buffer.0,
+                graphics_pipeline: graphics_pipeline.0,
+                graphics_pipeline_layout: graphics_pipeline_layout.0,
+                descriptor_set: descriptor.sets[i].0,
+                vertex_buffer: vertex_device_buffer.buffer.0,
+                index_buffer: index_device_buffer.buffer.0,
                 n_indices: mesh.indices.len() as u32 * 3,
             },
         ).unwrap();
     }
-    */
 
     'running: loop {
         for e in sdl.get_events() {

@@ -4,16 +4,16 @@ use crate::Base;
 use ash::version::DeviceV1_0;
 
 pub struct DrawIndexedSettings {
-    command_buffer: ash::vk::CommandBuffer,
-    render_pass: ash::vk::RenderPass,
-    frame_buffer: ash::vk::Framebuffer,
-    extent: ash::vk::Extent2D,
-    graphics_pipeline: ash::vk::Pipeline,
-    graphics_pipeline_layout: ash::vk::PipelineLayout,
-    descriptor_set: ash::vk::DescriptorSet,
-    vertex_buffer: ash::vk::Buffer,
-    index_buffer: ash::vk::Buffer,
-    n_indices: u32,
+    pub command_buffer: ash::vk::CommandBuffer,
+    pub render_pass: ash::vk::RenderPass,
+    pub frame_buffer: ash::vk::Framebuffer,
+    pub extent: ash::vk::Extent2D,
+    pub graphics_pipeline: ash::vk::Pipeline,
+    pub graphics_pipeline_layout: ash::vk::PipelineLayout,
+    pub descriptor_set: ash::vk::DescriptorSet,
+    pub vertex_buffer: ash::vk::Buffer,
+    pub index_buffer: ash::vk::Buffer,
+    pub n_indices: u32,
 }
 
 pub fn indexed(
