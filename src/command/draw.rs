@@ -48,7 +48,10 @@ pub fn indexed(
     let offsets = [0];
     let dynamic_offsets = [];
     let descriptor_sets = [settings.descriptor_set];
+    let begin_info = ash::vk::CommandBufferBeginInfo::builder();
     unsafe {
+        base.logical_device.0
+            .begin_command_buffer(settings.command_buffer, &begin_info)?;
         base.logical_device.0.cmd_begin_render_pass(
             settings.command_buffer,
             &render_pass_info,
