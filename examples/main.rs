@@ -283,7 +283,9 @@ fn main() {
     let graphics_pipeline_layout = PipelineLayout::new(
         &base,
         &PipelineLayoutSettings {
-            set_layouts: vec![],
+            set_layouts: vec![
+                descriptor.layout.0
+            ],
             push_constant_ranges: vec![],
             name: "GraphicsPipelineLayout".to_string(),
         },
