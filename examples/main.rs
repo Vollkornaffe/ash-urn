@@ -5,16 +5,45 @@ use ash_urn::base::{
     PhysicalDeviceSettings, Validation,
 };
 
+use ash_urn::{command, Command, CommandSettings};
 use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
 use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
 use ash_urn::{SwapChain, SwapChainSettings};
+use ash_urn::{Mesh, Vertex, Indices};
+use ash_urn::transfer::{create_vertex_device_buffer, create_index_device_buffer, ownership};
+use ash_urn::{DeviceBuffer, DeviceBufferSettings};
+use ash_urn::device_image::create_depth_device_image;
+use ash_urn::{Descriptor, DescriptorSettings};
+use ash_urn::descriptor;
 
 use ash::version::DeviceV1_0;
 
 const ENABLE_VALIDATION: bool = cfg!(debug_assertions);
 
+use ash_urn::memory_alignment::Align16;
+
+use std::collections::HashMap;
+
+#[repr(C)]
+struct UBO {
+    model: Align16<cgmath::Matrix4<f32>>,
+    view: Align16<cgmath::Matrix4<f32>>,
+    proj: Align16<cgmath::Matrix4<f32>>,
+}
+
 fn main() {
+
+    // create a mesh to render
+    let mesh = Mesh::new()
+        .add_quad(
+            [-1.0,-1.0, 0.0],
+            [ 1.0,-1.0, 0.0],
+            [ 1.0, 1.0, 0.0],
+            [-1.0, 1.0, 0.0],
+            [ 1.0, 0.0, 0.0, 1.0],
+        );
+
     // first of all create sdl context
     let mut sdl = sdl::SDL::new(sdl::WindowSettings {
         title: "Test",
@@ -82,11 +111,11 @@ fn main() {
     let queue_map = physical_device
         .query_queues(&instance.0, &surface_loader, surface)
         .unwrap();
-    let transfer_queue = queue_map
+    let transfer_queue_family_idx = queue_map
         .get(&ash_urn::base::queue_families::DEDICATED_TRANSFER)
         .unwrap()
         .idx;
-    let combined_queue = queue_map
+    let combined_queue_family_idx = queue_map
         .get(&ash_urn::base::queue_families::COMBINED)
         .unwrap()
         .idx;
@@ -99,7 +128,7 @@ fn main() {
             extension_names: device_extensions,
             enable_validation: ENABLE_VALIDATION,
             validation_layer_names: validation_layer_names.clone(),
-            queues: vec![transfer_queue, combined_queue],
+            queues: vec![transfer_queue_family_idx, combined_queue_family_idx],
             timelines,
         },
     )
@@ -119,7 +148,7 @@ fn main() {
         .physical_device
         .query_swap_chain_support(&surface_loader, surface)
         .unwrap();
-    let swap_chain = SwapChain::new(
+    let mut swap_chain = SwapChain::new(
         &base,
         &SwapChainSettings {
             w: sdl.window.size().0,
@@ -142,11 +171,121 @@ fn main() {
     )
     .unwrap();
 
+    // create one depth image
+    let depth_device_image = create_depth_device_image(
+        &base,
+        swap_chain.extent.0,
+    ).unwrap();
+
+    // now we can fill out the swapchain elements
+    swap_chain.fill_elements(
+        &base,
+        depth_device_image.view.0,
+        render_pass.0,
+    ).unwrap();
+
+    // UBO for each fram in flight
+    let mut uniform_buffers = Vec::new();
+    for i in 0..swap_chain.image_count {
+        uniform_buffers.push(DeviceBuffer::new(
+            &base,
+            &DeviceBufferSettings {
+                size: std::mem::size_of::<UBO>() as ash::vk::DeviceSize,
+                usage: ash::vk::BufferUsageFlags::UNIFORM_BUFFER,
+                properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
+                    | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
+                name: format!("UniformBuffer_{}", i),
+            },
+        ).unwrap());
+    }
+
+    // create descriptor sets
+    let descriptor = {
+        let mut setup_map = HashMap::new();
+        setup_map.insert(0, descriptor::Setup {
+            ty: ash::vk::DescriptorType::UNIFORM_BUFFER,
+            stage: ash::vk::ShaderStageFlags::VERTEX,
+        });
+        let mut set_usages = Vec::new();
+        for (i, uniform_buffer) in uniform_buffers.iter().enumerate() {
+            let mut usages = HashMap::new();
+            usages.insert(0, descriptor::Usage::Buffer(uniform_buffer.buffer.0));
+            set_usages.push(descriptor::SetUsage {
+                usages,
+                name: format!("DescriptorSet_{}", i),
+            });
+        }
+        Descriptor::new(
+            &base,
+            &DescriptorSettings {
+                setup_map,
+                set_usages,
+                name: "Descriptor".to_string(),
+            },
+        ).unwrap()
+    };
+
+    // Create graphic commands, one buffer per image
+    let graphics_command = Command::new(
+        &base,
+        &CommandSettings {
+            queue_family_idx: combined_queue_family_idx,
+            n_buffer: swap_chain.image_count,
+            name: "GraphicsCommand".to_string(),
+        },
+    )
+    .unwrap();
+
+    // Just need the queue for presenting
+    let present_queue =
+        command::Queue::new(&base, combined_queue_family_idx, "PresentQueue".to_string()).unwrap();
+
+    // Transfer no buffers allocated, because one-time commands only
+    let transfer_command = Command::new(
+        &base,
+        &CommandSettings {
+            queue_family_idx: transfer_queue_family_idx,
+            n_buffer: 0,
+            name: "TransferCommand".to_string(),
+        },
+    )
+    .unwrap();
+
+    // create vertex buffer 
+    let vertex_device_buffer = create_vertex_device_buffer(
+        &base,
+        mesh.vertices.as_slice(),
+        transfer_command.queue.0,
+        transfer_command.pool.0,
+        "VertexBuffer".to_string(),
+    ).unwrap();
+
+    // create index buffer
+    let index_device_buffer = create_index_device_buffer(
+        &base,
+        mesh.indices.as_slice(),
+        transfer_command.queue.0,
+        transfer_command.pool.0,
+        "IndexBuffer".to_string(),
+    ).unwrap();
+
+    // transfer the ownership to the combined queue family
+    ownership::transfer_to_combined(
+        &base,
+        &[&vertex_device_buffer, &index_device_buffer],
+        &[],
+        &transfer_command,
+        &graphics_command, // any command struct from the combined family is ok
+    ).unwrap();
+
+
     // Create a single graphics pipeline
     let graphics_pipeline_layout = PipelineLayout::new(
         &base,
         &PipelineLayoutSettings {
-            set_layouts: vec![],
+            set_layouts: vec![
+                descriptor.layout.0
+            ],
             push_constant_ranges: vec![],
             name: "GraphicsPipelineLayout".to_string(),
         },
@@ -164,6 +303,26 @@ fn main() {
         },
     )
     .unwrap();
+
+
+    // write to the command buffers
+    for (i, command_buffer) in graphics_command.buffers.iter().enumerate() {
+        command::draw::indexed(
+            &base,
+            &command::DrawIndexedSettings {
+                command_buffer: command_buffer.0,
+                render_pass: render_pass.0,
+                frame_buffer: swap_chain.elements[i].frame_buffer,
+                extent: swap_chain.extent.0,
+                graphics_pipeline: graphics_pipeline.0,
+                graphics_pipeline_layout: graphics_pipeline_layout.0,
+                descriptor_set: descriptor.sets[i].0,
+                vertex_buffer: vertex_device_buffer.buffer.0,
+                index_buffer: index_device_buffer.buffer.0,
+                n_indices: mesh.indices.len() as u32 * 3,
+            },
+        ).unwrap();
+    }
 
     'running: loop {
         for e in sdl.get_events() {

@@ -11,7 +11,6 @@ pub struct ImageSettings {
     pub format: ash::vk::Format,
     pub tiling: ash::vk::ImageTiling,
     pub usage: ash::vk::ImageUsageFlags,
-    pub sharing_mode: ash::vk::SharingMode,
     pub name: String,
 }
 
@@ -30,7 +29,7 @@ impl Image {
             .tiling(settings.tiling)
             .initial_layout(ash::vk::ImageLayout::UNDEFINED)
             .usage(settings.usage)
-            .sharing_mode(settings.sharing_mode)
+            .sharing_mode(ash::vk::SharingMode::EXCLUSIVE)
             .samples(ash::vk::SampleCountFlags::TYPE_1);
 
         let image = unsafe { base.logical_device.0.create_image(&image_info, None)? };

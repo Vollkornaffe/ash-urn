@@ -12,3 +12,4 @@ memoffset = "0.5.3"
 
 [dev-dependencies]
 sdl2      = "0.32"
+cgmath    = "0.17.0"

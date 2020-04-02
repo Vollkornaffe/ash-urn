@@ -1,6 +1,7 @@
-use crate::base::SwapChainSupportDetail;
-use crate::Base;
 use crate::UrnError;
+use crate::Base;
+use crate::base::SwapChainSupportDetail;
+use crate::device_image::{View, ViewSettings};
 
 pub mod extent;
 pub mod loader;
@@ -12,12 +13,23 @@ pub use loader::Loader;
 pub use present_mode::PresentMode;
 pub use surface_format::SurfaceFormat;
 
+use ash::version::DeviceV1_0;
+
+pub struct SwapElement {
+    pub image: ash::vk::Image,
+    pub image_view: ash::vk::ImageView,
+    pub frame_buffer: ash::vk::Framebuffer,
+}
+
 pub struct SwapChain {
     pub surface_format: SurfaceFormat,
     pub extent: Extent,
     pub present_mode: PresentMode,
     pub loader: Loader,
     pub handle: ash::vk::SwapchainKHR,
+    pub image_count: u32,
+    pub elements: Vec<SwapElement>,
+    name: String,
 }
 
 pub struct SwapChainSettings {
@@ -67,6 +79,60 @@ impl SwapChain {
             present_mode,
             loader,
             handle,
+            image_count,
+            elements: Vec::new(),
+            name: settings.name.clone(),
         })
+    }
+
+    pub fn fill_elements(
+        &mut self,
+        base: &Base,
+        depth_image_view: ash::vk::ImageView,
+        render_pass: ash::vk::RenderPass,
+    ) -> Result<(), UrnError> {
+
+        let images = unsafe {
+            self.loader.0
+                .get_swapchain_images(self.handle)?
+        };
+        for (i, image) in images.iter().enumerate() {
+            base.name_object(*image, format!("{}Image_{}", self.name.clone(), i))?;
+        }
+        
+        for i in 0..self.image_count as usize {
+            let image_view = View::new(
+                base,
+                &ViewSettings {
+                    image: images[i],
+                    format: self.surface_format.0.format,
+                    aspect_flags: ash::vk::ImageAspectFlags::COLOR,
+                    name: format!("{}ImageView_{}", self.name.clone(), i),
+                },
+            )?.0;
+
+            let attachments = [image_view, depth_image_view];
+            let frame_buffer_info = ash::vk::FramebufferCreateInfo::builder()
+                .render_pass(render_pass)
+                .attachments(&attachments)
+                .width(self.extent.0.width)
+                .height(self.extent.0.height)
+                .layers(1);
+            let frame_buffer = unsafe {
+                base.logical_device.0
+                    .create_framebuffer(&frame_buffer_info, None)?
+            };
+            base.name_object(frame_buffer, format!("{}FrameBuffer_{}", self.name.clone(), i))?;
+
+            self.elements.push(
+                SwapElement {
+                    image: images[i],
+                    image_view,
+                    frame_buffer,
+                }
+            );
+        }
+
+        Ok(())
     }
 }

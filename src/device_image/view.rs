@@ -6,10 +6,10 @@ use ash::version::DeviceV1_0;
 pub struct View(pub ash::vk::ImageView);
 
 pub struct ViewSettings {
-    image: ash::vk::Image,
-    format: ash::vk::Format,
-    aspect_flags: ash::vk::ImageAspectFlags,
-    name: String,
+    pub image: ash::vk::Image,
+    pub format: ash::vk::Format,
+    pub aspect_flags: ash::vk::ImageAspectFlags,
+    pub name: String,
 }
 
 impl View {

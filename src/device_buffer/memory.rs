@@ -3,16 +3,16 @@ use crate::UrnError;
 
 use ash::version::DeviceV1_0;
 
-pub struct Memory(ash::vk::DeviceMemory);
+pub struct Memory(pub ash::vk::DeviceMemory);
 
 pub struct MemorySettings {
-    properties: ash::vk::MemoryPropertyFlags,
-    buffer: ash::vk::Buffer,
-    name: String,
+    pub properties: ash::vk::MemoryPropertyFlags,
+    pub buffer: ash::vk::Buffer,
+    pub name: String,
 }
 
 impl Memory {
-    pub fn alloc(base: &Base, settings: MemorySettings) -> Result<Self, UrnError> {
+    pub fn alloc(base: &Base, settings: &MemorySettings) -> Result<Self, UrnError> {
         let memory_requirements = unsafe {
             base.logical_device
                 .0

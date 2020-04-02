@@ -3,12 +3,12 @@ use crate::UrnError;
 
 use ash::version::DeviceV1_0;
 
-pub struct Buffer(ash::vk::Buffer);
+pub struct Buffer(pub ash::vk::Buffer);
 
 pub struct BufferSettings {
-    size: ash::vk::DeviceSize,
-    usage: ash::vk::BufferUsageFlags,
-    name: String,
+    pub size: ash::vk::DeviceSize,
+    pub usage: ash::vk::BufferUsageFlags,
+    pub name: String,
 }
 
 impl Buffer {
