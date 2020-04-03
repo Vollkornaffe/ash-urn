@@ -1,7 +1,7 @@
-use crate::UrnError;
-use crate::Base;
 use crate::base::SwapChainSupportDetail;
 use crate::device_image::{View, ViewSettings};
+use crate::Base;
+use crate::UrnError;
 
 pub mod extent;
 pub mod loader;
@@ -91,15 +91,11 @@ impl SwapChain {
         depth_image_view: ash::vk::ImageView,
         render_pass: ash::vk::RenderPass,
     ) -> Result<(), UrnError> {
-
-        let images = unsafe {
-            self.loader.0
-                .get_swapchain_images(self.handle)?
-        };
+        let images = unsafe { self.loader.0.get_swapchain_images(self.handle)? };
         for (i, image) in images.iter().enumerate() {
             base.name_object(*image, format!("{}Image_{}", self.name.clone(), i))?;
         }
-        
+
         for i in 0..self.image_count as usize {
             let image_view = View::new(
                 base,
@@ -109,7 +105,8 @@ impl SwapChain {
                     aspect_flags: ash::vk::ImageAspectFlags::COLOR,
                     name: format!("{}ImageView_{}", self.name.clone(), i),
                 },
-            )?.0;
+            )?
+            .0;
 
             let attachments = [image_view, depth_image_view];
             let frame_buffer_info = ash::vk::FramebufferCreateInfo::builder()
@@ -119,18 +116,20 @@ impl SwapChain {
                 .height(self.extent.0.height)
                 .layers(1);
             let frame_buffer = unsafe {
-                base.logical_device.0
+                base.logical_device
+                    .0
                     .create_framebuffer(&frame_buffer_info, None)?
             };
-            base.name_object(frame_buffer, format!("{}FrameBuffer_{}", self.name.clone(), i))?;
+            base.name_object(
+                frame_buffer,
+                format!("{}FrameBuffer_{}", self.name.clone(), i),
+            )?;
 
-            self.elements.push(
-                SwapElement {
-                    image: images[i],
-                    image_view,
-                    frame_buffer,
-                }
-            );
+            self.elements.push(SwapElement {
+                image: images[i],
+                image_view,
+                frame_buffer,
+            });
         }
 
         Ok(())

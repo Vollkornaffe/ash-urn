@@ -5,17 +5,17 @@ use ash_urn::base::{
     PhysicalDeviceSettings, Validation,
 };
 
+use ash_urn::descriptor;
+use ash_urn::device_image::create_depth_device_image;
+use ash_urn::transfer::{create_index_device_buffer, create_vertex_device_buffer, ownership};
 use ash_urn::{command, Command, CommandSettings};
+use ash_urn::{Descriptor, DescriptorSettings};
+use ash_urn::{DeviceBuffer, DeviceBufferSettings};
 use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
+use ash_urn::{Indices, Mesh, Vertex};
 use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
 use ash_urn::{SwapChain, SwapChainSettings};
-use ash_urn::{Mesh, Vertex, Indices};
-use ash_urn::transfer::{create_vertex_device_buffer, create_index_device_buffer, ownership};
-use ash_urn::{DeviceBuffer, DeviceBufferSettings};
-use ash_urn::device_image::create_depth_device_image;
-use ash_urn::{Descriptor, DescriptorSettings};
-use ash_urn::descriptor;
 
 use ash::version::DeviceV1_0;
 
@@ -33,16 +33,14 @@ struct UBO {
 }
 
 fn main() {
-
     // create a mesh to render
-    let mesh = Mesh::new()
-        .add_quad(
-            [-1.0,-1.0, 0.0],
-            [ 1.0,-1.0, 0.0],
-            [ 1.0, 1.0, 0.0],
-            [-1.0, 1.0, 0.0],
-            [ 1.0, 0.0, 0.0, 1.0],
-        );
+    let mesh = Mesh::new().add_quad(
+        [-1.0, -1.0, 0.0],
+        [1.0, -1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [-1.0, 1.0, 0.0],
+        [1.0, 0.0, 0.0, 1.0],
+    );
 
     // first of all create sdl context
     let mut sdl = sdl::SDL::new(sdl::WindowSettings {
@@ -172,40 +170,41 @@ fn main() {
     .unwrap();
 
     // create one depth image
-    let depth_device_image = create_depth_device_image(
-        &base,
-        swap_chain.extent.0,
-    ).unwrap();
+    let depth_device_image = create_depth_device_image(&base, swap_chain.extent.0).unwrap();
 
     // now we can fill out the swapchain elements
-    swap_chain.fill_elements(
-        &base,
-        depth_device_image.view.0,
-        render_pass.0,
-    ).unwrap();
+    swap_chain
+        .fill_elements(&base, depth_device_image.view.0, render_pass.0)
+        .unwrap();
 
     // UBO for each fram in flight
     let mut uniform_buffers = Vec::new();
     for i in 0..swap_chain.image_count {
-        uniform_buffers.push(DeviceBuffer::new(
-            &base,
-            &DeviceBufferSettings {
-                size: std::mem::size_of::<UBO>() as ash::vk::DeviceSize,
-                usage: ash::vk::BufferUsageFlags::UNIFORM_BUFFER,
-                properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
-                    | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
-                name: format!("UniformBuffer_{}", i),
-            },
-        ).unwrap());
+        uniform_buffers.push(
+            DeviceBuffer::new(
+                &base,
+                &DeviceBufferSettings {
+                    size: std::mem::size_of::<UBO>() as ash::vk::DeviceSize,
+                    usage: ash::vk::BufferUsageFlags::UNIFORM_BUFFER,
+                    properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
+                        | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
+                    name: format!("UniformBuffer_{}", i),
+                },
+            )
+            .unwrap(),
+        );
     }
 
     // create descriptor sets
     let descriptor = {
         let mut setup_map = HashMap::new();
-        setup_map.insert(0, descriptor::Setup {
-            ty: ash::vk::DescriptorType::UNIFORM_BUFFER,
-            stage: ash::vk::ShaderStageFlags::VERTEX,
-        });
+        setup_map.insert(
+            0,
+            descriptor::Setup {
+                ty: ash::vk::DescriptorType::UNIFORM_BUFFER,
+                stage: ash::vk::ShaderStageFlags::VERTEX,
+            },
+        );
         let mut set_usages = Vec::new();
         for (i, uniform_buffer) in uniform_buffers.iter().enumerate() {
             let mut usages = HashMap::new();
@@ -222,7 +221,8 @@ fn main() {
                 set_usages,
                 name: "Descriptor".to_string(),
             },
-        ).unwrap()
+        )
+        .unwrap()
     };
 
     // Create graphic commands, one buffer per image
@@ -251,14 +251,15 @@ fn main() {
     )
     .unwrap();
 
-    // create vertex buffer 
+    // create vertex buffer
     let vertex_device_buffer = create_vertex_device_buffer(
         &base,
         mesh.vertices.as_slice(),
         transfer_command.queue.0,
         transfer_command.pool.0,
         "VertexBuffer".to_string(),
-    ).unwrap();
+    )
+    .unwrap();
 
     // create index buffer
     let index_device_buffer = create_index_device_buffer(
@@ -267,7 +268,8 @@ fn main() {
         transfer_command.queue.0,
         transfer_command.pool.0,
         "IndexBuffer".to_string(),
-    ).unwrap();
+    )
+    .unwrap();
 
     // transfer the ownership to the combined queue family
     ownership::transfer_to_combined(
@@ -276,16 +278,14 @@ fn main() {
         &[],
         &transfer_command,
         &graphics_command, // any command struct from the combined family is ok
-    ).unwrap();
-
+    )
+    .unwrap();
 
     // Create a single graphics pipeline
     let graphics_pipeline_layout = PipelineLayout::new(
         &base,
         &PipelineLayoutSettings {
-            set_layouts: vec![
-                descriptor.layout.0
-            ],
+            set_layouts: vec![descriptor.layout.0],
             push_constant_ranges: vec![],
             name: "GraphicsPipelineLayout".to_string(),
         },
@@ -304,7 +304,6 @@ fn main() {
     )
     .unwrap();
 
-
     // write to the command buffers
     for (i, command_buffer) in graphics_command.buffers.iter().enumerate() {
         command::draw::indexed(
@@ -321,7 +320,8 @@ fn main() {
                 index_buffer: index_device_buffer.buffer.0,
                 n_indices: mesh.indices.len() as u32 * 3,
             },
-        ).unwrap();
+        )
+        .unwrap();
     }
 
     'running: loop {

@@ -1,5 +1,5 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
 use ash::version::DeviceV1_0;
 
@@ -16,11 +16,7 @@ pub struct DrawIndexedSettings {
     pub n_indices: u32,
 }
 
-pub fn indexed(
-    base: &Base,
-    settings: &DrawIndexedSettings,
-) -> Result<(), UrnError> {
-
+pub fn indexed(base: &Base, settings: &DrawIndexedSettings) -> Result<(), UrnError> {
     let clear_values = [
         ash::vk::ClearValue {
             color: ash::vk::ClearColorValue {
@@ -50,7 +46,8 @@ pub fn indexed(
     let descriptor_sets = [settings.descriptor_set];
     let begin_info = ash::vk::CommandBufferBeginInfo::builder();
     unsafe {
-        base.logical_device.0
+        base.logical_device
+            .0
             .begin_command_buffer(settings.command_buffer, &begin_info)?;
         base.logical_device.0.cmd_begin_render_pass(
             settings.command_buffer,
@@ -82,10 +79,20 @@ pub fn indexed(
             &descriptor_sets,
             &dynamic_offsets,
         );
-        base.logical_device.0
-            .cmd_draw_indexed(settings.command_buffer, settings.n_indices, 1, 0, 0, 0);
-        base.logical_device.0.cmd_end_render_pass(settings.command_buffer);
-        base.logical_device.0.end_command_buffer(settings.command_buffer)?;
+        base.logical_device.0.cmd_draw_indexed(
+            settings.command_buffer,
+            settings.n_indices,
+            1,
+            0,
+            0,
+            0,
+        );
+        base.logical_device
+            .0
+            .cmd_end_render_pass(settings.command_buffer);
+        base.logical_device
+            .0
+            .end_command_buffer(settings.command_buffer)?;
     }
 
     Ok(())

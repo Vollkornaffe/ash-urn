@@ -1,5 +1,5 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
 use crate::mesh::Indices;
 use crate::{DeviceBuffer, DeviceBufferSettings};
@@ -16,7 +16,6 @@ pub fn create_index_device_buffer(
     pool: ash::vk::CommandPool,
     name: String,
 ) -> Result<DeviceBuffer, UrnError> {
-
     let size = (indices.len() * std::mem::size_of::<Indices>()) as ash::vk::DeviceSize;
 
     let staging = create_staging_device_buffer(base, size, format!("{}Staging", name.clone()))?;
@@ -40,14 +39,14 @@ pub fn create_index_device_buffer(
         &DeviceBufferSettings {
             size,
             usage: ash::vk::BufferUsageFlags::INDEX_BUFFER
-                 | ash::vk::BufferUsageFlags::TRANSFER_DST,
+                | ash::vk::BufferUsageFlags::TRANSFER_DST,
             properties: ash::vk::MemoryPropertyFlags::DEVICE_LOCAL,
             name,
         },
     )?;
 
     copy_buffer_to_buffer(base, queue, pool, staging.buffer.0, index.buffer.0, size)?;
-        
+
     staging.destroy(base);
 
     Ok(index)

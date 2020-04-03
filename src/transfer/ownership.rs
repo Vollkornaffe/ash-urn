@@ -1,9 +1,9 @@
-use crate::UrnError;
+use crate::command::single_time;
 use crate::Base;
+use crate::Command;
 use crate::DeviceBuffer;
 use crate::DeviceImage;
-use crate::Command;
-use crate::command::single_time;
+use crate::UrnError;
 
 use ash::version::DeviceV1_0;
 
@@ -14,7 +14,6 @@ pub fn transfer_release(
     image_memory_barriers: &[ash::vk::ImageMemoryBarrier],
     transfer_command: &Command,
 ) -> Result<(), UrnError> {
-
     let transfer_command_buffer = single_time::begin(
         base,
         transfer_command.pool.0,
@@ -39,7 +38,6 @@ pub fn transfer_release(
         transfer_command.pool.0,
         transfer_command_buffer,
     )
-
 }
 
 pub fn combined_acquire(
@@ -49,12 +47,8 @@ pub fn combined_acquire(
     image_memory_barriers: &[ash::vk::ImageMemoryBarrier],
     combined_command: &Command,
 ) -> Result<(), UrnError> {
-
-    let combined_command_buffer = single_time::begin(
-        base,
-        combined_command.pool.0,
-        "OwnerShipAquire".to_string(),
-    )?;
+    let combined_command_buffer =
+        single_time::begin(base, combined_command.pool.0, "OwnerShipAquire".to_string())?;
 
     unsafe {
         base.logical_device.0.cmd_pipeline_barrier(
@@ -76,7 +70,6 @@ pub fn combined_acquire(
         combined_command.pool.0,
         combined_command_buffer,
     )
-
 }
 
 /// Assumes images are readonly in shader
@@ -87,7 +80,6 @@ pub fn transfer_to_combined(
     transfer_command: &Command,
     combined_command: &Command,
 ) -> Result<(), UrnError> {
-
     let memory_barriers = Vec::new();
     let mut buffer_memory_barriers = Vec::new();
     let mut image_memory_barriers = Vec::new();
@@ -124,7 +116,6 @@ pub fn transfer_to_combined(
                 .build(),
         );
     }
-
 
     // RELEASE OWNER SHIP +++++++++++++++++++++++++++++++++++++++++++++++++++++
     for buffer_memory_barrier in &mut buffer_memory_barriers {

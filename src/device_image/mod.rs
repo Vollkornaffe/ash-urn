@@ -1,15 +1,15 @@
 use crate::Base;
 use crate::UrnError;
 
+pub mod depth;
 pub mod image;
 pub mod memory;
 pub mod view;
-pub mod depth;
 
+pub use depth::create_depth_device_image;
 pub use image::Image;
 pub use memory::Memory;
 pub use view::View;
-pub use depth::create_depth_device_image;
 
 pub use image::ImageSettings;
 pub use memory::MemorySettings;

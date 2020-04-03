@@ -7,7 +7,6 @@ pub fn create_depth_device_image(
     base: &Base,
     swapchain_extent: ash::vk::Extent2D,
 ) -> Result<DeviceImage, UrnError> {
-
     let format = base.find_supported_format(
         vec![
             ash::vk::Format::D32_SFLOAT,
