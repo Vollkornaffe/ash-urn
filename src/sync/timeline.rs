@@ -4,9 +4,9 @@ use crate::UrnError;
 use ash::version::DeviceV1_0;
 use ash::version::DeviceV1_2;
 
-pub struct TimeLine(pub ash::vk::Semaphore);
+pub struct Timeline(pub ash::vk::Semaphore);
 
-impl TimeLine {
+impl Timeline {
     pub fn new(base: &Base, initial_value: u64, name: String) -> Result<Self, UrnError> {
         let mut timeline_info = ash::vk::SemaphoreTypeCreateInfo::builder()
             .semaphore_type(ash::vk::SemaphoreType::TIMELINE)

@@ -15,6 +15,7 @@ use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
 use ash_urn::{Indices, Mesh, Vertex};
 use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
+use ash_urn::{Semaphore, Timeline};
 use ash_urn::{SwapChain, SwapChainSettings};
 
 use ash::version::DeviceV1_0;
@@ -88,7 +89,7 @@ fn main() {
     let surface = sdl.create_surface(&instance.0).unwrap();
 
     // Time to think about devices
-    let timelines = false;
+    let timelines = true;
     let mut device_extensions = vec!["VK_KHR_swapchain".to_string()];
     if timelines {
         device_extensions.push("VK_KHR_timeline_semaphore".to_string());
@@ -323,6 +324,24 @@ fn main() {
         )
         .unwrap();
     }
+
+    let mut frame = 0;
+    let timeline = Timeline::new(&base, frame, "Timeline".to_string()).unwrap();
+    let semaphore_image_acquired =
+        Semaphore::new(&base, "SemaphoreImageAquired".to_string()).unwrap();
+    let semaphore_rendering_finished =
+        Semaphore::new(&base, "SemaphoreRenderingFinished".to_string()).unwrap();
+
+    // the first image index is retrieved and we wait until device is idle
+    let (mut image_index, _suboptimal) = unsafe {
+        swap_chain.loader.0.acquire_next_image(
+            swap_chain.handle,
+            std::u64::MAX,
+            semaphore_image_acquired.0,
+            ash::vk::Fence::default(),
+        )
+    }
+    .unwrap();
 
     'running: loop {
         for e in sdl.get_events() {
