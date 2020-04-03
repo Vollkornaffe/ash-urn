@@ -11,6 +11,7 @@ pub mod swap_chain;
 pub mod transfer;
 pub mod util;
 pub mod descriptor;
+pub mod sync;
 
 pub use base::Base;
 pub use command::{Command, CommandSettings};

@@ -3,8 +3,6 @@ use crate::UrnError;
 
 use super::{DeviceImage, DeviceImageSettings};
 
-use ash::version::DeviceV1_0;
-
 pub fn create_depth_device_image(
     base: &Base,
     swapchain_extent: ash::vk::Extent2D,
