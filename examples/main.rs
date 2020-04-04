@@ -15,7 +15,7 @@ use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
 use ash_urn::{Indices, Mesh, Vertex};
 use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
-use ash_urn::{Semaphore, Timeline};
+use ash_urn::{Semaphore, Timeline, wait_device_idle};
 use ash_urn::{SwapChain, SwapChainSettings};
 
 use ash::version::DeviceV1_0;
@@ -332,7 +332,7 @@ fn main() {
     let semaphore_rendering_finished =
         Semaphore::new(&base, "SemaphoreRenderingFinished".to_string()).unwrap();
 
-    // the first image index is retrieved and we wait until device is idle
+    // the first image index is retrieved
     let (mut image_index, _suboptimal) = unsafe {
         swap_chain.loader.0.acquire_next_image(
             swap_chain.handle,
@@ -343,6 +343,21 @@ fn main() {
     }
     .unwrap();
 
+    // and we wait until device is idle
+    wait_device_idle(&base).unwrap();
+
+    // present it
+    let present_wait_semaphores = [semaphore_image_acquired.0];
+    let swap_chains = [swap_chain.handle];
+    let image_indices = [image_index];
+    let present_info = ash::vk::PresentInfoKHR::builder()
+        .wait_semaphores(&present_wait_semaphores)
+        .swapchains(&swap_chains)
+        .image_indices(&image_indices);
+    unsafe {
+        swap_chain.loader.0.queue_present(present_queue.0, &present_info)
+    }.unwrap();
+
     'running: loop {
         for e in sdl.get_events() {
             match e {
@@ -350,6 +365,7 @@ fn main() {
                 _ => {}
             }
         }
+
     }
 
     unsafe {
