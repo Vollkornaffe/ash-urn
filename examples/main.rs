@@ -133,6 +133,11 @@ fn main() {
     )
     .unwrap();
 
+    let timeline_loader = ash::extensions::khr::TimelineSemaphore::new(
+        &entry.0,
+        &instance.0,
+    );
+
     // Combine everything into the Base
     let base = Base {
         entry,
@@ -140,6 +145,7 @@ fn main() {
         validation,
         physical_device,
         logical_device,
+        timeline_loader,
     };
 
     // Create swapchain
@@ -237,7 +243,12 @@ fn main() {
     )
     .unwrap();
 
-    // Just need the queue for presenting
+
+    // the queue for rendering
+    let render_queue =
+        command::Queue::new(&base, combined_queue_family_idx, "RenderQueue".to_string()).unwrap();
+
+    // the queue for presenting
     let present_queue =
         command::Queue::new(&base, combined_queue_family_idx, "PresentQueue".to_string()).unwrap();
 
@@ -346,8 +357,35 @@ fn main() {
     // and we wait until device is idle
     wait_device_idle(&base).unwrap();
 
+    // wait for frame to complete
+    timeline.wait(&base, frame).unwrap();
+
+    // render to it
+    let graphics_wait_semaphores = [semaphore_image_acquired.0];
+    let graphics_wait_stages_mask = [
+        ash::vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT,
+        //ash::vk::PipelineStageFlags::VERTEX_INPUT,
+    ];
+    let graphics_command_buffers =
+        [graphics_command.buffers[image_index as usize].0];
+    let graphics_signal_semaphores = [semaphore_rendering_finished.0];
+    let graphics_submit_info = ash::vk::SubmitInfo::builder()
+        .wait_semaphores(&graphics_wait_semaphores)
+        .wait_dst_stage_mask(&graphics_wait_stages_mask)
+        .command_buffers(&graphics_command_buffers)
+        .signal_semaphores(&graphics_signal_semaphores);
+    let graphics_submits = [graphics_submit_info.build()];
+    unsafe {
+        base.logical_device.0.queue_submit(
+            render_queue.0,
+            &graphics_submits,
+            ash::vk::Fence::default(),
+        )
+    }.unwrap();
+
+
     // present it
-    let present_wait_semaphores = [semaphore_image_acquired.0];
+    let present_wait_semaphores = [semaphore_rendering_finished.0];
     let swap_chains = [swap_chain.handle];
     let image_indices = [image_index];
     let present_info = ash::vk::PresentInfoKHR::builder()

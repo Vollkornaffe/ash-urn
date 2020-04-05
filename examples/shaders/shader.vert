@@ -17,6 +17,7 @@ void main() {
 
     fragColor = inColor;
 
-    gl_Position = ubo.proj * ubo.view * ubo.model * inPosition;
+    //gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
+    gl_Position = vec4(inPosition, 1.0);
 
 }
