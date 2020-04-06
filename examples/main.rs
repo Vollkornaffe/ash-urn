@@ -358,6 +358,9 @@ fn main() {
     // and we wait until device is idle before we start the actual main loop
     wait_device_idle(&base).unwrap();
 
+    // record starting time
+    let start_instant = std::time::Instant::now();
+
     'running: loop {
         for e in sdl.get_events() {
             match e {
@@ -365,8 +368,6 @@ fn main() {
                 _ => {}
             }
         }
-
-        println!("Image Index: {}", { image_index });
 
         // choose the buffer corresponding to the image
         let graphics_command_buffers = [graphics_command.buffers[image_index as usize].0];
@@ -392,9 +393,33 @@ fn main() {
         let graphics_submits = [graphics_submit_info.build()];
 
         // wait for last frame to complete rendering before submitting.
-        println!("Timeline before wait: {}", timeline.query(&base).unwrap());
         timeline.wait(&base, frame).unwrap();
-        println!("Timeline after wait: {}", timeline.query(&base).unwrap());
+
+        // prepare uniform buffer wrt. time
+        let t = start_instant.elapsed().as_secs_f32();
+        let rotation: cgmath::Quaternion<f32> = cgmath::Rotation3::from_angle_z(cgmath::Rad(t));
+        let model: cgmath::Matrix4<f32> = rotation.into();
+        let view = cgmath::Matrix4::look_at(
+            cgmath::Point3::new(2.0, 2.0, 2.0),
+            cgmath::Point3::new(0.0, 0.0, 0.0),
+            cgmath::Vector3::unit_z(),
+        );
+        let mut proj = cgmath::perspective(
+            cgmath::Deg(45.0),
+            swap_chain.extent.0.width as f32 / 
+            swap_chain.extent.0.height as f32,
+            0.1,
+            10.0,
+        );
+        proj[1][1] *= -1.0;
+
+        uniform_buffers[image_index as usize].write(&base, UBO {
+            model: model.into(),
+            view: view.into(),
+            proj: proj.into(),
+        }).unwrap();
+
+
 
         unsafe {
             base.logical_device.0.queue_submit(
