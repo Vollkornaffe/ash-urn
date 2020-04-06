@@ -49,8 +49,7 @@ impl Timeline {
             .value(signal_value);
 
         unsafe {
-            base.logical_device
-                .0
+            base.timeline_loader
                 .signal_semaphore(base.logical_device.0.handle(), &signal_info)?
         }
 
@@ -59,9 +58,7 @@ impl Timeline {
 
     pub fn query(&self, base: &Base) -> Result<u64, UrnError> {
         Ok(unsafe {
-            base.logical_device
-                .0
-                .get_semaphore_counter_value(base.logical_device.0.handle(), self.0)?
+            base.timeline_loader.get_semaphore_counter_value(base.logical_device.0.handle(), self.0)?
         })
     }
 }

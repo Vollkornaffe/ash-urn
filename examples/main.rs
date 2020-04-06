@@ -160,7 +160,7 @@ fn main() {
             h: sdl.window.size().1,
             support: swap_chain_support,
             surface: surface,
-            image_count: 2,
+            image_count: 3,
             name: "SwapChain".to_string(),
         },
     )
@@ -343,58 +343,24 @@ fn main() {
     let semaphore_rendering_finished =
         Semaphore::new(&base, "SemaphoreRenderingFinished".to_string()).unwrap();
 
+    let mut image_index = 0;
+
     // the first image index is retrieved
-    let (mut image_index, _suboptimal) = unsafe {
-        swap_chain.loader.0.acquire_next_image(
-            swap_chain.handle,
-            std::u64::MAX,
-            semaphore_image_acquired.0,
-            ash::vk::Fence::default(),
-        )
-    }
-    .unwrap();
+    image_index = {
+        let (tmp_image_index, _suboptimal) = unsafe {
+            swap_chain.loader.0.acquire_next_image(
+                swap_chain.handle,
+                std::u64::MAX,
+                semaphore_image_acquired.0,
+                ash::vk::Fence::default(),
+            )
+        }
+        .unwrap();
+        tmp_image_index
+    };
 
-    // and we wait until device is idle
+    // and we wait until device is idle before we start the actual main loop
     wait_device_idle(&base).unwrap();
-
-    // wait for frame to complete
-    timeline.wait(&base, frame).unwrap();
-
-    // render to it
-    let graphics_wait_semaphores = [semaphore_image_acquired.0];
-    let graphics_wait_stages_mask = [
-        ash::vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT,
-        //ash::vk::PipelineStageFlags::VERTEX_INPUT,
-    ];
-    let graphics_command_buffers =
-        [graphics_command.buffers[image_index as usize].0];
-    let graphics_signal_semaphores = [semaphore_rendering_finished.0];
-    let graphics_submit_info = ash::vk::SubmitInfo::builder()
-        .wait_semaphores(&graphics_wait_semaphores)
-        .wait_dst_stage_mask(&graphics_wait_stages_mask)
-        .command_buffers(&graphics_command_buffers)
-        .signal_semaphores(&graphics_signal_semaphores);
-    let graphics_submits = [graphics_submit_info.build()];
-    unsafe {
-        base.logical_device.0.queue_submit(
-            render_queue.0,
-            &graphics_submits,
-            ash::vk::Fence::default(),
-        )
-    }.unwrap();
-
-
-    // present it
-    let present_wait_semaphores = [semaphore_rendering_finished.0];
-    let swap_chains = [swap_chain.handle];
-    let image_indices = [image_index];
-    let present_info = ash::vk::PresentInfoKHR::builder()
-        .wait_semaphores(&present_wait_semaphores)
-        .swapchains(&swap_chains)
-        .image_indices(&image_indices);
-    unsafe {
-        swap_chain.loader.0.queue_present(present_queue.0, &present_info)
-    }.unwrap();
 
     'running: loop {
         for e in sdl.get_events() {
@@ -403,6 +369,76 @@ fn main() {
                 _ => {}
             }
         }
+
+        println!("Image Index: {}", {image_index});
+
+        // choose the buffer corresponding to the image
+        let graphics_command_buffers =
+            [graphics_command.buffers[image_index as usize].0];
+
+        // setup waiting / signaling for rendering
+        let wait_values = [1];
+        let signal_values = [frame + 1, 1];
+        let mut timeline_submit_info = ash::vk::TimelineSemaphoreSubmitInfo::builder()
+            .wait_semaphore_values(&wait_values)
+            .signal_semaphore_values(&signal_values)
+            .build();
+        let graphics_wait_semaphores = [semaphore_image_acquired.0];
+        let graphics_wait_stages_mask = [ash::vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT];
+        let graphics_signal_semaphores = [
+            timeline.0,
+            semaphore_rendering_finished.0,
+        ];
+
+        // setup submit
+        let graphics_submit_info = ash::vk::SubmitInfo::builder()
+            .wait_semaphores(&graphics_wait_semaphores)
+            .wait_dst_stage_mask(&graphics_wait_stages_mask)
+            .command_buffers(&graphics_command_buffers)
+            .signal_semaphores(&graphics_signal_semaphores)
+            .push_next(&mut timeline_submit_info);
+        let graphics_submits = [graphics_submit_info.build()];
+
+        // wait for last frame to complete rendering before submitting.
+        println!("Timeline before wait: {}", timeline.query(&base).unwrap());
+        timeline.wait(&base, frame).unwrap();
+        println!("Timeline after wait: {}", timeline.query(&base).unwrap());
+
+        unsafe {
+            base.logical_device.0.queue_submit(
+                render_queue.0,
+                &graphics_submits,
+                ash::vk::Fence::default(),
+            )
+        }.unwrap();
+
+        // present it
+        let present_wait_semaphores = [semaphore_rendering_finished.0];
+        let swap_chains = [swap_chain.handle];
+        let image_indices = [image_index];
+        let present_info = ash::vk::PresentInfoKHR::builder()
+            .wait_semaphores(&present_wait_semaphores)
+            .swapchains(&swap_chains)
+            .image_indices(&image_indices);
+        unsafe {
+            swap_chain.loader.0.queue_present(present_queue.0, &present_info)
+        }.unwrap();
+
+        // acquire an image for the next iteration
+        image_index = {
+            let (tmp_image_index, _suboptimal) = unsafe {
+                swap_chain.loader.0.acquire_next_image(
+                    swap_chain.handle,
+                    std::u64::MAX,
+                    semaphore_image_acquired.0,
+                    ash::vk::Fence::default(),
+                )
+            }
+            .unwrap();
+            tmp_image_index
+        };
+
+        frame += 1;
 
     }
 
