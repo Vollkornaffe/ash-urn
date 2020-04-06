@@ -59,12 +59,26 @@ impl Mesh {
         col: [f32; 4],
     ) -> Self {
         let offset = self.vertices.len() as u32;
-        self.vertices.push(Vertex {pos: c0.into(), col: col.into()});
-        self.vertices.push(Vertex {pos: c1.into(), col: col.into()});
-        self.vertices.push(Vertex {pos: c2.into(), col: col.into()});
-        self.vertices.push(Vertex {pos: c3.into(), col: col.into()});
-        self.indices.push(Indices([offset + 1, offset + 0, offset + 2]));
-        self.indices.push(Indices([offset + 3, offset + 2, offset + 0]));
+        self.vertices.push(Vertex {
+            pos: c0.into(),
+            col: col.into(),
+        });
+        self.vertices.push(Vertex {
+            pos: c1.into(),
+            col: col.into(),
+        });
+        self.vertices.push(Vertex {
+            pos: c2.into(),
+            col: col.into(),
+        });
+        self.vertices.push(Vertex {
+            pos: c3.into(),
+            col: col.into(),
+        });
+        self.indices
+            .push(Indices([offset + 1, offset + 0, offset + 2]));
+        self.indices
+            .push(Indices([offset + 3, offset + 2, offset + 0]));
 
         self
     }

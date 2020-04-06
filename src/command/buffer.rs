@@ -30,7 +30,7 @@ impl Buffer {
         name: String,
     ) -> Result<Vec<Self>, UrnError> {
         if n_buffer == 0 {
-            return Ok(Vec::new())
+            return Ok(Vec::new());
         }
 
         let alloc_info = ash::vk::CommandBufferAllocateInfo::builder()

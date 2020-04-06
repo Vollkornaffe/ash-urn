@@ -2,15 +2,15 @@ use crate::Base;
 use crate::UrnError;
 
 pub mod buffer;
+pub mod draw;
 pub mod pool;
 pub mod queue;
 pub mod single_time;
-pub mod draw;
 
 pub use buffer::Buffer;
+pub use draw::DrawIndexedSettings;
 pub use pool::Pool;
 pub use queue::Queue;
-pub use draw::DrawIndexedSettings;
 
 pub struct Command {
     pub family_idx: u32,

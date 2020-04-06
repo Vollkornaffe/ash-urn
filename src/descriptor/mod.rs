@@ -1,18 +1,18 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
 use std::collections::HashMap;
 
+mod descriptor_types;
+pub mod info;
 pub mod layout;
 pub mod pool;
 pub mod set;
-pub mod info;
-mod descriptor_types;
 
+use descriptor_types::DESCRIPTOR_TYPES;
 pub use layout::Layout;
 pub use pool::Pool;
 pub use set::Set;
-use descriptor_types::DESCRIPTOR_TYPES;
 
 pub struct Descriptor {
     pub layout: Layout,
@@ -42,25 +42,20 @@ pub struct DescriptorSettings {
 }
 
 impl Descriptor {
-
-    pub fn new(
-        base: &Base,
-        settings: &DescriptorSettings,
-    ) -> Result<Self, UrnError> {
-
+    pub fn new(base: &Base, settings: &DescriptorSettings) -> Result<Self, UrnError> {
         let num_sets = settings.set_usages.len() as u32;
 
         let bindings: Vec<ash::vk::DescriptorSetLayoutBinding> = settings
             .setup_map
             .iter()
-            .map(|(binding, setup)|
+            .map(|(binding, setup)| {
                 ash::vk::DescriptorSetLayoutBinding::builder()
                     .binding(*binding)
                     .descriptor_type(setup.ty)
                     .descriptor_count(1)
                     .stage_flags(setup.stage)
                     .build()
-            )
+            })
             .collect();
         let layout = Layout::new(
             base,
@@ -74,17 +69,14 @@ impl Descriptor {
                 let descriptor_count = settings
                     .setup_map
                     .iter()
-                    .map(|(_, s)| if s.ty == ty {
-                        num_sets
-                    } else {
-                        0
-                    })
+                    .map(|(_, s)| if s.ty == ty { num_sets } else { 0 })
                     .sum();
                 if descriptor_count > 0 {
-                    Some(ash::vk::DescriptorPoolSize::builder()
-                        .ty(ty)
-                        .descriptor_count(descriptor_count)
-                        .build()
+                    Some(
+                        ash::vk::DescriptorPoolSize::builder()
+                            .ty(ty)
+                            .descriptor_count(descriptor_count)
+                            .build(),
                     )
                 } else {
                     None
@@ -108,13 +100,7 @@ impl Descriptor {
                 &set_usage,
             )?);
         }
-                
-        Ok(Self {
-            layout,
-            pool,
-            sets,
-        })
 
+        Ok(Self { layout, pool, sets })
     }
-
 }

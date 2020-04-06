@@ -1,5 +1,5 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
 use ash::version::DeviceV1_0;
 
@@ -13,7 +13,8 @@ impl Layout {
     ) -> Result<Self, UrnError> {
         let layout_info = ash::vk::DescriptorSetLayoutCreateInfo::builder().bindings(&bindings);
         let layout = unsafe {
-            base.logical_device.0
+            base.logical_device
+                .0
                 .create_descriptor_set_layout(&layout_info, None)?
         };
         base.name_object(layout, name)?;

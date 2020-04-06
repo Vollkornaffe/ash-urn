@@ -28,6 +28,7 @@ pub struct Base {
     pub validation: Option<Validation>,
     pub physical_device: PhysicalDevice,
     pub logical_device: LogicalDevice,
+    pub timeline_loader: ash::extensions::khr::TimelineSemaphore,
 }
 
 impl Base {

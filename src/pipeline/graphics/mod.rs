@@ -1,6 +1,6 @@
-use crate::UrnError;
-use crate::Base;
 use crate::mesh::Vertex;
+use crate::Base;
+use crate::UrnError;
 
 use crate::pipeline::{ShaderModule, ShaderModuleSettings};
 

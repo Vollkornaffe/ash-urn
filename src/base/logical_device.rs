@@ -31,14 +31,21 @@ impl LogicalDevice {
 
         let extension_names_cs = StringContainer::new(settings.extension_names.clone());
 
-        let mut timeline_feature =
-            ash::vk::PhysicalDeviceTimelineSemaphoreFeatures::builder().timeline_semaphore(true);
+        let mut timeline_feature = ash::vk::PhysicalDeviceTimelineSemaphoreFeatures::builder()
+            .timeline_semaphore(true)
+            .build();
+        let next_ptr = &mut timeline_feature
+            as *mut ash::vk::PhysicalDeviceTimelineSemaphoreFeatures
+            as *mut ash::vk::BaseOutStructure;
+        let mut physical_device_features_2 = ash::vk::PhysicalDeviceFeatures2::builder().build();
+        physical_device_features_2.p_next = next_ptr as _;
+
         let device_create_info = ash::vk::DeviceCreateInfo::builder()
             .queue_create_infos(queue_create_infos.as_slice())
             .enabled_extension_names(extension_names_cs.pointer.as_slice());
 
         let device_create_info = if settings.timelines {
-            device_create_info.push_next(&mut timeline_feature)
+            device_create_info.push_next(&mut physical_device_features_2)
         } else {
             device_create_info
         };

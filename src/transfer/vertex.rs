@@ -1,5 +1,5 @@
-use crate::UrnError;
 use crate::Base;
+use crate::UrnError;
 
 use crate::mesh::Vertex;
 use crate::{DeviceBuffer, DeviceBufferSettings};
@@ -16,7 +16,6 @@ pub fn create_vertex_device_buffer(
     pool: ash::vk::CommandPool,
     name: String,
 ) -> Result<DeviceBuffer, UrnError> {
-
     let size = (vertices.len() * std::mem::size_of::<Vertex>()) as ash::vk::DeviceSize;
 
     let staging = create_staging_device_buffer(base, size, format!("{}Staging", name.clone()))?;

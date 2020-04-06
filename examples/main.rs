@@ -5,17 +5,18 @@ use ash_urn::base::{
     PhysicalDeviceSettings, Validation,
 };
 
+use ash_urn::descriptor;
+use ash_urn::device_image::create_depth_device_image;
+use ash_urn::transfer::{create_index_device_buffer, create_vertex_device_buffer, ownership};
 use ash_urn::{command, Command, CommandSettings};
+use ash_urn::{Descriptor, DescriptorSettings};
+use ash_urn::{DeviceBuffer, DeviceBufferSettings};
 use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
+use ash_urn::{Indices, Mesh, Vertex};
 use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
+use ash_urn::{Semaphore, Timeline, wait_device_idle};
 use ash_urn::{SwapChain, SwapChainSettings};
-use ash_urn::{Mesh, Vertex, Indices};
-use ash_urn::transfer::{create_vertex_device_buffer, create_index_device_buffer, ownership};
-use ash_urn::{DeviceBuffer, DeviceBufferSettings};
-use ash_urn::device_image::create_depth_device_image;
-use ash_urn::{Descriptor, DescriptorSettings};
-use ash_urn::descriptor;
 
 use ash::version::DeviceV1_0;
 
@@ -33,16 +34,14 @@ struct UBO {
 }
 
 fn main() {
-
     // create a mesh to render
-    let mesh = Mesh::new()
-        .add_quad(
-            [-1.0,-1.0, 0.0],
-            [ 1.0,-1.0, 0.0],
-            [ 1.0, 1.0, 0.0],
-            [-1.0, 1.0, 0.0],
-            [ 1.0, 0.0, 0.0, 1.0],
-        );
+    let mesh = Mesh::new().add_quad(
+        [-1.0, -1.0, 0.0],
+        [1.0, -1.0, 0.0],
+        [1.0, 1.0, 0.0],
+        [-1.0, 1.0, 0.0],
+        [1.0, 0.0, 0.0, 1.0],
+    );
 
     // first of all create sdl context
     let mut sdl = sdl::SDL::new(sdl::WindowSettings {
@@ -90,7 +89,7 @@ fn main() {
     let surface = sdl.create_surface(&instance.0).unwrap();
 
     // Time to think about devices
-    let timelines = false;
+    let timelines = true;
     let mut device_extensions = vec!["VK_KHR_swapchain".to_string()];
     if timelines {
         device_extensions.push("VK_KHR_timeline_semaphore".to_string());
@@ -134,6 +133,11 @@ fn main() {
     )
     .unwrap();
 
+    let timeline_loader = ash::extensions::khr::TimelineSemaphore::new(
+        &entry.0,
+        &instance.0,
+    );
+
     // Combine everything into the Base
     let base = Base {
         entry,
@@ -141,6 +145,7 @@ fn main() {
         validation,
         physical_device,
         logical_device,
+        timeline_loader,
     };
 
     // Create swapchain
@@ -155,7 +160,7 @@ fn main() {
             h: sdl.window.size().1,
             support: swap_chain_support,
             surface: surface,
-            image_count: 2,
+            image_count: 3,
             name: "SwapChain".to_string(),
         },
     )
@@ -172,40 +177,41 @@ fn main() {
     .unwrap();
 
     // create one depth image
-    let depth_device_image = create_depth_device_image(
-        &base,
-        swap_chain.extent.0,
-    ).unwrap();
+    let depth_device_image = create_depth_device_image(&base, swap_chain.extent.0).unwrap();
 
     // now we can fill out the swapchain elements
-    swap_chain.fill_elements(
-        &base,
-        depth_device_image.view.0,
-        render_pass.0,
-    ).unwrap();
+    swap_chain
+        .fill_elements(&base, depth_device_image.view.0, render_pass.0)
+        .unwrap();
 
     // UBO for each fram in flight
     let mut uniform_buffers = Vec::new();
     for i in 0..swap_chain.image_count {
-        uniform_buffers.push(DeviceBuffer::new(
-            &base,
-            &DeviceBufferSettings {
-                size: std::mem::size_of::<UBO>() as ash::vk::DeviceSize,
-                usage: ash::vk::BufferUsageFlags::UNIFORM_BUFFER,
-                properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
-                    | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
-                name: format!("UniformBuffer_{}", i),
-            },
-        ).unwrap());
+        uniform_buffers.push(
+            DeviceBuffer::new(
+                &base,
+                &DeviceBufferSettings {
+                    size: std::mem::size_of::<UBO>() as ash::vk::DeviceSize,
+                    usage: ash::vk::BufferUsageFlags::UNIFORM_BUFFER,
+                    properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
+                        | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
+                    name: format!("UniformBuffer_{}", i),
+                },
+            )
+            .unwrap(),
+        );
     }
 
     // create descriptor sets
     let descriptor = {
         let mut setup_map = HashMap::new();
-        setup_map.insert(0, descriptor::Setup {
-            ty: ash::vk::DescriptorType::UNIFORM_BUFFER,
-            stage: ash::vk::ShaderStageFlags::VERTEX,
-        });
+        setup_map.insert(
+            0,
+            descriptor::Setup {
+                ty: ash::vk::DescriptorType::UNIFORM_BUFFER,
+                stage: ash::vk::ShaderStageFlags::VERTEX,
+            },
+        );
         let mut set_usages = Vec::new();
         for (i, uniform_buffer) in uniform_buffers.iter().enumerate() {
             let mut usages = HashMap::new();
@@ -222,7 +228,8 @@ fn main() {
                 set_usages,
                 name: "Descriptor".to_string(),
             },
-        ).unwrap()
+        )
+        .unwrap()
     };
 
     // Create graphic commands, one buffer per image
@@ -236,7 +243,12 @@ fn main() {
     )
     .unwrap();
 
-    // Just need the queue for presenting
+
+    // the queue for rendering
+    let render_queue =
+        command::Queue::new(&base, combined_queue_family_idx, "RenderQueue".to_string()).unwrap();
+
+    // the queue for presenting
     let present_queue =
         command::Queue::new(&base, combined_queue_family_idx, "PresentQueue".to_string()).unwrap();
 
@@ -251,14 +263,15 @@ fn main() {
     )
     .unwrap();
 
-    // create vertex buffer 
+    // create vertex buffer
     let vertex_device_buffer = create_vertex_device_buffer(
         &base,
         mesh.vertices.as_slice(),
         transfer_command.queue.0,
         transfer_command.pool.0,
         "VertexBuffer".to_string(),
-    ).unwrap();
+    )
+    .unwrap();
 
     // create index buffer
     let index_device_buffer = create_index_device_buffer(
@@ -267,7 +280,8 @@ fn main() {
         transfer_command.queue.0,
         transfer_command.pool.0,
         "IndexBuffer".to_string(),
-    ).unwrap();
+    )
+    .unwrap();
 
     // transfer the ownership to the combined queue family
     ownership::transfer_to_combined(
@@ -276,16 +290,14 @@ fn main() {
         &[],
         &transfer_command,
         &graphics_command, // any command struct from the combined family is ok
-    ).unwrap();
-
+    )
+    .unwrap();
 
     // Create a single graphics pipeline
     let graphics_pipeline_layout = PipelineLayout::new(
         &base,
         &PipelineLayoutSettings {
-            set_layouts: vec![
-                descriptor.layout.0
-            ],
+            set_layouts: vec![descriptor.layout.0],
             push_constant_ranges: vec![],
             name: "GraphicsPipelineLayout".to_string(),
         },
@@ -304,7 +316,6 @@ fn main() {
     )
     .unwrap();
 
-
     // write to the command buffers
     for (i, command_buffer) in graphics_command.buffers.iter().enumerate() {
         command::draw::indexed(
@@ -321,8 +332,35 @@ fn main() {
                 index_buffer: index_device_buffer.buffer.0,
                 n_indices: mesh.indices.len() as u32 * 3,
             },
-        ).unwrap();
+        )
+        .unwrap();
     }
+
+    let mut frame = 0;
+    let timeline = Timeline::new(&base, frame, "Timeline".to_string()).unwrap();
+    let semaphore_image_acquired =
+        Semaphore::new(&base, "SemaphoreImageAquired".to_string()).unwrap();
+    let semaphore_rendering_finished =
+        Semaphore::new(&base, "SemaphoreRenderingFinished".to_string()).unwrap();
+
+    let mut image_index = 0;
+
+    // the first image index is retrieved
+    image_index = {
+        let (tmp_image_index, _suboptimal) = unsafe {
+            swap_chain.loader.0.acquire_next_image(
+                swap_chain.handle,
+                std::u64::MAX,
+                semaphore_image_acquired.0,
+                ash::vk::Fence::default(),
+            )
+        }
+        .unwrap();
+        tmp_image_index
+    };
+
+    // and we wait until device is idle before we start the actual main loop
+    wait_device_idle(&base).unwrap();
 
     'running: loop {
         for e in sdl.get_events() {
@@ -331,6 +369,77 @@ fn main() {
                 _ => {}
             }
         }
+
+        println!("Image Index: {}", {image_index});
+
+        // choose the buffer corresponding to the image
+        let graphics_command_buffers =
+            [graphics_command.buffers[image_index as usize].0];
+
+        // setup waiting / signaling for rendering
+        let wait_values = [1];
+        let signal_values = [frame + 1, 1];
+        let mut timeline_submit_info = ash::vk::TimelineSemaphoreSubmitInfo::builder()
+            .wait_semaphore_values(&wait_values)
+            .signal_semaphore_values(&signal_values)
+            .build();
+        let graphics_wait_semaphores = [semaphore_image_acquired.0];
+        let graphics_wait_stages_mask = [ash::vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT];
+        let graphics_signal_semaphores = [
+            timeline.0,
+            semaphore_rendering_finished.0,
+        ];
+
+        // setup submit
+        let graphics_submit_info = ash::vk::SubmitInfo::builder()
+            .wait_semaphores(&graphics_wait_semaphores)
+            .wait_dst_stage_mask(&graphics_wait_stages_mask)
+            .command_buffers(&graphics_command_buffers)
+            .signal_semaphores(&graphics_signal_semaphores)
+            .push_next(&mut timeline_submit_info);
+        let graphics_submits = [graphics_submit_info.build()];
+
+        // wait for last frame to complete rendering before submitting.
+        println!("Timeline before wait: {}", timeline.query(&base).unwrap());
+        timeline.wait(&base, frame).unwrap();
+        println!("Timeline after wait: {}", timeline.query(&base).unwrap());
+
+        unsafe {
+            base.logical_device.0.queue_submit(
+                render_queue.0,
+                &graphics_submits,
+                ash::vk::Fence::default(),
+            )
+        }.unwrap();
+
+        // present it
+        let present_wait_semaphores = [semaphore_rendering_finished.0];
+        let swap_chains = [swap_chain.handle];
+        let image_indices = [image_index];
+        let present_info = ash::vk::PresentInfoKHR::builder()
+            .wait_semaphores(&present_wait_semaphores)
+            .swapchains(&swap_chains)
+            .image_indices(&image_indices);
+        unsafe {
+            swap_chain.loader.0.queue_present(present_queue.0, &present_info)
+        }.unwrap();
+
+        // acquire an image for the next iteration
+        image_index = {
+            let (tmp_image_index, _suboptimal) = unsafe {
+                swap_chain.loader.0.acquire_next_image(
+                    swap_chain.handle,
+                    std::u64::MAX,
+                    semaphore_image_acquired.0,
+                    ash::vk::Fence::default(),
+                )
+            }
+            .unwrap();
+            tmp_image_index
+        };
+
+        frame += 1;
+
     }
 
     unsafe {
