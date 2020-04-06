@@ -9,13 +9,13 @@ use ash_urn::descriptor;
 use ash_urn::device_image::create_depth_device_image;
 use ash_urn::transfer::{create_index_device_buffer, create_vertex_device_buffer, ownership};
 use ash_urn::{command, Command, CommandSettings};
+use ash_urn::{wait_device_idle, Semaphore, Timeline};
 use ash_urn::{Descriptor, DescriptorSettings};
 use ash_urn::{DeviceBuffer, DeviceBufferSettings};
 use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
 use ash_urn::{Indices, Mesh, Vertex};
 use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
-use ash_urn::{Semaphore, Timeline, wait_device_idle};
 use ash_urn::{SwapChain, SwapChainSettings};
 
 use ash::version::DeviceV1_0;
@@ -133,10 +133,7 @@ fn main() {
     )
     .unwrap();
 
-    let timeline_loader = ash::extensions::khr::TimelineSemaphore::new(
-        &entry.0,
-        &instance.0,
-    );
+    let timeline_loader = ash::extensions::khr::TimelineSemaphore::new(&entry.0, &instance.0);
 
     // Combine everything into the Base
     let base = Base {
@@ -242,7 +239,6 @@ fn main() {
         },
     )
     .unwrap();
-
 
     // the queue for rendering
     let render_queue =
@@ -370,11 +366,10 @@ fn main() {
             }
         }
 
-        println!("Image Index: {}", {image_index});
+        println!("Image Index: {}", { image_index });
 
         // choose the buffer corresponding to the image
-        let graphics_command_buffers =
-            [graphics_command.buffers[image_index as usize].0];
+        let graphics_command_buffers = [graphics_command.buffers[image_index as usize].0];
 
         // setup waiting / signaling for rendering
         let wait_values = [1];
@@ -385,10 +380,7 @@ fn main() {
             .build();
         let graphics_wait_semaphores = [semaphore_image_acquired.0];
         let graphics_wait_stages_mask = [ash::vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT];
-        let graphics_signal_semaphores = [
-            timeline.0,
-            semaphore_rendering_finished.0,
-        ];
+        let graphics_signal_semaphores = [timeline.0, semaphore_rendering_finished.0];
 
         // setup submit
         let graphics_submit_info = ash::vk::SubmitInfo::builder()
@@ -410,7 +402,8 @@ fn main() {
                 &graphics_submits,
                 ash::vk::Fence::default(),
             )
-        }.unwrap();
+        }
+        .unwrap();
 
         // present it
         let present_wait_semaphores = [semaphore_rendering_finished.0];
@@ -421,8 +414,12 @@ fn main() {
             .swapchains(&swap_chains)
             .image_indices(&image_indices);
         unsafe {
-            swap_chain.loader.0.queue_present(present_queue.0, &present_info)
-        }.unwrap();
+            swap_chain
+                .loader
+                .0
+                .queue_present(present_queue.0, &present_info)
+        }
+        .unwrap();
 
         // acquire an image for the next iteration
         image_index = {
@@ -439,7 +436,6 @@ fn main() {
         };
 
         frame += 1;
-
     }
 
     unsafe {
