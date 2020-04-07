@@ -3,9 +3,11 @@ use crate::UrnError;
 
 use ash::version::DeviceV1_0;
 
+pub mod fence;
 pub mod semaphore;
 pub mod timeline;
 
+pub use fence::Fence;
 pub use semaphore::Semaphore;
 pub use timeline::Timeline;
 

@@ -17,4 +17,9 @@ impl Semaphore {
 
         Ok(Self(semaphore))
     }
+    pub fn destroy(&self, base: &Base) {
+        unsafe {
+            base.logical_device.0.destroy_semaphore(self.0, None);        
+        }
+    }
 }

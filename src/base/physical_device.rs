@@ -155,8 +155,7 @@ impl PhysicalDevice {
                 idx: idx as u32,
                 properties: *properties,
             };
-            let key =
-                QueueFamilyKey::gen_key(&queue_family, self.0, surface_loader, surface)?;
+            let key = QueueFamilyKey::gen_key(&queue_family, self.0, surface_loader, surface)?;
             let support_string = |b| if b { "support" } else { "unsupport" };
             println!(
                 "\t\t{}\t    | {},  {},  {},  {}",

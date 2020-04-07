@@ -14,6 +14,8 @@ pub use layout::Layout;
 pub use pool::Pool;
 pub use set::Set;
 
+use ash::version::DeviceV1_0;
+
 pub struct Descriptor {
     pub layout: Layout,
     pub pool: Pool,
@@ -102,5 +104,12 @@ impl Descriptor {
         }
 
         Ok(Self { layout, pool, sets })
+    }
+
+    pub fn destroy(&self, base: &Base) {
+        unsafe {
+            base.logical_device.0.destroy_descriptor_set_layout(self.layout.0, None);
+            base.logical_device.0.destroy_descriptor_pool(self.pool.0, None);
+        }
     }
 }

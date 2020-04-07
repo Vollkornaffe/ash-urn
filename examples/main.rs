@@ -8,12 +8,12 @@ use ash_urn::base::{
 use ash_urn::descriptor;
 use ash_urn::device_image::create_depth_device_image;
 use ash_urn::transfer::{create_index_device_buffer, create_vertex_device_buffer, ownership};
+use ash_urn::Mesh;
 use ash_urn::{command, Command, CommandSettings};
-use ash_urn::{wait_device_idle, Semaphore, Timeline};
+use ash_urn::{wait_device_idle, Fence, Semaphore, Timeline};
 use ash_urn::{Descriptor, DescriptorSettings};
 use ash_urn::{DeviceBuffer, DeviceBufferSettings};
 use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
-use ash_urn::{Mesh};
 use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
 use ash_urn::{SwapChain, SwapChainSettings};
@@ -338,6 +338,8 @@ fn main() {
         Semaphore::new(&base, "SemaphoreImageAquired".to_string()).unwrap();
     let semaphore_rendering_finished =
         Semaphore::new(&base, "SemaphoreRenderingFinished".to_string()).unwrap();
+    let fence_rendering_finished =
+        Fence::new(&base, true, "FenceRenderingFinished".to_string()).unwrap();
 
     // the first image index is retrieved
     let mut image_index = {
@@ -350,6 +352,9 @@ fn main() {
             )
         }
         .unwrap();
+        if _suboptimal {
+            panic!();
+        }
         tmp_image_index
     };
 
@@ -392,6 +397,8 @@ fn main() {
 
         // wait for last frame to complete rendering before submitting.
         timeline.wait(&base, frame).unwrap();
+        fence_rendering_finished.wait(&base).unwrap();
+        fence_rendering_finished.reset(&base).unwrap();
 
         // prepare uniform buffer wrt. time
         let t = start_instant.elapsed().as_secs_f32();
@@ -404,26 +411,28 @@ fn main() {
         );
         let mut proj = cgmath::perspective(
             cgmath::Deg(45.0),
-            swap_chain.extent.0.width as f32 / 
-            swap_chain.extent.0.height as f32,
+            swap_chain.extent.0.width as f32 / swap_chain.extent.0.height as f32,
             0.1,
             10.0,
         );
         proj[1][1] *= -1.0;
 
-        uniform_buffers[image_index as usize].write(&base, UBO {
-            model: model.into(),
-            view: view.into(),
-            proj: proj.into(),
-        }).unwrap();
-
-
+        uniform_buffers[image_index as usize]
+            .write(
+                &base,
+                UBO {
+                    model: model.into(),
+                    view: view.into(),
+                    proj: proj.into(),
+                },
+            )
+            .unwrap();
 
         unsafe {
             base.logical_device.0.queue_submit(
                 render_queue.0,
                 &graphics_submits,
-                ash::vk::Fence::default(),
+                fence_rendering_finished.0,
             )
         }
         .unwrap();
@@ -455,11 +464,31 @@ fn main() {
                 )
             }
             .unwrap();
+            if _suboptimal {
+                panic!();
+            }
             tmp_image_index
         };
 
         frame += 1;
     }
+
+    wait_device_idle(&base).unwrap();
+
+    graphics_command.destroy(&base);
+    transfer_command.destroy(&base);
+    semaphore_image_acquired.destroy(&base);
+    semaphore_rendering_finished.destroy(&base);
+    timeline.destroy(&base);
+    fence_rendering_finished.destroy(&base);
+    vertex_device_buffer.destroy(&base);
+    index_device_buffer.destroy(&base);
+    depth_device_image.destroy(&base);
+    for uniform_buffer in uniform_buffers {
+        uniform_buffer.destroy(&base);
+    }
+    swap_chain.destroy(&base);
+    descriptor.destroy(&base);
 
     unsafe {
         base.logical_device
