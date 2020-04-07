@@ -36,10 +36,10 @@ struct UBO {
 fn main() {
     // create a mesh to render
     let mesh = Mesh::new().add_quad(
-        [-1.0, -1.0, 0.0],
-        [1.0, -1.0, 0.0],
-        [1.0, 1.0, 0.0],
-        [-1.0, 1.0, 0.0],
+        [-0.5, -0.5, 0.0],
+        [0.5, -0.5, 0.0],
+        [0.5, 0.5, 0.0],
+        [-0.5, 0.5, 0.0],
         [1.0, 0.0, 0.0, 1.0],
     );
 
@@ -89,7 +89,7 @@ fn main() {
     let surface = sdl.create_surface(&instance.0).unwrap();
 
     // Time to think about devices
-    let timelines = true;
+    let timelines = false;
     let mut device_extensions = vec!["VK_KHR_swapchain".to_string()];
     if timelines {
         device_extensions.push("VK_KHR_timeline_semaphore".to_string());
@@ -333,7 +333,6 @@ fn main() {
     }
 
     let mut frame = 0;
-    let timeline = Timeline::new(&base, frame, "Timeline".to_string()).unwrap();
     let semaphore_image_acquired =
         Semaphore::new(&base, "SemaphoreImageAquired".to_string()).unwrap();
     let semaphore_rendering_finished =
@@ -352,6 +351,9 @@ fn main() {
             )
         }
         .unwrap();
+        if _suboptimal {
+            panic!();
+        }
         tmp_image_index
     };
 
@@ -361,39 +363,23 @@ fn main() {
     // record starting time
     let start_instant = std::time::Instant::now();
 
-    'running: loop {
-        for e in sdl.get_events() {
-            match e {
-                sdl::SdlEvent::Close => break 'running,
-                _ => {}
-            }
-        }
-
         // choose the buffer corresponding to the image
         let graphics_command_buffers = [graphics_command.buffers[image_index as usize].0];
 
         // setup waiting / signaling for rendering
-        let wait_values = [1];
-        let signal_values = [frame + 1, 1];
-        let mut timeline_submit_info = ash::vk::TimelineSemaphoreSubmitInfo::builder()
-            .wait_semaphore_values(&wait_values)
-            .signal_semaphore_values(&signal_values)
-            .build();
         let graphics_wait_semaphores = [semaphore_image_acquired.0];
         let graphics_wait_stages_mask = [ash::vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT];
-        let graphics_signal_semaphores = [timeline.0, semaphore_rendering_finished.0];
+        let graphics_signal_semaphores = [semaphore_rendering_finished.0];
 
         // setup submit
         let graphics_submit_info = ash::vk::SubmitInfo::builder()
             .wait_semaphores(&graphics_wait_semaphores)
             .wait_dst_stage_mask(&graphics_wait_stages_mask)
             .command_buffers(&graphics_command_buffers)
-            .signal_semaphores(&graphics_signal_semaphores)
-            .push_next(&mut timeline_submit_info);
+            .signal_semaphores(&graphics_signal_semaphores);
         let graphics_submits = [graphics_submit_info.build()];
 
         // wait for last frame to complete rendering before submitting.
-        timeline.wait(&base, frame).unwrap();
         fence_rendering_finished.wait(&base).unwrap();
         fence_rendering_finished.reset(&base).unwrap();
 
@@ -449,6 +435,17 @@ fn main() {
                 .queue_present(present_queue.0, &present_info)
         }
         .unwrap();
+        /*
+
+    'running: loop {
+        for e in sdl.get_events() {
+            match e {
+                sdl::SdlEvent::Close => break 'running,
+                _ => {}
+            }
+        }
+
+
 
         // acquire an image for the next iteration
         image_index = {
@@ -461,19 +458,22 @@ fn main() {
                 )
             }
             .unwrap();
+            if _suboptimal {
+                panic!();
+            }
             tmp_image_index
         };
 
         frame += 1;
     }
 
+    */
     wait_device_idle(&base).unwrap();
 
     graphics_command.destroy(&base);
     transfer_command.destroy(&base);
     semaphore_image_acquired.destroy(&base);
     semaphore_rendering_finished.destroy(&base);
-    timeline.destroy(&base);
     fence_rendering_finished.destroy(&base);
     vertex_device_buffer.destroy(&base);
     index_device_buffer.destroy(&base);
