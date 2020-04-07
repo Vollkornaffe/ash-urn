@@ -10,6 +10,6 @@ impl SurfaceFormat {
             }
         }
 
-        Self(available_formats.first().unwrap().clone())
+        Self(*available_formats.first().unwrap())
     }
 }

@@ -13,7 +13,7 @@ use ash_urn::{wait_device_idle, Semaphore, Timeline};
 use ash_urn::{Descriptor, DescriptorSettings};
 use ash_urn::{DeviceBuffer, DeviceBufferSettings};
 use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
-use ash_urn::{Indices, Mesh, Vertex};
+use ash_urn::{Mesh};
 use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 use ash_urn::{RenderPass, RenderPassSettings};
 use ash_urn::{SwapChain, SwapChainSettings};
@@ -339,10 +339,8 @@ fn main() {
     let semaphore_rendering_finished =
         Semaphore::new(&base, "SemaphoreRenderingFinished".to_string()).unwrap();
 
-    let mut image_index = 0;
-
     // the first image index is retrieved
-    image_index = {
+    let mut image_index = {
         let (tmp_image_index, _suboptimal) = unsafe {
             swap_chain.loader.0.acquire_next_image(
                 swap_chain.handle,

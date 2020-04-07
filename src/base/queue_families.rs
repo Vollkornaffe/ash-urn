@@ -27,7 +27,6 @@ impl QueueFamilyKey {
     pub fn gen_key(
         queue_family: &QueueFamily,
         physical_device: ash::vk::PhysicalDevice,
-        instance: &ash::Instance,
         surface_loader: &ash::extensions::khr::Surface,
         surface: ash::vk::SurfaceKHR,
     ) -> Result<Self, UrnError> {

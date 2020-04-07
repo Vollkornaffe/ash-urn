@@ -15,9 +15,9 @@ pub fn attachment_info() -> ash::vk::PipelineColorBlendAttachmentStateBuilder<'s
         .alpha_blend_op(ash::vk::BlendOp::ADD)
 }
 
-pub fn state_info<'a>(
-    attachment_info: &'a [ash::vk::PipelineColorBlendAttachmentState],
-) -> ash::vk::PipelineColorBlendStateCreateInfoBuilder<'a> {
+pub fn state_info(
+    attachment_info: &[ash::vk::PipelineColorBlendAttachmentState],
+) -> ash::vk::PipelineColorBlendStateCreateInfoBuilder {
     ash::vk::PipelineColorBlendStateCreateInfo::builder()
         .logic_op_enable(false)
         .logic_op(ash::vk::LogicOp::COPY)

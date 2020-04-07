@@ -2,8 +2,6 @@ use crate::Base;
 use crate::UrnError;
 
 use ash::version::DeviceV1_0;
-use ash::version::DeviceV1_1;
-use ash::version::DeviceV1_2;
 
 pub struct Timeline(pub ash::vk::Semaphore);
 

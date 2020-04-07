@@ -14,11 +14,11 @@ impl From<String> for SdlError {
 
 pub enum SdlEvent {
     Close,
-    IncDebug,
-    DecDebug,
+    //IncDebug,
+    //DecDebug,
     Resize,
-    Profile,
-    Step,
+    //Profile,
+    //Step,
 }
 
 pub struct SDL {

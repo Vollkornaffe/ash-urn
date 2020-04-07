@@ -78,7 +78,7 @@ impl PhysicalDevice {
                 properties: *properties,
             };
             res.insert(
-                QueueFamilyKey::gen_key(&queue_family, self.0, instance, surface_loader, surface)?,
+                QueueFamilyKey::gen_key(&queue_family, self.0, surface_loader, surface)?,
                 queue_family,
             );
         }
@@ -120,7 +120,7 @@ impl PhysicalDevice {
         surface: ash::vk::SurfaceKHR,
     ) -> Result<(), UrnError> {
         let device_properties = unsafe { instance.get_physical_device_properties(self.0) };
-        let device_features = unsafe { instance.get_physical_device_features(self.0) };
+        let _device_features = unsafe { instance.get_physical_device_features(self.0) };
         let device_queue_families =
             unsafe { instance.get_physical_device_queue_family_properties(self.0) };
 
@@ -156,7 +156,7 @@ impl PhysicalDevice {
                 properties: *properties,
             };
             let key =
-                QueueFamilyKey::gen_key(&queue_family, self.0, instance, surface_loader, surface)?;
+                QueueFamilyKey::gen_key(&queue_family, self.0, surface_loader, surface)?;
             let support_string = |b| if b { "support" } else { "unsupport" };
             println!(
                 "\t\t{}\t    | {},  {},  {},  {}",
@@ -185,7 +185,7 @@ impl PhysicalDevice {
     ) -> Result<Self, UrnError> {
         let physical_devices = Self::enumerate(&instance)?;
         for pd in physical_devices {
-            pd.print_details(&instance, surface_loader, surface);
+            pd.print_details(&instance, surface_loader, surface)?;
             let mut device_ok = true;
 
             for (i, b) in pd
