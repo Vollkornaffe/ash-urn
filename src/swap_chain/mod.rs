@@ -134,4 +134,13 @@ impl SwapChain {
 
         Ok(())
     }
+
+    pub fn destroy(&self, base: &Base) {
+        for element in &self.elements {
+            unsafe {
+                base.logical_device.0.destroy_image_view(element.image_view, None);
+                base.logical_device.0.destroy_framebuffer(element.frame_buffer, None);
+            }
+        }
+    }
 }

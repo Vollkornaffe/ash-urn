@@ -60,4 +60,10 @@ impl Timeline {
                 .get_semaphore_counter_value(base.logical_device.0.handle(), self.0)?
         })
     }
+
+    pub fn destroy(&self, base: &Base) {
+        unsafe {
+            base.logical_device.0.destroy_semaphore(self.0, None);
+        }
+    }
 }

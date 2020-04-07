@@ -12,6 +12,8 @@ pub use draw::DrawIndexedSettings;
 pub use pool::Pool;
 pub use queue::Queue;
 
+use ash::version::DeviceV1_0;
+
 pub struct Command {
     pub family_idx: u32,
     pub queue: Queue,
@@ -52,5 +54,11 @@ impl Command {
             pool,
             buffers,
         })
+    }
+
+    pub fn destroy(&self, base: &Base) {
+        unsafe {
+            base.logical_device.0.destroy_command_pool(self.pool.0, None);
+        }
     }
 }

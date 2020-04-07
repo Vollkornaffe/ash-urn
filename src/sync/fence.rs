@@ -36,4 +36,10 @@ impl Fence {
     pub fn query(&self, base: &Base) -> Result<bool, UrnError> {
         Ok(unsafe { base.logical_device.0.get_fence_status(self.0)? })
     }
+
+    pub fn destroy(&self, base: &Base) {
+        unsafe {
+            base.logical_device.0.destroy_fence(self.0, None);
+        }
+    }
 }

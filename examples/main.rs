@@ -467,6 +467,23 @@ fn main() {
         frame += 1;
     }
 
+    wait_device_idle(&base).unwrap();
+
+    graphics_command.destroy(&base);
+    transfer_command.destroy(&base);
+    semaphore_image_acquired.destroy(&base);
+    semaphore_rendering_finished.destroy(&base);
+    timeline.destroy(&base);
+    fence_rendering_finished.destroy(&base);
+    vertex_device_buffer.destroy(&base);
+    index_device_buffer.destroy(&base);
+    depth_device_image.destroy(&base);
+    for uniform_buffer in uniform_buffers {
+        uniform_buffer.destroy(&base);
+    }
+    swap_chain.destroy(&base);
+    descriptor.destroy(&base);
+
     unsafe {
         base.logical_device
             .0
