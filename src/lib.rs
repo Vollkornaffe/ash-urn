@@ -26,4 +26,4 @@ pub use pipeline::{
 };
 pub use render_pass::{RenderPass, RenderPassSettings};
 pub use swap_chain::{SwapChain, SwapChainSettings};
-pub use sync::{wait_device_idle, Semaphore, Timeline};
+pub use sync::{wait_device_idle, Fence, Semaphore, Timeline};
