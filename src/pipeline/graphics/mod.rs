@@ -69,8 +69,7 @@ impl GraphicsPipeline {
             .scissors(&scissors);
 
         let rasterizer_info = rasterizer::info();
-        let sample_mask = [];
-        let multisampling_info = multisampling::info(&sample_mask);
+        let multisampling_info = multisampling::info();
 
         let color_blend_attachments = [color_blend::attachment_info().build()];
         let color_blend_state_info = color_blend::state_info(&color_blend_attachments);
