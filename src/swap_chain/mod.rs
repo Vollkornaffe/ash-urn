@@ -146,5 +146,11 @@ impl SwapChain {
                     .destroy_framebuffer(element.frame_buffer, None);
             }
         }
+        unsafe {
+            self
+                .loader
+                .0
+                .destroy_swapchain(self.handle, None);
+        }
     }
 }

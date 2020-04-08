@@ -17,8 +17,6 @@ use ash_urn::Mesh;
 use ash_urn::SwapChain;
 use ash_urn::{Fence, Semaphore, Timeline};
 
-use ash::version::DeviceV1_0;
-
 #[repr(C)]
 struct UBO {
     model: Align16<cgmath::Matrix4<f32>>,
@@ -179,7 +177,7 @@ fn main() {
         for e in sdl.get_events() {
             match e {
                 sdl::SdlEvent::Close => break 'running,
-                sdl::SdlEvent::Resize => break 'running, //TODO
+                sdl::SdlEvent::Resize => {}, //TODO
             }
         }
 
@@ -197,10 +195,7 @@ fn main() {
             &mut frame,
             &mut image_index,
         ) {
-            Err(AppError::AshError(ash::vk::Result::ERROR_OUT_OF_DATE_KHR)) => {
-                println!("RESIZE NEEDED");
-                Ok(())
-            }
+            Err(AppError::AshError(ash::vk::Result::ERROR_OUT_OF_DATE_KHR)) => Ok(()),
             x => x,
         }
         .unwrap();
@@ -223,20 +218,11 @@ fn main() {
     swap_chain.destroy(&base);
     descriptor.destroy(&base);
 
+    graphics_pipeline_layout.destroy(&base);
+    graphics_pipeline.destroy(&base);
+    render_pass.destroy(&base);
+
     unsafe {
-        base.logical_device
-            .0
-            .destroy_pipeline_layout(graphics_pipeline_layout.0, None);
-        base.logical_device
-            .0
-            .destroy_pipeline(graphics_pipeline.0, None);
-        base.logical_device
-            .0
-            .destroy_render_pass(render_pass.0, None);
-        swap_chain
-            .loader
-            .0
-            .destroy_swapchain(swap_chain.handle, None);
         surface_loader.destroy_surface(surface, None);
     }
 }

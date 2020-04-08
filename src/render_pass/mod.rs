@@ -51,4 +51,12 @@ impl RenderPass {
 
         Ok(Self(render_pass))
     }
+
+    pub fn destroy(&self, base: &Base) {
+        unsafe {
+            base.logical_device
+                .0
+                .destroy_render_pass(self.0, None);
+        }
+    }
 }
