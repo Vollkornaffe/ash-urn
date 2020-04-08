@@ -3,6 +3,7 @@
 pub enum UrnError {
     GenericDynamic(String),
     Generic(&'static str),
+    AshLoadingError(ash::LoadingError),
     AshError(ash::vk::Result),
     AshInstanceError(ash::InstanceError),
     IO(std::io::Error),
@@ -30,5 +31,11 @@ impl From<ash::vk::Result> for UrnError {
 impl From<ash::InstanceError> for UrnError {
     fn from(e: ash::InstanceError) -> UrnError {
         UrnError::AshInstanceError(e)
+    }
+}
+
+impl From<ash::LoadingError> for UrnError {
+    fn from(e: ash::LoadingError) -> UrnError {
+        UrnError::AshLoadingError(e)
     }
 }
