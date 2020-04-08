@@ -24,6 +24,7 @@ use ash_urn::Timeline;
 use ash_urn::Semaphore;
 use ash_urn::Fence;
 use ash_urn::Mesh;
+use ash_urn::sync::wait_device_idle;
 
 pub struct Setup<'a>{
     pub base: &'a Base,
@@ -52,6 +53,8 @@ impl<'a> Setup<'a> {
         surface: ash::vk::SurfaceKHR,
         mesh: &Mesh,
     ) -> Result<Self, AppError> {
+
+        wait_device_idle(base)?;
     
         // get swap chain + renderpass & depth image
         // this is also a bit entangled
@@ -107,6 +110,8 @@ impl<'a> Setup<'a> {
             fence_rendering_finished,
         ) = sync::setup(base)?;
 
+        wait_device_idle(base)?;
+
         Ok(Self {
             base,
             swap_chain,
@@ -130,6 +135,9 @@ impl<'a> Setup<'a> {
 
 impl Drop for Setup<'_> {
     fn drop(&mut self) {
+
+        wait_device_idle(self.base).unwrap();
+
         self.graphics_command.destroy(&self.base);
         self.transfer_command.destroy(&self.base);
         self.semaphore_image_acquired.destroy(&self.base);

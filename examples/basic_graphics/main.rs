@@ -54,9 +54,6 @@ fn main() {
             &mesh,
         ).unwrap();
 
-        // and we wait until device is idle before we start the actual main loop
-        wait_device_idle(&base).unwrap();
-
         // record starting time
         let start_instant = std::time::Instant::now();
         let mut frame = 0;
@@ -64,18 +61,6 @@ fn main() {
             for e in sdl.get_events() {
                 match e {
                     sdl::SdlEvent::Close => break 'running,
-                    sdl::SdlEvent::Resize => {
-                        wait_device_idle(&base).unwrap();
-                        setup = Setup::new(
-                            &sdl,
-                            &base,
-                            &surface_loader,
-                            surface,
-                            &mesh,
-                        ).unwrap();
-                        wait_device_idle(&base).unwrap();
-                        frame = 0;
-                    },
                 }
             }
 
@@ -86,7 +71,17 @@ fn main() {
                 &start_instant,
                 &mut frame,
             ) {
-                Err(AppError::AshError(ash::vk::Result::ERROR_OUT_OF_DATE_KHR)) => Ok(()),
+                Err(AppError::AshError(ash::vk::Result::ERROR_OUT_OF_DATE_KHR)) => {
+                    setup = Setup::new(
+                        &sdl,
+                        &base,
+                        &surface_loader,
+                        surface,
+                        &mesh,
+                    ).unwrap();
+                    frame = 0;
+                    Ok(())
+                },
                 x => x,
             }
             .unwrap();
