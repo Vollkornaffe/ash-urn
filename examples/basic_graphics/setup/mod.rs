@@ -94,7 +94,7 @@ impl<'a> Setup<'a> {
                     descriptor_set: descriptor.sets[i].0,
                     vertex_buffer: vertex_device_buffer.buffer.0,
                     index_buffer: index_device_buffer.buffer.0,
-                    n_indices: mesh.indices.len() as u32 * 3,
+                    n_indices: mesh.indices.len() as u32,
                 },
             )?;
         }

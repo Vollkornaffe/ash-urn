@@ -7,12 +7,9 @@ pub struct Vertex {
 }
 
 #[repr(C)]
-pub struct Indices(pub [u32; 3]);
-
-#[repr(C)]
 pub struct Mesh {
     pub vertices: Vec<Vertex>,
-    pub indices: Vec<Indices>,
+    pub indices: Vec<u32>,
 }
 
 impl Vertex {
@@ -75,10 +72,12 @@ impl Mesh {
             pos: c3.into(),
             col: col.into(),
         });
-        self.indices
-            .push(Indices([offset + 1, offset + 0, offset + 2]));
-        self.indices
-            .push(Indices([offset + 3, offset + 2, offset + 0]));
+        self.indices.push(offset + 1);
+        self.indices.push(offset + 0);
+        self.indices.push(offset + 2);
+        self.indices.push(offset + 3);
+        self.indices.push(offset + 2);
+        self.indices.push(offset + 0);
 
         self
     }

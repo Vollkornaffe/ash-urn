@@ -2,6 +2,7 @@ pub mod error;
 pub mod run;
 pub mod sdl;
 pub mod setup;
+pub mod assets;
 
 pub use error::AppError;
 pub use sdl::SDL;
@@ -9,7 +10,6 @@ pub use setup::Setup;
 
 use ash_urn::memory_alignment::Align16;
 use ash_urn::wait_device_idle;
-use ash_urn::Mesh;
 
 #[repr(C)]
 struct UBO {
@@ -22,14 +22,8 @@ fn main() {
     println!("Starting basic_graphics.");
 
     // create a mesh to render
-    let mesh = Mesh::new().add_quad(
-        [-1.0, -1.0, 0.0],
-        [1.0, -1.0, 0.0],
-        [1.0, 1.0, 0.0],
-        [-1.0, 1.0, 0.0],
-        [1.0, 0.0, 0.0, 1.0],
-    );
-
+    let mesh = assets::load_mesh("examples/basic_graphics/assets/test.glb").unwrap();
+ 
     // create sdl context
     let mut sdl = sdl::SDL::new(sdl::WindowSettings {
         title: "Basic Graphics",

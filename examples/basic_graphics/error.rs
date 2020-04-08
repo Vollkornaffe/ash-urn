@@ -11,6 +11,7 @@ pub enum AppError {
     IO(std::io::Error),
     NulError(std::ffi::NulError),
     SdlError(sdl::SdlError),
+    GltfError(gltf::Error),
 }
 
 impl From<std::ffi::NulError> for AppError {
@@ -46,5 +47,11 @@ impl From<ash_urn::UrnError> for AppError {
 impl From<sdl::SdlError> for AppError {
     fn from(e: sdl::SdlError) -> AppError {
         AppError::SdlError(e)
+    }
+}
+
+impl From<gltf::Error> for AppError {
+    fn from(e: gltf::Error) -> AppError {
+        AppError::GltfError(e)
     }
 }

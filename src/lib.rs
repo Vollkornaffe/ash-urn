@@ -19,7 +19,7 @@ pub use descriptor::{Descriptor, DescriptorSettings};
 pub use device_buffer::{DeviceBuffer, DeviceBufferSettings};
 pub use device_image::{DeviceImage, DeviceImageSettings};
 pub use error::UrnError;
-pub use mesh::{Indices, Mesh, Vertex};
+pub use mesh::{Mesh, Vertex};
 pub use pipeline::{
     GraphicsPipeline, GraphicsPipelineSettings, PipelineLayout, PipelineLayoutSettings,
     ShaderModule, ShaderModuleSettings,

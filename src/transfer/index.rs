@@ -1,7 +1,6 @@
 use crate::Base;
 use crate::UrnError;
 
-use crate::mesh::Indices;
 use crate::{DeviceBuffer, DeviceBufferSettings};
 
 use super::copy_buffer_to_buffer;
@@ -11,12 +10,12 @@ use ash::version::DeviceV1_0;
 
 pub fn create_index_device_buffer(
     base: &Base,
-    indices: &[Indices],
+    indices: &[u32],
     queue: ash::vk::Queue,
     pool: ash::vk::CommandPool,
     name: String,
 ) -> Result<DeviceBuffer, UrnError> {
-    let size = (indices.len() * std::mem::size_of::<Indices>()) as ash::vk::DeviceSize;
+    let size = (indices.len() * std::mem::size_of::<u32>()) as ash::vk::DeviceSize;
 
     let staging = create_staging_device_buffer(base, size, format!("{}Staging", name.clone()))?;
 
@@ -27,7 +26,7 @@ pub fn create_index_device_buffer(
             size,
             ash::vk::MemoryMapFlags::default(),
         )?
-    } as *mut Indices;
+    } as *mut u32;
 
     unsafe {
         data_ptr.copy_from_nonoverlapping(indices.as_ptr(), indices.len());
