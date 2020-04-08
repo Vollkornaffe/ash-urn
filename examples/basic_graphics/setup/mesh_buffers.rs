@@ -1,10 +1,10 @@
 use crate::AppError;
 
-use ash_urn::Base;
-use ash_urn::Mesh;
-use ash_urn::DeviceBuffer;
 use ash_urn::transfer::{create_index_device_buffer, create_vertex_device_buffer, ownership};
+use ash_urn::Base;
 use ash_urn::Command;
+use ash_urn::DeviceBuffer;
+use ash_urn::Mesh;
 
 pub fn setup(
     base: &Base,
@@ -12,7 +12,6 @@ pub fn setup(
     graphics_command: &Command,
     transfer_command: &Command,
 ) -> Result<(DeviceBuffer, DeviceBuffer), AppError> {
-
     // create vertex buffer
     let vertex_device_buffer = create_vertex_device_buffer(
         &base,

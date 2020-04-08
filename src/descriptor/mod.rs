@@ -108,8 +108,12 @@ impl Descriptor {
 
     pub fn destroy(&self, base: &Base) {
         unsafe {
-            base.logical_device.0.destroy_descriptor_set_layout(self.layout.0, None);
-            base.logical_device.0.destroy_descriptor_pool(self.pool.0, None);
+            base.logical_device
+                .0
+                .destroy_descriptor_set_layout(self.layout.0, None);
+            base.logical_device
+                .0
+                .destroy_descriptor_pool(self.pool.0, None);
         }
     }
 }

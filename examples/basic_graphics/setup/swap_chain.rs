@@ -1,19 +1,18 @@
 use crate::AppError;
 use crate::SDL;
 
-use ash_urn::Base;
-use ash_urn::{SwapChain, SwapChainSettings};
-use ash_urn::{RenderPass, RenderPassSettings};
-use ash_urn::DeviceImage;
 use ash_urn::device_image::create_depth_device_image;
+use ash_urn::Base;
+use ash_urn::DeviceImage;
+use ash_urn::{RenderPass, RenderPassSettings};
+use ash_urn::{SwapChain, SwapChainSettings};
 
 pub fn setup(
     base: &Base,
     sdl: &SDL,
     surface_loader: &ash::extensions::khr::Surface,
-    surface: ash::vk::SurfaceKHR
+    surface: ash::vk::SurfaceKHR,
 ) -> Result<(SwapChain, RenderPass, DeviceImage), AppError> {
-
     let swap_chain_support = base
         .physical_device
         .query_swap_chain_support(&surface_loader, surface)
@@ -46,5 +45,4 @@ pub fn setup(
         .unwrap();
 
     Ok((swap_chain, render_pass, depth_device_image))
-
 }

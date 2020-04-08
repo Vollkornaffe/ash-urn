@@ -10,7 +10,6 @@ pub fn submit(
     semaphore_rendering_finished: &Semaphore,
     image_index: u32,
 ) -> Result<(), AppError> {
-
     let present_wait_semaphores = [semaphore_rendering_finished.0];
     let swap_chains = [swap_chain.handle];
     let image_indices = [image_index];
@@ -26,5 +25,4 @@ pub fn submit(
     }
 
     Ok(())
-
 }

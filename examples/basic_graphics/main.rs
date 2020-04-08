@@ -1,21 +1,21 @@
-pub mod sdl;
 pub mod error;
+pub mod sdl;
 
-pub use sdl::SDL;
 pub use error::AppError;
+pub use sdl::SDL;
 
-mod setup;
 mod run;
+mod setup;
 
-use ash_urn::Base;
-use ash_urn::DeviceBuffer;
-use ash_urn::SwapChain;
-use ash_urn::Command;
-use ash_urn::{Timeline, Semaphore, Fence};
-use ash_urn::memory_alignment::Align16;
-use ash_urn::Mesh;
 use ash_urn::command;
+use ash_urn::memory_alignment::Align16;
 use ash_urn::wait_device_idle;
+use ash_urn::Base;
+use ash_urn::Command;
+use ash_urn::DeviceBuffer;
+use ash_urn::Mesh;
+use ash_urn::SwapChain;
+use ash_urn::{Fence, Semaphore, Timeline};
 
 use ash::version::DeviceV1_0;
 
@@ -39,7 +39,6 @@ fn advance_frame(
     frame: &mut u64,
     image_index: &mut u32,
 ) -> Result<(), AppError> {
-
     // wait for last frame to complete rendering before submitting.
     timeline.wait(&base, *frame)?;
 
@@ -79,10 +78,7 @@ fn advance_frame(
     )?;
 
     // acquire an image for the next iteration
-    *image_index = run::next_image::aquire(
-        &swap_chain,
-        &semaphore_image_acquired,
-    )?;
+    *image_index = run::next_image::aquire(&swap_chain, &semaphore_image_acquired)?;
 
     *frame += 1;
 
@@ -109,19 +105,15 @@ fn main() {
         maximized: false,
     })
     .unwrap();
-    
-    // setup the basic vulkan stuff, this is convoluted with 
+
+    // setup the basic vulkan stuff, this is convoluted with
     // surface stuff, can't really be separated further
     let (base, surface_loader, surface) = setup::base::setup(&mut sdl).unwrap();
 
     // get swap chain + renderpass & depth image
     // this is also a bit entangled
-    let (swap_chain, render_pass, depth_device_image) = setup::swap_chain::setup(
-        &base,
-        &sdl,
-        &surface_loader,
-        surface,
-    ).unwrap();
+    let (swap_chain, render_pass, depth_device_image) =
+        setup::swap_chain::setup(&base, &sdl, &surface_loader, surface).unwrap();
 
     // an uniform buffer per swapchain image
     let uniform_buffers = setup::uniform_buffers::setup(&base, swap_chain.image_count).unwrap();
@@ -131,25 +123,18 @@ fn main() {
 
     // get the structures for commands,
     // they will be filled out later
-    let (graphics_command, transfer_command) = setup::command::setup(&base, swap_chain.image_count).unwrap();
+    let (graphics_command, transfer_command) =
+        setup::command::setup(&base, swap_chain.image_count).unwrap();
 
     // create device buffers from the mesh
     // the transfer is done with the transfer command,
     // ownership is transferred afterwards
-    let (vertex_device_buffer, index_device_buffer) = setup::mesh_buffers::setup(
-        &base,
-        &mesh,
-        &graphics_command,
-        &transfer_command,
-    ).unwrap();
+    let (vertex_device_buffer, index_device_buffer) =
+        setup::mesh_buffers::setup(&base, &mesh, &graphics_command, &transfer_command).unwrap();
 
     // just one pipeline, using the vert & frag shader
-    let (graphics_pipeline_layout, graphics_pipeline) = setup::pipeline::setup(
-        &base,
-        &descriptor,
-        &swap_chain,
-        &render_pass,
-    ).unwrap();
+    let (graphics_pipeline_layout, graphics_pipeline) =
+        setup::pipeline::setup(&base, &descriptor, &swap_chain, &render_pass).unwrap();
 
     // write to the command buffers
     for (i, command_buffer) in graphics_command.buffers.iter().enumerate() {
@@ -172,13 +157,15 @@ fn main() {
     }
 
     // create all synchronization structs
-    let (timeline, semaphore_image_acquired, semaphore_rendering_finished, fence_rendering_finished) = setup::sync::setup(&base).unwrap();
+    let (
+        timeline,
+        semaphore_image_acquired,
+        semaphore_rendering_finished,
+        fence_rendering_finished,
+    ) = setup::sync::setup(&base).unwrap();
 
     // the first image index is retrieved
-    let mut image_index = run::next_image::aquire(
-        &swap_chain,
-        &semaphore_image_acquired,
-    ).unwrap();
+    let mut image_index = run::next_image::aquire(&swap_chain, &semaphore_image_acquired).unwrap();
 
     // and we wait until device is idle before we start the actual main loop
     wait_device_idle(&base).unwrap();
@@ -213,9 +200,10 @@ fn main() {
             Err(AppError::AshError(ash::vk::Result::ERROR_OUT_OF_DATE_KHR)) => {
                 println!("RESIZE NEEDED");
                 Ok(())
-            },
+            }
             x => x,
-        }.unwrap();
+        }
+        .unwrap();
     }
 
     wait_device_idle(&base).unwrap();

@@ -1,11 +1,11 @@
 use crate::AppError;
 
 use ash_urn::Base;
-use ash_urn::{PipelineLayout, PipelineLayoutSettings};
-use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
 use ash_urn::Descriptor;
-use ash_urn::SwapChain;
 use ash_urn::RenderPass;
+use ash_urn::SwapChain;
+use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
+use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 
 pub fn setup(
     base: &Base,
@@ -13,7 +13,6 @@ pub fn setup(
     swap_chain: &SwapChain,
     render_pass: &RenderPass,
 ) -> Result<(PipelineLayout, GraphicsPipeline), AppError> {
-
     let graphics_pipeline_layout = PipelineLayout::new(
         &base,
         &PipelineLayoutSettings {
@@ -36,5 +35,4 @@ pub fn setup(
     )?;
 
     Ok((graphics_pipeline_layout, graphics_pipeline))
-
 }

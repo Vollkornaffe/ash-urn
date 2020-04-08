@@ -1,14 +1,13 @@
 use crate::AppError;
 
+use ash_urn::descriptor;
 use ash_urn::Base;
 use ash_urn::DeviceBuffer;
-use ash_urn::descriptor;
 use ash_urn::{Descriptor, DescriptorSettings};
 
 use std::collections::HashMap;
 
 pub fn setup(base: &Base, uniform_buffers: &[DeviceBuffer]) -> Result<Descriptor, AppError> {
-
     let mut setup_map = HashMap::new();
     setup_map.insert(
         0,

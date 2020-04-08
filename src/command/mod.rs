@@ -58,7 +58,9 @@ impl Command {
 
     pub fn destroy(&self, base: &Base) {
         unsafe {
-            base.logical_device.0.destroy_command_pool(self.pool.0, None);
+            base.logical_device
+                .0
+                .destroy_command_pool(self.pool.0, None);
         }
     }
 }

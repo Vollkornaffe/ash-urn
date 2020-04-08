@@ -8,8 +8,9 @@ use ash_urn::base::{
     PhysicalDeviceSettings, Validation,
 };
 
-pub fn setup(sdl: &mut SDL) -> Result<(Base, ash::extensions::khr::Surface, ash::vk::SurfaceKHR), AppError> {
-
+pub fn setup(
+    sdl: &mut SDL,
+) -> Result<(Base, ash::extensions::khr::Surface, ash::vk::SurfaceKHR), AppError> {
     // Get our requriements ready
     let mut instance_extension_names = sdl.required_extension_names()?;
     instance_extension_names.push(
@@ -63,8 +64,7 @@ pub fn setup(sdl: &mut SDL) -> Result<(Base, ash::extensions::khr::Surface, ash:
         },
     )?;
 
-    let queue_map = physical_device
-        .query_queues(&instance.0, &surface_loader, surface)?;
+    let queue_map = physical_device.query_queues(&instance.0, &surface_loader, surface)?;
     let transfer_queue_family_idx = queue_map
         .get(&ash_urn::base::queue_families::DEDICATED_TRANSFER)
         .unwrap()
@@ -100,9 +100,5 @@ pub fn setup(sdl: &mut SDL) -> Result<(Base, ash::extensions::khr::Surface, ash:
         queue_map,
     };
 
-    Ok((
-        base,
-        surface_loader,
-        surface,
-    ))
+    Ok((base, surface_loader, surface))
 }

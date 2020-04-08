@@ -11,7 +11,6 @@ pub fn update(
     swap_chain: &SwapChain,
     start_instant: &std::time::Instant,
 ) -> Result<(), AppError> {
-    
     // prepare uniform buffer wrt. time
     let t = start_instant.elapsed().as_secs_f32();
 
@@ -33,15 +32,14 @@ pub fn update(
     );
     proj[1][1] *= -1.0;
 
-    uniform_buffer
-        .write(
-            &base,
-            UBO {
-                model: model.into(),
-                view: view.into(),
-                proj: proj.into(),
-            },
-        )?;
+    uniform_buffer.write(
+        &base,
+        UBO {
+            model: model.into(),
+            view: view.into(),
+            proj: proj.into(),
+        },
+    )?;
 
     Ok(())
 }
