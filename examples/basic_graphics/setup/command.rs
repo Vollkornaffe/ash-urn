@@ -5,7 +5,14 @@ use ash_urn::Base;
 use ash_urn::{Command, CommandSettings};
 
 pub fn setup(base: &Base, n_buffer: u32) -> Result<(Command, Command), AppError> {
-    let transfer_queue_family_idx = base.queue_map.get(&DEDICATED_TRANSFER).unwrap().idx;
+    let graphics_command = setup_graphics(base, n_buffer)?;
+    let transfer_command = setup_transfer(base)?;
+
+    Ok((graphics_command, transfer_command))
+}
+
+pub fn setup_graphics(base: &Base, n_buffer: u32) -> Result<Command, AppError> {
+
     let combined_queue_family_idx = base.queue_map.get(&COMBINED).unwrap().idx;
 
     // Create graphic commands, one buffer per image
@@ -18,6 +25,14 @@ pub fn setup(base: &Base, n_buffer: u32) -> Result<(Command, Command), AppError>
         },
     )?;
 
+    Ok(graphics_command)
+
+}
+
+pub fn setup_transfer(base: &Base) -> Result<Command, AppError> {
+
+    let transfer_queue_family_idx = base.queue_map.get(&DEDICATED_TRANSFER).unwrap().idx;
+
     // Transfer no buffers allocated, because one-time commands only
     let transfer_command = Command::new(
         &base,
@@ -28,5 +43,5 @@ pub fn setup(base: &Base, n_buffer: u32) -> Result<(Command, Command), AppError>
         },
     )?;
 
-    Ok((graphics_command, transfer_command))
+    Ok(transfer_command)
 }
