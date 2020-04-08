@@ -11,5 +11,6 @@ ash       = "0.30.0"
 memoffset = "0.5.3"
 
 [dev-dependencies]
+gltf      = { version = "0.15.2", features = ["utils"] }
 sdl2      = "0.32"
 cgmath    = "0.17.0"
