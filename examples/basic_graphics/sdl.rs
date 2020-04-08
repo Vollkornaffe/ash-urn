@@ -100,8 +100,8 @@ impl SDL {
                 } => {
                     println!("sdl detected close");
                     res.push(SdlEvent::Close);
-                },
-                _ => {},
+                }
+                _ => {}
             }
         }
         res

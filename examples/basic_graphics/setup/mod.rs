@@ -11,22 +11,22 @@ mod uniform_buffers;
 use crate::AppError;
 use crate::SDL;
 
-use ash_urn::Base;
-use ash_urn::SwapChain;
-use ash_urn::RenderPass;
-use ash_urn::DeviceImage;
-use ash_urn::DeviceBuffer;
-use ash_urn::Descriptor;
-use ash_urn::Command;
-use ash_urn::PipelineLayout;
-use ash_urn::GraphicsPipeline;
-use ash_urn::Timeline;
-use ash_urn::Semaphore;
-use ash_urn::Fence;
-use ash_urn::Mesh;
 use ash_urn::sync::wait_device_idle;
+use ash_urn::Base;
+use ash_urn::Command;
+use ash_urn::Descriptor;
+use ash_urn::DeviceBuffer;
+use ash_urn::DeviceImage;
+use ash_urn::Fence;
+use ash_urn::GraphicsPipeline;
+use ash_urn::Mesh;
+use ash_urn::PipelineLayout;
+use ash_urn::RenderPass;
+use ash_urn::Semaphore;
+use ash_urn::SwapChain;
+use ash_urn::Timeline;
 
-pub struct Setup<'a>{
+pub struct Setup<'a> {
     pub base: &'a Base,
     pub swap_chain: SwapChain,
     pub render_pass: RenderPass,
@@ -53,9 +53,8 @@ impl<'a> Setup<'a> {
         surface: ash::vk::SurfaceKHR,
         mesh: &Mesh,
     ) -> Result<Self, AppError> {
-
         wait_device_idle(base)?;
-    
+
         // get swap chain + renderpass & depth image
         // this is also a bit entangled
         let (swap_chain, render_pass, depth_device_image) =
@@ -69,8 +68,7 @@ impl<'a> Setup<'a> {
 
         // get the structures for commands,
         // they will be filled out later
-        let (graphics_command, transfer_command) =
-            command::setup(base, swap_chain.image_count)?;
+        let (graphics_command, transfer_command) = command::setup(base, swap_chain.image_count)?;
 
         // create device buffers from the mesh
         // the transfer is done with the transfer command,
@@ -98,8 +96,7 @@ impl<'a> Setup<'a> {
                     index_buffer: index_device_buffer.buffer.0,
                     n_indices: mesh.indices.len() as u32 * 3,
                 },
-            )
-            ?;
+            )?;
         }
 
         // create all synchronization structs
@@ -135,7 +132,6 @@ impl<'a> Setup<'a> {
 
 impl Drop for Setup<'_> {
     fn drop(&mut self) {
-
         wait_device_idle(self.base).unwrap();
 
         self.graphics_command.destroy(&self.base);

@@ -147,10 +147,7 @@ impl SwapChain {
             }
         }
         unsafe {
-            self
-                .loader
-                .0
-                .destroy_swapchain(self.handle, None);
+            self.loader.0.destroy_swapchain(self.handle, None);
         }
     }
 }

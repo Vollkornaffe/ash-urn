@@ -12,7 +12,6 @@ pub fn setup(base: &Base, n_buffer: u32) -> Result<(Command, Command), AppError>
 }
 
 pub fn setup_graphics(base: &Base, n_buffer: u32) -> Result<Command, AppError> {
-
     let combined_queue_family_idx = base.queue_map.get(&COMBINED).unwrap().idx;
 
     // Create graphic commands, one buffer per image
@@ -26,11 +25,9 @@ pub fn setup_graphics(base: &Base, n_buffer: u32) -> Result<Command, AppError> {
     )?;
 
     Ok(graphics_command)
-
 }
 
 pub fn setup_transfer(base: &Base) -> Result<Command, AppError> {
-
     let transfer_queue_family_idx = base.queue_map.get(&DEDICATED_TRANSFER).unwrap().idx;
 
     // Transfer no buffers allocated, because one-time commands only

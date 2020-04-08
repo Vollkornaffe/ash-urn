@@ -116,9 +116,7 @@ impl GraphicsPipeline {
 
     pub fn destroy(&self, base: &Base) {
         unsafe {
-            base.logical_device
-                .0
-                .destroy_pipeline(self.0, None);
+            base.logical_device.0.destroy_pipeline(self.0, None);
         }
     }
 }

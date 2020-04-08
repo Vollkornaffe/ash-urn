@@ -14,7 +14,6 @@ pub fn advance_frame(
     start_instant: &std::time::Instant,
     frame: &mut u64,
 ) -> Result<(), AppError> {
-
     // acquire an image
     let image_index = next_image::aquire(&setup.swap_chain, &setup.semaphore_image_acquired)?;
 
