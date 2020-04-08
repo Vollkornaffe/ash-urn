@@ -26,4 +26,15 @@ impl PipelineLayout {
 
         Ok(Self(layout))
     }
+
+    pub fn destroy(
+        &self,
+        base: &Base,
+    ) {
+        unsafe {
+            base.logical_device
+            .0
+            .destroy_pipeline_layout(self.0, None);
+        }
+    }
 }

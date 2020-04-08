@@ -29,6 +29,7 @@ pub struct Base {
     pub physical_device: PhysicalDevice,
     pub logical_device: LogicalDevice,
     pub timeline_loader: ash::extensions::khr::TimelineSemaphore,
+    pub queue_map: std::collections::HashMap<QueueFamilyKey, QueueFamily>,
 }
 
 impl Base {

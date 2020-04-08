@@ -16,7 +16,7 @@ pub enum SdlEvent {
     Close,
     //IncDebug,
     //DecDebug,
-    Resize,
+    //Resize,
     //Profile,
     //Step,
 }
@@ -100,19 +100,8 @@ impl SDL {
                 } => {
                     println!("sdl detected close");
                     res.push(SdlEvent::Close);
-                }
-                sdl2::event::Event::Window {
-                    timestamp: _,
-                    window_id: _,
-                    win_event,
-                } => match win_event {
-                    sdl2::event::WindowEvent::Resized(_w, _h) => {
-                        println!("sdl detected resize");
-                        res.push(SdlEvent::Resize);
-                    }
-                    _ => {}
                 },
-                _ => {}
+                _ => {},
             }
         }
         res
