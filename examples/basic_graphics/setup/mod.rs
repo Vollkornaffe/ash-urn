@@ -25,6 +25,7 @@ use ash_urn::RenderPass;
 use ash_urn::Semaphore;
 use ash_urn::SwapChain;
 use ash_urn::Timeline;
+use ash_urn::Timestamp;
 
 pub struct Setup<'a> {
     pub base: &'a Base,
@@ -43,6 +44,7 @@ pub struct Setup<'a> {
     pub semaphore_image_acquired: Semaphore,
     pub semaphore_rendering_finished: Semaphore,
     pub fence_rendering_finished: Fence,
+    pub timestamp: Timestamp,
 }
 
 impl<'a> Setup<'a> {
@@ -79,6 +81,12 @@ impl<'a> Setup<'a> {
         // just one pipeline, using the vert & frag shader
         let (graphics_pipeline_layout, graphics_pipeline) =
             pipeline::setup(base, &descriptor, &swap_chain, &render_pass)?;
+        
+        // get timestamp for profiling
+        let timestamp = Timestamp::new(&base, vec![
+            "Start".to_string(),
+            "Done".to_string(),
+        ], "Timestamp".to_string())?;
 
         // write to the command buffers
         for (i, command_buffer) in graphics_command.buffers.iter().enumerate() {
@@ -86,6 +94,7 @@ impl<'a> Setup<'a> {
                 base,
                 &ash_urn::command::DrawIndexedSettings {
                     command_buffer: command_buffer.0,
+                    query_pool: timestamp.pool,
                     render_pass: render_pass.0,
                     frame_buffer: swap_chain.elements[i].frame_buffer,
                     extent: swap_chain.extent.0,
@@ -126,6 +135,7 @@ impl<'a> Setup<'a> {
             semaphore_image_acquired,
             semaphore_rendering_finished,
             fence_rendering_finished,
+            timestamp,
         })
     }
 }
@@ -134,6 +144,7 @@ impl Drop for Setup<'_> {
     fn drop(&mut self) {
         wait_device_idle(self.base).unwrap();
 
+        self.timestamp.destroy(&self.base);
         self.graphics_command.destroy(&self.base);
         self.transfer_command.destroy(&self.base);
         self.semaphore_image_acquired.destroy(&self.base);

@@ -5,6 +5,7 @@ use ash::version::DeviceV1_0;
 
 pub struct DrawIndexedSettings {
     pub command_buffer: ash::vk::CommandBuffer,
+    pub query_pool: ash::vk::QueryPool, // TODO USE THIS
     pub render_pass: ash::vk::RenderPass,
     pub frame_buffer: ash::vk::Framebuffer,
     pub extent: ash::vk::Extent2D,
