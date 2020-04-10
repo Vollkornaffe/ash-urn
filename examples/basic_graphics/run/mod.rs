@@ -25,6 +25,8 @@ pub fn advance_frame(
     setup.fence_rendering_finished.wait(&base)?;
     setup.fence_rendering_finished.reset(&base)?;
 
+    println!("{:?}", setup.timestamp.query_all(base));
+
     // update model matrix based on time
     uniform_buffer::update(
         &base,

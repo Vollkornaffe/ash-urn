@@ -94,7 +94,7 @@ impl<'a> Setup<'a> {
                 base,
                 &ash_urn::command::DrawIndexedSettings {
                     command_buffer: command_buffer.0,
-                    query_pool: timestamp.pool,
+                    timestamp: &timestamp,
                     render_pass: render_pass.0,
                     frame_buffer: swap_chain.elements[i].frame_buffer,
                     extent: swap_chain.extent.0,

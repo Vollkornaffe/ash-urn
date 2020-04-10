@@ -1,11 +1,12 @@
 use crate::Base;
 use crate::UrnError;
+use crate::Timestamp;
 
 use ash::version::DeviceV1_0;
 
-pub struct DrawIndexedSettings {
+pub struct DrawIndexedSettings<'a> {
     pub command_buffer: ash::vk::CommandBuffer,
-    pub query_pool: ash::vk::QueryPool, // TODO USE THIS
+    pub timestamp: &'a Timestamp,
     pub render_pass: ash::vk::RenderPass,
     pub frame_buffer: ash::vk::Framebuffer,
     pub extent: ash::vk::Extent2D,
@@ -50,6 +51,10 @@ pub fn indexed(base: &Base, settings: &DrawIndexedSettings) -> Result<(), UrnErr
         base.logical_device
             .0
             .begin_command_buffer(settings.command_buffer, &begin_info)?;
+
+        settings.timestamp.reset_pool(base, settings.command_buffer);
+        settings.timestamp.mark(base, settings.command_buffer, ash::vk::PipelineStageFlags::TOP_OF_PIPE, "Start",);
+
         base.logical_device.0.cmd_begin_render_pass(
             settings.command_buffer,
             &render_pass_info,
@@ -91,6 +96,9 @@ pub fn indexed(base: &Base, settings: &DrawIndexedSettings) -> Result<(), UrnErr
         base.logical_device
             .0
             .cmd_end_render_pass(settings.command_buffer);
+
+        settings.timestamp.mark(base, settings.command_buffer, ash::vk::PipelineStageFlags::TOP_OF_PIPE, "Done",);
+
         base.logical_device
             .0
             .end_command_buffer(settings.command_buffer)?;
