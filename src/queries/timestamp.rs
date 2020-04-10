@@ -2,17 +2,19 @@ use crate::UrnError;
 use crate::Base;
 
 use ash::version::DeviceV1_0;
-use ash::version::DeviceV1_2;
 
 pub struct Timestamp {
     pub pool: ash::vk::QueryPool,
     pub names: Vec<String>,
+    pub timestamp_period: f32,
 }
 
 impl Timestamp {
+
     pub fn new(
         base: &Base,
         stamp_names: Vec<String>,
+        timestamp_period: f32,
         name: String,
     ) -> Result<Self, UrnError> {
 
@@ -31,6 +33,7 @@ impl Timestamp {
         let timestamp = Self {
             pool: query_pool,
             names: stamp_names,
+            timestamp_period,
         };
 
         Ok(timestamp)
@@ -86,6 +89,9 @@ impl Timestamp {
                     &mut data,
                     ash::vk::QueryResultFlags::TYPE_64,
                 )?;
+        }
+        for d in &mut data {
+            *d *= self.timestamp_period as u64;
         }
         Ok(data)
     }

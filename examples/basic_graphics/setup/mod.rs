@@ -86,7 +86,9 @@ impl<'a> Setup<'a> {
         let timestamp = Timestamp::new(&base, vec![
             "Start".to_string(),
             "Done".to_string(),
-        ], "Timestamp".to_string())?;
+        ],
+            base.physical_device.timestamp_period(&base.instance.0)?,
+        "Timestamp".to_string())?;
 
         // write to the command buffers
         for (i, command_buffer) in graphics_command.buffers.iter().enumerate() {
