@@ -8,6 +8,7 @@ pub enum UrnError {
     AshInstanceError(ash::InstanceError),
     IO(std::io::Error),
     NulError(std::ffi::NulError),
+    ImageError(image::error::ImageError),
 }
 
 impl From<std::ffi::NulError> for UrnError {
@@ -37,5 +38,11 @@ impl From<ash::InstanceError> for UrnError {
 impl From<ash::LoadingError> for UrnError {
     fn from(e: ash::LoadingError) -> UrnError {
         UrnError::AshLoadingError(e)
+    }
+}
+
+impl From<image::error::ImageError> for UrnError {
+    fn from(e: image::error::ImageError) -> UrnError {
+        UrnError::ImageError(e)
     }
 }

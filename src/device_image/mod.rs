@@ -7,11 +7,11 @@ pub mod memory;
 pub mod view;
 
 pub use depth::create_depth_device_image;
-pub use image::Image;
+pub use self::image::Image;
 pub use memory::Memory;
 pub use view::View;
 
-pub use image::ImageSettings;
+pub use self::image::ImageSettings;
 pub use memory::MemorySettings;
 pub use view::ViewSettings;
 
@@ -24,14 +24,14 @@ pub struct DeviceImage {
 }
 
 pub struct DeviceImageSettings {
-    width: u32,
-    height: u32,
-    format: ash::vk::Format,
-    tiling: ash::vk::ImageTiling,
-    usage: ash::vk::ImageUsageFlags,
-    properties: ash::vk::MemoryPropertyFlags,
-    aspect_flags: ash::vk::ImageAspectFlags,
-    name: String,
+    pub width: u32,
+    pub height: u32,
+    pub format: ash::vk::Format,
+    pub tiling: ash::vk::ImageTiling,
+    pub usage: ash::vk::ImageUsageFlags,
+    pub properties: ash::vk::MemoryPropertyFlags,
+    pub aspect_flags: ash::vk::ImageAspectFlags,
+    pub name: String,
 }
 
 impl DeviceImage {

@@ -3,6 +3,7 @@ pub mod index;
 pub mod ownership;
 pub mod staging;
 pub mod vertex;
+pub mod texture;
 
 pub use copy::{copy_buffer_to_buffer, copy_buffer_to_image};
 pub use index::create_index_device_buffer;
