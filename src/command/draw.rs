@@ -1,6 +1,6 @@
 use crate::Base;
-use crate::UrnError;
 use crate::Timestamp;
+use crate::UrnError;
 
 use ash::version::DeviceV1_0;
 
@@ -53,7 +53,12 @@ pub fn indexed(base: &Base, settings: &DrawIndexedSettings) -> Result<(), UrnErr
             .begin_command_buffer(settings.command_buffer, &begin_info)?;
 
         settings.timestamp.reset_pool(base, settings.command_buffer);
-        settings.timestamp.mark(base, settings.command_buffer, ash::vk::PipelineStageFlags::TOP_OF_PIPE, "Start",);
+        settings.timestamp.mark(
+            base,
+            settings.command_buffer,
+            ash::vk::PipelineStageFlags::TOP_OF_PIPE,
+            "Start",
+        );
 
         base.logical_device.0.cmd_begin_render_pass(
             settings.command_buffer,
@@ -97,7 +102,12 @@ pub fn indexed(base: &Base, settings: &DrawIndexedSettings) -> Result<(), UrnErr
             .0
             .cmd_end_render_pass(settings.command_buffer);
 
-        settings.timestamp.mark(base, settings.command_buffer, ash::vk::PipelineStageFlags::TOP_OF_PIPE, "Done",);
+        settings.timestamp.mark(
+            base,
+            settings.command_buffer,
+            ash::vk::PipelineStageFlags::TOP_OF_PIPE,
+            "Done",
+        );
 
         base.logical_device
             .0

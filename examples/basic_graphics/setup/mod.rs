@@ -81,14 +81,14 @@ impl<'a> Setup<'a> {
         // just one pipeline, using the vert & frag shader
         let (graphics_pipeline_layout, graphics_pipeline) =
             pipeline::setup(base, &descriptor, &swap_chain, &render_pass)?;
-        
+
         // get timestamp for profiling
-        let timestamp = Timestamp::new(&base, vec![
-            "Start".to_string(),
-            "Done".to_string(),
-        ],
+        let timestamp = Timestamp::new(
+            &base,
+            vec!["Start".to_string(), "Done".to_string()],
             base.physical_device.timestamp_period(&base.instance.0)?,
-        "Timestamp".to_string())?;
+            "Timestamp".to_string(),
+        )?;
 
         // write to the command buffers
         for (i, command_buffer) in graphics_command.buffers.iter().enumerate() {

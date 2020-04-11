@@ -1,8 +1,8 @@
+pub mod assets;
 pub mod error;
 pub mod run;
 pub mod sdl;
 pub mod setup;
-pub mod assets;
 
 pub use error::AppError;
 pub use sdl::SDL;
@@ -23,7 +23,7 @@ fn main() {
 
     // create a mesh to render
     let mesh = assets::load_mesh("examples/basic_graphics/assets/test.glb").unwrap();
- 
+
     // create sdl context
     let mut sdl = sdl::SDL::new(sdl::WindowSettings {
         title: "Basic Graphics",
