@@ -25,6 +25,11 @@ pub fn advance_frame(
     setup.fence_rendering_finished.wait(&base)?;
     setup.fence_rendering_finished.reset(&base)?;
 
+    if *frame != 0 {
+        let stamps = setup.timestamp.query_all(base)?;
+        println!("{:?}", stamps[1] - stamps[0]);
+    }
+
     // update model matrix based on time
     uniform_buffer::update(
         &base,

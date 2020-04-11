@@ -17,7 +17,7 @@
             "args": [
                 "run",
                 "--example",
-                "main"
+                "basic_graphics
             ],
             "group": {
                 "kind": "build",
@@ -34,7 +34,7 @@
             "args": [
                 "run",
                 "--example",
-                "main",
+                "basic_graphics",
                 "--release",
             ],
             "group": {

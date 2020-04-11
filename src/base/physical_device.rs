@@ -85,6 +85,14 @@ impl PhysicalDevice {
         Ok(res)
     }
 
+    pub fn timestamp_period(
+        &self,
+        instance: &ash::Instance,
+    ) -> Result<f32, UrnError> {
+        let device_properties = unsafe { instance.get_physical_device_properties(self.0) };
+        Ok(device_properties.limits.timestamp_period)
+    }
+
     pub fn check_timeline_feature(&self, instance: &ash::Instance) -> bool {
         let mut timeline_feature = ash::vk::PhysicalDeviceTimelineSemaphoreFeatures::builder()
             .timeline_semaphore(false)
@@ -97,6 +105,7 @@ impl PhysicalDevice {
         unsafe { instance.get_physical_device_features2(self.0, &mut physical_device_features2) };
         timeline_feature.timeline_semaphore != 0
     }
+
 
     pub fn query_subgroup_properties(
         &self,

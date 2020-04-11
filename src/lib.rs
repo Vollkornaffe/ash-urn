@@ -12,6 +12,7 @@ pub mod swap_chain;
 pub mod sync;
 pub mod transfer;
 pub mod util;
+pub mod queries;
 
 pub use base::Base;
 pub use command::{Command, CommandSettings};
@@ -27,3 +28,4 @@ pub use pipeline::{
 pub use render_pass::{RenderPass, RenderPassSettings};
 pub use swap_chain::{SwapChain, SwapChainSettings};
 pub use sync::{wait_device_idle, Fence, Semaphore, Timeline};
+pub use queries::Timestamp;
