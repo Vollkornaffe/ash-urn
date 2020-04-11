@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 ash       = "0.30.0"
 memoffset = "0.5.3"
+image     = "0.23.0-preview.0"
 
 [dev-dependencies]
 gltf      = { version = "0.15.2", features = ["utils"] }
