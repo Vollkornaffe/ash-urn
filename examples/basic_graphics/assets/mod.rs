@@ -6,6 +6,18 @@ use ash_urn::Vertex;
 use itertools::izip;
 
 pub fn load_mesh(filename: &'static str) -> Result<Mesh, AppError> {
+
+    let gltf = gltf::Gltf::open(filename)?;
+    for mesh in gltf.meshes() {
+       println!("Mesh #{}", mesh.index());
+       for primitive in mesh.primitives() {
+           println!("- Primitive #{}", primitive.index());
+           for (semantic, _) in primitive.attributes() {
+               println!("-- {:?}", semantic);
+           }
+       }
+    }
+
     let (gltf, buffers, _) = gltf::import(filename)?;
     let mesh = gltf.meshes().nth(0).unwrap();
     let primitive = mesh.primitives().nth(0).unwrap();
