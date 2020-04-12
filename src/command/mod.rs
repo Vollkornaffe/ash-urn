@@ -6,9 +6,11 @@ pub mod draw;
 pub mod pool;
 pub mod queue;
 pub mod single_time;
+pub mod image_layout;
 
 pub use buffer::Buffer;
 pub use draw::DrawIndexedSettings;
+pub use image_layout::TransitionImageLayoutSettings;
 pub use pool::Pool;
 pub use queue::Queue;
 

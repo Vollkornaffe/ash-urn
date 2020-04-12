@@ -1,10 +1,11 @@
 use crate::Base;
 use crate::UrnError;
 
+use crate::command::image_layout;
+use crate::command::image_layout::TransitionImageLayoutSettings;
 use crate::{DeviceImage, DeviceImageSettings};
 use super::create_staging_device_buffer;
 use super::copy_buffer_to_image;
-
 
 use ash::version::DeviceV1_0;
 
@@ -48,6 +49,22 @@ pub fn create_texture_device_image(
             aspect_flags: ash::vk::ImageAspectFlags::COLOR,
             name,
         },
+    )?;
+
+    image_layout::transition(
+        base,
+        &TransitionImageLayoutSettings {
+            queue,
+            pool,
+            image:                 texture.image.0,
+            aspect_mask:ash::vk::ImageAspectFlags::COLOR,
+            old_layout:      ash::vk::ImageLayout::UNDEFINED,
+            new_layout:      ash::vk::ImageLayout::TRANSFER_DST_OPTIMAL,
+            src_access:      ash::vk::AccessFlags::default(),
+            dst_access:      ash::vk::AccessFlags::TRANSFER_WRITE,
+            src_stage:ash::vk::PipelineStageFlags::TOP_OF_PIPE,
+            dst_stage:ash::vk::PipelineStageFlags::TRANSFER,
+        }
     )?;
 
     copy_buffer_to_image(
