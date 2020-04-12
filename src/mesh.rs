@@ -12,10 +12,10 @@ pub struct Vertex {
 impl Default for Vertex {
     fn default() -> Self {
         Self {
-            pos: [0.0,0.0,0.0].into(),
-            nor: [0.0,0.0,0.0].into(),
-            col: [0.0,0.0,0.0,0.0].into(),
-            tex: [0.0,0.0].into(),
+            pos: [0.0, 0.0, 0.0].into(),
+            nor: [0.0, 0.0, 0.0].into(),
+            col: [0.0, 0.0, 0.0, 0.0].into(),
+            tex: [0.0, 0.0].into(),
         }
     }
 }

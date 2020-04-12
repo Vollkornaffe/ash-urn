@@ -8,7 +8,11 @@ use ash_urn::{DeviceImage, Sampler};
 
 use std::collections::HashMap;
 
-pub fn setup(base: &Base, uniform_buffers: &[DeviceBuffer], texture: &(DeviceImage, Sampler)) -> Result<Descriptor, AppError> {
+pub fn setup(
+    base: &Base,
+    uniform_buffers: &[DeviceBuffer],
+    texture: &(DeviceImage, Sampler),
+) -> Result<Descriptor, AppError> {
     let mut setup_map = HashMap::new();
     setup_map.insert(
         0,
@@ -29,9 +33,14 @@ pub fn setup(base: &Base, uniform_buffers: &[DeviceBuffer], texture: &(DeviceIma
     for (i, uniform_buffer) in uniform_buffers.iter().enumerate() {
         let mut usages = HashMap::new();
         usages.insert(0, descriptor::Usage::Buffer(uniform_buffer.buffer.0));
-        usages.insert(1, descriptor::Usage::ImageSampler(
-            ash::vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL, texture.0.view.0, (texture.1).0
-        ));
+        usages.insert(
+            1,
+            descriptor::Usage::ImageSampler(
+                ash::vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+                texture.0.view.0,
+                (texture.1).0,
+            ),
+        );
         set_usages.push(descriptor::SetUsage {
             usages,
             name: format!("DescriptorSet_{}", i),

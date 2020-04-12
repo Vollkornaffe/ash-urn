@@ -12,7 +12,6 @@ pub fn setup(
     graphics_command: &Command,
     transfer_command: &Command,
 ) -> Result<Vec<(DeviceImage, Sampler)>, AppError> {
-
     let mut textures = Vec::new();
 
     for (filename, name) in files_and_names {

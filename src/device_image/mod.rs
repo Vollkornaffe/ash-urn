@@ -4,14 +4,14 @@ use crate::UrnError;
 pub mod depth;
 pub mod image;
 pub mod memory;
-pub mod view;
 pub mod sampler;
+pub mod view;
 
 pub use self::image::Image;
 pub use depth::create_depth_device_image;
 pub use memory::Memory;
-pub use view::View;
 pub use sampler::Sampler;
+pub use view::View;
 
 pub use self::image::ImageSettings;
 pub use memory::MemorySettings;

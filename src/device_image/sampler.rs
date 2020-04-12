@@ -7,7 +7,6 @@ pub struct Sampler(pub ash::vk::Sampler);
 
 impl Sampler {
     pub fn new(base: &Base, name: String) -> Result<Self, UrnError> {
-
         let sampler_info = ash::vk::SamplerCreateInfo::builder()
             .mag_filter(ash::vk::Filter::LINEAR)
             .min_filter(ash::vk::Filter::LINEAR)
