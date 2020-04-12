@@ -46,6 +46,7 @@ pub struct Setup<'a> {
     pub semaphore_rendering_finished: Semaphore,
     pub fence_rendering_finished: Fence,
     pub timestamp: Timestamp,
+    pub textures: Vec<DeviceImage>,
 }
 
 impl<'a> Setup<'a> {
@@ -73,12 +74,11 @@ impl<'a> Setup<'a> {
         // they will be filled out later
         let (graphics_command, transfer_command) = command::setup(base, swap_chain.image_count)?;
 
-        // create device buffers from the mesh
+        // create device buffers from the mesh & load the textures
         // the transfer is done with the transfer command,
         // ownership is transferred afterwards
         let (vertex_device_buffer, index_device_buffer) =
             mesh_buffers::setup(base, &mesh, &graphics_command, &transfer_command)?;
-
         let textures = textures::setup(
             base,
             &[(
@@ -149,6 +149,7 @@ impl<'a> Setup<'a> {
             semaphore_rendering_finished,
             fence_rendering_finished,
             timestamp,
+            textures,
         })
     }
 }
@@ -157,6 +158,9 @@ impl Drop for Setup<'_> {
     fn drop(&mut self) {
         wait_device_idle(self.base).unwrap();
 
+        for texture in &self.textures {
+            texture.destroy(&self.base);
+        }
         self.timestamp.destroy(&self.base);
         self.graphics_command.destroy(&self.base);
         self.transfer_command.destroy(&self.base);
