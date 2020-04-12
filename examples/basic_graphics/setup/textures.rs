@@ -11,7 +11,6 @@ pub fn setup(
     graphics_command: &Command,
     transfer_command: &Command,
 ) -> Result<Vec<DeviceImage>, AppError> {
-
     let mut texture_device_images = Vec::new();
 
     for (filename, name) in files_and_names {
@@ -25,13 +24,7 @@ pub fn setup(
     }
 
     let refs: Vec<&DeviceImage> = texture_device_images.iter().map(|d| d).collect();
-    ownership::transfer_to_combined(
-        &base,
-        &[],
-        &refs,
-        &transfer_command,
-        &graphics_command,
-    )?;
+    ownership::transfer_to_combined(&base, &[], &refs, &transfer_command, &graphics_command)?;
 
     Ok(texture_device_images)
 }

@@ -18,16 +18,8 @@ pub struct TransitionImageLayoutSettings {
     pub dst_stage: ash::vk::PipelineStageFlags,
 }
 
-pub fn transition(
-    base: &Base,
-    settings: &TransitionImageLayoutSettings,
-) -> Result<(), UrnError> {
-
-    let command_buffer = single_time::begin(
-        base,
-        settings.pool,
-        "ImageTransition".to_string()
-    )?;
+pub fn transition(base: &Base, settings: &TransitionImageLayoutSettings) -> Result<(), UrnError> {
+    let command_buffer = single_time::begin(base, settings.pool, "ImageTransition".to_string())?;
 
     let barrier = ash::vk::ImageMemoryBarrier::builder()
         .old_layout(settings.old_layout)
@@ -66,4 +58,3 @@ pub fn transition(
 
     Ok(())
 }
-
