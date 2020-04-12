@@ -4,7 +4,6 @@ use crate::UrnError;
 use std::collections::HashMap;
 
 mod descriptor_types;
-pub mod info;
 pub mod layout;
 pub mod pool;
 pub mod set;

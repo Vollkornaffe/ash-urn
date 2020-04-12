@@ -68,9 +68,6 @@ impl<'a> Setup<'a> {
         // an uniform buffer per swapchain image
         let uniform_buffers = uniform_buffers::setup(base, swap_chain.image_count)?;
 
-        // these sets only contain the respective UBO
-        let descriptor = descriptor::setup(base, &uniform_buffers)?;
-
         // get the structures for commands,
         // they will be filled out later
         let (graphics_command, transfer_command) = command::setup(base, swap_chain.image_count)?;
@@ -89,6 +86,9 @@ impl<'a> Setup<'a> {
             &graphics_command,
             &transfer_command,
         )?;
+
+        // these sets contain the respective UBOs & combined image samplers
+        let descriptor = descriptor::setup(base, &uniform_buffers, &textures[0])?;
 
         // just one pipeline, using the vert & frag shader
         let (graphics_pipeline_layout, graphics_pipeline) =
