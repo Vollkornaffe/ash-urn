@@ -3,7 +3,20 @@ use crate::memory_alignment::Align16;
 #[repr(C, align(64))]
 pub struct Vertex {
     pub pos: Align16<[f32; 3]>,
+    pub nor: Align16<[f32; 3]>,
     pub col: Align16<[f32; 4]>,
+    pub tex: Align16<[f32; 2]>,
+}
+
+impl Default for Vertex {
+    fn default() -> Self {
+        Self {
+            pos: [0.0,0.0,0.0].into(),
+            nor: [0.0,0.0,0.0].into(),
+            col: [0.0,0.0,0.0,0.0].into(),
+            tex: [0.0,0.0].into(),
+        }
+    }
 }
 
 #[repr(C)]
@@ -59,18 +72,22 @@ impl Mesh {
         self.vertices.push(Vertex {
             pos: c0.into(),
             col: col.into(),
+            ..Default::default()
         });
         self.vertices.push(Vertex {
             pos: c1.into(),
             col: col.into(),
+            ..Default::default()
         });
         self.vertices.push(Vertex {
             pos: c2.into(),
             col: col.into(),
+            ..Default::default()
         });
         self.vertices.push(Vertex {
             pos: c3.into(),
             col: col.into(),
+            ..Default::default()
         });
         self.indices.push(offset + 1);
         self.indices.push(offset + 0);
