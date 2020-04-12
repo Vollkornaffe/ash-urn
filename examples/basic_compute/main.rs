@@ -3,10 +3,12 @@ pub mod error;
 pub mod run;
 pub mod sdl;
 pub mod setup;
+pub mod particles;
 
 pub use error::AppError;
 pub use sdl::SDL;
 pub use setup::Setup;
+pub use particles::Particles;
 
 use ash_urn::memory_alignment::Align16;
 use ash_urn::wait_device_idle;
@@ -19,17 +21,23 @@ struct UBO {
 }
 
 fn main() {
-    println!("Starting basic_graphics.");
+    println!("Starting basic_compute.");
 
-    // create a mesh to render
-    let mesh = assets::load_mesh("examples/basic_graphics/assets/test.glb").unwrap();
+    // create particles
+    let particles = Particles::new(10);
+
+    // create a mesh to render from particles
+    let mesh = particles.as_mesh(
+        &assets::load_mesh("examples/basic_graphics/assets/test.glb").unwrap(),
+        0.01,
+    ); 
 
     // create sdl context
     let mut sdl = sdl::SDL::new(sdl::WindowSettings {
         title: "Basic Graphics",
         w: 800,
         h: 800,
-        maximized: false,
+        maximized: true,
     })
     .unwrap();
 
