@@ -7,6 +7,7 @@ mod pipeline;
 mod swap_chain;
 mod sync;
 mod uniform_buffers;
+mod textures;
 
 use crate::AppError;
 use crate::SDL;
@@ -77,6 +78,8 @@ impl<'a> Setup<'a> {
         // ownership is transferred afterwards
         let (vertex_device_buffer, index_device_buffer) =
             mesh_buffers::setup(base, &mesh, &graphics_command, &transfer_command)?;
+
+        let textures = textures::setup(base, &[("examples/basic_graphics/assets/meme.jpg".to_string(), "MuskyBoy".to_string())], &graphics_command, &transfer_command)?;
 
         // just one pipeline, using the vert & frag shader
         let (graphics_pipeline_layout, graphics_pipeline) =
