@@ -18,6 +18,7 @@ use ash_urn::Command;
 use ash_urn::Descriptor;
 use ash_urn::DeviceBuffer;
 use ash_urn::DeviceImage;
+use ash_urn::Sampler;
 use ash_urn::Fence;
 use ash_urn::GraphicsPipeline;
 use ash_urn::Mesh;
@@ -46,7 +47,7 @@ pub struct Setup<'a> {
     pub semaphore_rendering_finished: Semaphore,
     pub fence_rendering_finished: Fence,
     pub timestamp: Timestamp,
-    pub textures: Vec<DeviceImage>,
+    pub textures: Vec<(DeviceImage, Sampler)>,
 }
 
 impl<'a> Setup<'a> {
@@ -158,8 +159,9 @@ impl Drop for Setup<'_> {
     fn drop(&mut self) {
         wait_device_idle(self.base).unwrap();
 
-        for texture in &self.textures {
-            texture.destroy(&self.base);
+        for (device_image, sampler) in &self.textures {
+            device_image.destroy(&self.base);
+            sampler.destroy(&self.base);
         }
         self.timestamp.destroy(&self.base);
         self.graphics_command.destroy(&self.base);

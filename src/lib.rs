@@ -18,7 +18,7 @@ pub use base::Base;
 pub use command::{Command, CommandSettings};
 pub use descriptor::{Descriptor, DescriptorSettings};
 pub use device_buffer::{DeviceBuffer, DeviceBufferSettings};
-pub use device_image::{DeviceImage, DeviceImageSettings};
+pub use device_image::{DeviceImage, DeviceImageSettings, Sampler};
 pub use error::UrnError;
 pub use mesh::{Mesh, Vertex};
 pub use pipeline::{
