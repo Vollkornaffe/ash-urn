@@ -6,6 +6,7 @@ mod mesh_buffers;
 mod pipeline;
 mod swap_chain;
 mod sync;
+mod textures;
 mod uniform_buffers;
 
 use crate::AppError;
@@ -17,6 +18,7 @@ use ash_urn::Command;
 use ash_urn::Descriptor;
 use ash_urn::DeviceBuffer;
 use ash_urn::DeviceImage;
+use ash_urn::Sampler;
 use ash_urn::Fence;
 use ash_urn::GraphicsPipeline;
 use ash_urn::Mesh;
@@ -45,6 +47,7 @@ pub struct Setup<'a> {
     pub semaphore_rendering_finished: Semaphore,
     pub fence_rendering_finished: Fence,
     pub timestamp: Timestamp,
+    pub textures: Vec<(DeviceImage, Sampler)>,
 }
 
 impl<'a> Setup<'a> {
@@ -65,18 +68,27 @@ impl<'a> Setup<'a> {
         // an uniform buffer per swapchain image
         let uniform_buffers = uniform_buffers::setup(base, swap_chain.image_count)?;
 
-        // these sets only contain the respective UBO
-        let descriptor = descriptor::setup(base, &uniform_buffers)?;
-
         // get the structures for commands,
         // they will be filled out later
         let (graphics_command, transfer_command) = command::setup(base, swap_chain.image_count)?;
 
-        // create device buffers from the mesh
+        // create device buffers from the mesh & load the textures
         // the transfer is done with the transfer command,
         // ownership is transferred afterwards
         let (vertex_device_buffer, index_device_buffer) =
             mesh_buffers::setup(base, &mesh, &graphics_command, &transfer_command)?;
+        let textures = textures::setup(
+            base,
+            &[(
+                "examples/basic_graphics/assets/meme.jpg".to_string(),
+                "MuskyBoy".to_string(),
+            )],
+            &graphics_command,
+            &transfer_command,
+        )?;
+
+        // these sets contain the respective UBOs & combined image samplers
+        let descriptor = descriptor::setup(base, &uniform_buffers, &textures[0])?;
 
         // just one pipeline, using the vert & frag shader
         let (graphics_pipeline_layout, graphics_pipeline) =
@@ -138,6 +150,7 @@ impl<'a> Setup<'a> {
             semaphore_rendering_finished,
             fence_rendering_finished,
             timestamp,
+            textures,
         })
     }
 }
@@ -146,6 +159,10 @@ impl Drop for Setup<'_> {
     fn drop(&mut self) {
         wait_device_idle(self.base).unwrap();
 
+        for (device_image, sampler) in &self.textures {
+            device_image.destroy(&self.base);
+            sampler.destroy(&self.base);
+        }
         self.timestamp.destroy(&self.base);
         self.graphics_command.destroy(&self.base);
         self.transfer_command.destroy(&self.base);

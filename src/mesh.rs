@@ -1,9 +1,23 @@
 use crate::memory_alignment::Align16;
 
 #[repr(C, align(64))]
+#[derive(Debug)]
 pub struct Vertex {
     pub pos: Align16<[f32; 3]>,
+    pub nor: Align16<[f32; 3]>,
     pub col: Align16<[f32; 4]>,
+    pub tex: Align16<[f32; 2]>,
+}
+
+impl Default for Vertex {
+    fn default() -> Self {
+        Self {
+            pos: [0.0,0.0,0.0].into(),
+            nor: [0.0,0.0,0.0].into(),
+            col: [0.0,0.0,0.0,0.0].into(),
+            tex: [0.0,0.0].into(),
+        }
+    }
 }
 
 #[repr(C)]
@@ -21,7 +35,7 @@ impl Vertex {
             .build()]
     }
 
-    pub fn get_attribute_description() -> [ash::vk::VertexInputAttributeDescription; 2] {
+    pub fn get_attribute_description() -> [ash::vk::VertexInputAttributeDescription; 4] {
         [
             ash::vk::VertexInputAttributeDescription::builder()
                 .binding(0)
@@ -32,8 +46,20 @@ impl Vertex {
             ash::vk::VertexInputAttributeDescription::builder()
                 .binding(0)
                 .location(1)
+                .format(ash::vk::Format::R32G32B32_SFLOAT)
+                .offset(memoffset::offset_of!(Self, nor) as u32)
+                .build(),
+            ash::vk::VertexInputAttributeDescription::builder()
+                .binding(0)
+                .location(2)
                 .format(ash::vk::Format::R32G32B32A32_SFLOAT)
                 .offset(memoffset::offset_of!(Self, col) as u32)
+                .build(),
+            ash::vk::VertexInputAttributeDescription::builder()
+                .binding(0)
+                .location(3)
+                .format(ash::vk::Format::R32G32_SFLOAT)
+                .offset(memoffset::offset_of!(Self, tex) as u32)
                 .build(),
         ]
     }
@@ -59,18 +85,22 @@ impl Mesh {
         self.vertices.push(Vertex {
             pos: c0.into(),
             col: col.into(),
+            ..Default::default()
         });
         self.vertices.push(Vertex {
             pos: c1.into(),
             col: col.into(),
+            ..Default::default()
         });
         self.vertices.push(Vertex {
             pos: c2.into(),
             col: col.into(),
+            ..Default::default()
         });
         self.vertices.push(Vertex {
             pos: c3.into(),
             col: col.into(),
+            ..Default::default()
         });
         self.indices.push(offset + 1);
         self.indices.push(offset + 0);

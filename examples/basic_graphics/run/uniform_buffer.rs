@@ -19,7 +19,7 @@ pub fn update(
     let model: cgmath::Matrix4<f32> = rotation.into();
 
     let view = cgmath::Matrix4::look_at(
-        cgmath::Point3::new(2.0, 2.0, 2.0),
+        cgmath::Point3::new(4.0, 4.0, 4.0),
         cgmath::Point3::new(0.0, 0.0, 0.0),
         cgmath::Vector3::unit_z(),
     );
@@ -28,7 +28,7 @@ pub fn update(
         cgmath::Deg(45.0),
         swap_chain.extent.0.width as f32 / swap_chain.extent.0.height as f32,
         0.1,
-        10.0,
+        100.0,
     );
     proj[1][1] *= -1.0;
 

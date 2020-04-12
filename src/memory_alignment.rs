@@ -1,5 +1,5 @@
 #[repr(C, align(8))]
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Align8<T: Copy>(pub T);
 impl<T: Copy> From<T> for Align8<T> {
     fn from(t: T) -> Self {
@@ -8,7 +8,7 @@ impl<T: Copy> From<T> for Align8<T> {
 }
 
 #[repr(C, align(16))]
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct Align16<T: Copy>(pub T);
 impl<T: Copy> From<T> for Align16<T> {
     fn from(t: T) -> Self {
