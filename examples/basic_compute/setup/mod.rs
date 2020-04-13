@@ -44,7 +44,8 @@ pub struct Setup<'a> {
     pub graphics_descriptor: Descriptor,
     pub compute_descriptor: Descriptor,
 
-    pub combined_command: Command,
+    pub graphics_command: Command,
+    pub compute_command: Command,
     pub transfer_command: Command,
 
     pub vertex_device_buffer: DeviceBuffer,
@@ -92,25 +93,25 @@ impl<'a> Setup<'a> {
 
         // get the structures for commands,
         // they will be filled out later
-        let (combined_command, transfer_command) = command::setup(base, swap_chain.image_count)?;
+        let (graphics_command, compute_command, transfer_command) = command::setup(base, swap_chain.image_count)?;
 
         // create device buffers from the mesh & load the textures
         // the transfer is done with the transfer command,
         // ownership is transferred afterwards
         let (vertex_device_buffer, index_device_buffer) =
-            mesh_buffers::setup(base, &mesh, &combined_command, &transfer_command)?;
+            mesh_buffers::setup(base, &mesh, &graphics_command, &transfer_command)?;
         let textures = textures::setup(
             base,
             &[(
                 "examples/basic_graphics/assets/meme.jpg".to_string(),
                 "MuskyBoy".to_string(),
             )],
-            &combined_command,
+            &graphics_command,
             &transfer_command,
         )?;
 
         // prepare particle storage buffer
-        let particle_buffer = particle_buffer::setup(base, particles, &combined_command, &transfer_command)?;
+        let particle_buffer = particle_buffer::setup(base, particles, &compute_command, &transfer_command)?;
 
         // these sets contain the respective UBOs & combined image samplers
         let graphics_descriptor = descriptor::setup_graphics(base, &graphics_uniform_buffers, &textures[0])?;
@@ -134,8 +135,8 @@ impl<'a> Setup<'a> {
             "Timestamp".to_string(),
         )?;
 
-        // write to the command buffers
-        for (i, command_buffer) in combined_command.buffers.iter().enumerate() {
+        // write to the graphics command buffers
+        for (i, command_buffer) in graphics_command.buffers.iter().enumerate() {
             ash_urn::command::draw::indexed(
                 base,
                 &ash_urn::command::DrawIndexedSettings {
@@ -153,6 +154,16 @@ impl<'a> Setup<'a> {
                 },
             )?;
         }
+
+        // write to the one compute buffer
+        command::write_compute(
+            base,
+            &compute_pipeline_layout,
+            &compute_pipeline,
+            &compute_command,
+            &compute_descriptor,
+            particles.0.len() as u32,
+        )?;
 
         // create all synchronization structs
         let (
@@ -173,7 +184,8 @@ impl<'a> Setup<'a> {
             compute_uniform_buffer,
             graphics_descriptor,
             compute_descriptor,
-            combined_command,
+            graphics_command,
+            compute_command,
             transfer_command,
             vertex_device_buffer,
             index_device_buffer,
@@ -201,7 +213,8 @@ impl Drop for Setup<'_> {
             sampler.destroy(&self.base);
         }
         self.timestamp.destroy(&self.base);
-        self.combined_command.destroy(&self.base);
+        self.graphics_command.destroy(&self.base);
+        self.compute_command.destroy(&self.base);
         self.transfer_command.destroy(&self.base);
         self.semaphore_image_acquired.destroy(&self.base);
         self.semaphore_rendering_finished.destroy(&self.base);

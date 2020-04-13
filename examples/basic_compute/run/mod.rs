@@ -45,7 +45,7 @@ pub fn advance_frame(
     // waiting on image_aquired, signaling rendering_finished
     render::submit(
         &base,
-        &setup.combined_command,
+        &setup.graphics_command,
         &setup.timeline,
         &setup.semaphore_image_acquired,
         &setup.semaphore_rendering_finished,
@@ -58,7 +58,7 @@ pub fn advance_frame(
     // waiting on rendering_finished, doesn't signal anything
     present::submit(
         &setup.swap_chain,
-        &setup.combined_command,
+        &setup.graphics_command,
         &setup.semaphore_rendering_finished,
         image_index,
     )?;

@@ -27,7 +27,6 @@ struct ComputeUBO {
     G: f32,
 }
 
-
 fn main() {
     println!("Starting basic_compute.");
 
