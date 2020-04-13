@@ -22,6 +22,7 @@ use ash_urn::DeviceBuffer;
 use ash_urn::DeviceImage;
 use ash_urn::Fence;
 use ash_urn::GraphicsPipeline;
+use ash_urn::ComputePipeline;
 use ash_urn::Mesh;
 use ash_urn::PipelineLayout;
 use ash_urn::RenderPass;
@@ -53,6 +54,9 @@ pub struct Setup<'a> {
 
     pub graphics_pipeline_layout: PipelineLayout,
     pub graphics_pipeline: GraphicsPipeline,
+
+    pub compute_pipeline_layout: PipelineLayout,
+    pub compute_pipeline: ComputePipeline,
 
     pub timeline: Timeline,
     pub semaphore_image_acquired: Semaphore,
@@ -116,7 +120,11 @@ impl<'a> Setup<'a> {
         
         // just one pipeline, using the vert & frag shader
         let (graphics_pipeline_layout, graphics_pipeline) =
-            pipeline::setup(base, &graphics_descriptor, &swap_chain, &render_pass)?;
+            pipeline::setup_graphics(base, &graphics_descriptor, &swap_chain, &render_pass)?;
+
+        // and just one pipeline for the particle update
+        let (compute_pipeline_layout, compute_pipeline) =
+            pipeline::setup_compute(base, &compute_descriptor)?;
 
         // get timestamp for profiling
         let timestamp = Timestamp::new(
@@ -172,6 +180,8 @@ impl<'a> Setup<'a> {
             particle_buffer,
             graphics_pipeline_layout,
             graphics_pipeline,
+            compute_pipeline_layout,
+            compute_pipeline,
             timeline,
             semaphore_image_acquired,
             semaphore_rendering_finished,
@@ -210,6 +220,8 @@ impl Drop for Setup<'_> {
         self.compute_descriptor.destroy(&self.base);
         self.graphics_pipeline_layout.destroy(&self.base);
         self.graphics_pipeline.destroy(&self.base);
+        self.compute_pipeline_layout.destroy(&self.base);
+        self.compute_pipeline.destroy(&self.base);
         self.render_pass.destroy(&self.base);
     }
 }

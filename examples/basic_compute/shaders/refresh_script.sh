@@ -10,4 +10,9 @@ while read -r directory events filename; do
     glslc --target-env=vulkan1.2 --target-spv=spv1.3 -fshader-stage=frag shader.frag -o frag.spv
     echo "recompiled fragment shader."
   fi
+  if [ "$filename" = "shader.comp" ]; then
+    glslc --target-env=vulkan1.2 --target-spv=spv1.3 -fshader-stage=comp shader.comp -o comp.spv
+    echo "recompiled compute shader."
+  fi
+
 done

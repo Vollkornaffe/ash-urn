@@ -5,15 +5,16 @@ use ash_urn::Descriptor;
 use ash_urn::RenderPass;
 use ash_urn::SwapChain;
 use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
+use ash_urn::{ComputePipeline, ComputePipelineSettings};
 use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 
-pub fn setup(
+pub fn setup_graphics(
     base: &Base,
     descriptor: &Descriptor,
     swap_chain: &SwapChain,
     render_pass: &RenderPass,
 ) -> Result<(PipelineLayout, GraphicsPipeline), AppError> {
-    let graphics_pipeline_layout = PipelineLayout::new(
+    let pipeline_layout = PipelineLayout::new(
         &base,
         &PipelineLayoutSettings {
             set_layouts: vec![descriptor.layout.0],
@@ -22,10 +23,10 @@ pub fn setup(
         },
     )?;
 
-    let graphics_pipeline = GraphicsPipeline::new(
+    let pipeline = GraphicsPipeline::new(
         &base,
         &GraphicsPipelineSettings {
-            layout: graphics_pipeline_layout.0,
+            layout: pipeline_layout.0,
             vert_spv: "examples/basic_compute/shaders/vert.spv".to_string(),
             frag_spv: "examples/basic_compute/shaders/frag.spv".to_string(),
             extent: swap_chain.extent.0,
@@ -34,5 +35,30 @@ pub fn setup(
         },
     )?;
 
-    Ok((graphics_pipeline_layout, graphics_pipeline))
+    Ok((pipeline_layout, pipeline))
+}
+
+pub fn setup_compute(
+    base: &Base,
+    descriptor: &Descriptor,
+) -> Result<(PipelineLayout, ComputePipeline), AppError> {
+    let pipeline_layout = PipelineLayout::new(
+        &base,
+        &PipelineLayoutSettings {
+            set_layouts: vec![descriptor.layout.0],
+            push_constant_ranges: vec![],
+            name: "ComputePipelineLayout".to_string(),
+        },
+    )?;
+
+    let pipeline = ComputePipeline::new(
+        &base,
+        &ComputePipelineSettings {
+            layout: pipeline_layout.0,
+            comp_spv: "examples/basic_compute/shaders/comp.spv".to_string(),
+            name: "ComputePipeline".to_string(),
+        },
+    )?;
+
+    Ok((pipeline_layout, pipeline))
 }
