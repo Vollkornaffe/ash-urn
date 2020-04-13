@@ -1,5 +1,5 @@
 use crate::AppError;
-use crate::UBO;
+use crate::GraphicsUBO;
 
 use ash_urn::Base;
 use ash_urn::DeviceBuffer;
@@ -34,7 +34,7 @@ pub fn update(
 
     uniform_buffer.write(
         &base,
-        UBO {
+        GraphicsUBO {
             model: model.into(),
             view: view.into(),
             proj: proj.into(),

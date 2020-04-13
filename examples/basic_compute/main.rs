@@ -14,11 +14,19 @@ use ash_urn::memory_alignment::Align16;
 use ash_urn::wait_device_idle;
 
 #[repr(C)]
-struct UBO {
+struct GraphicsUBO {
     model: Align16<cgmath::Matrix4<f32>>,
     view: Align16<cgmath::Matrix4<f32>>,
     proj: Align16<cgmath::Matrix4<f32>>,
 }
+
+#[repr(C)]
+struct ComputeUBO {
+    n_particles: u32,
+    d_t: f32,
+    G: f32,
+}
+
 
 fn main() {
     println!("Starting basic_compute.");

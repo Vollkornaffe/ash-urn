@@ -1,6 +1,6 @@
 use crate::AppError;
 
-use ash_urn::transfer::{create_index_device_buffer, create_vertex_device_buffer, ownership};
+use ash_urn::transfer::{create_index_device_buffer, create_vertex_storage_device_buffer, ownership};
 use ash_urn::Base;
 use ash_urn::Command;
 use ash_urn::DeviceBuffer;
@@ -13,7 +13,7 @@ pub fn setup(
     transfer_command: &Command,
 ) -> Result<(DeviceBuffer, DeviceBuffer), AppError> {
     // create vertex buffer
-    let vertex_device_buffer = create_vertex_device_buffer(
+    let vertex_device_buffer = create_vertex_storage_device_buffer(
         &base,
         mesh.vertices.as_slice(),
         transfer_command.queue.0,

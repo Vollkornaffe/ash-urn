@@ -35,7 +35,7 @@ pub fn advance_frame(
     // update model matrix based on time
     uniform_buffer::update(
         &base,
-        &setup.uniform_buffers[image_index as usize],
+        &setup.graphics_uniform_buffers[image_index as usize],
         &setup.swap_chain,
         &start_instant,
     )?;
@@ -44,7 +44,7 @@ pub fn advance_frame(
     // waiting on image_aquired, signaling rendering_finished
     render::submit(
         &base,
-        &setup.graphics_command,
+        &setup.combined_command,
         &setup.timeline,
         &setup.semaphore_image_acquired,
         &setup.semaphore_rendering_finished,
@@ -57,7 +57,7 @@ pub fn advance_frame(
     // waiting on rendering_finished, doesn't signal anything
     present::submit(
         &setup.swap_chain,
-        &setup.graphics_command,
+        &setup.combined_command,
         &setup.semaphore_rendering_finished,
         image_index,
     )?;

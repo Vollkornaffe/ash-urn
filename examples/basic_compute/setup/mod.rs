@@ -34,9 +34,14 @@ pub struct Setup<'a> {
     pub swap_chain: SwapChain,
     pub render_pass: RenderPass,
     pub depth_device_image: DeviceImage,
-    pub uniform_buffers: Vec<DeviceBuffer>,
-    pub descriptor: Descriptor,
-    pub graphics_command: Command,
+    
+    pub graphics_uniform_buffers: Vec<DeviceBuffer>,
+    pub compute_uniform_buffer: DeviceBuffer,
+
+    pub graphics_descriptor: Descriptor,
+    pub compute_descriptor: Descriptor,
+
+    pub combined_command: Command,
     pub transfer_command: Command,
     pub vertex_device_buffer: DeviceBuffer,
     pub index_device_buffer: DeviceBuffer,
@@ -66,33 +71,39 @@ impl<'a> Setup<'a> {
             swap_chain::setup(base, &sdl, &surface_loader, surface)?;
 
         // an uniform buffer per swapchain image
-        let uniform_buffers = uniform_buffers::setup(base, swap_chain.image_count)?;
+        let graphics_uniform_buffers = 
+            uniform_buffers::setup_graphics(base, swap_chain.image_count)?;
+        let compute_uniform_buffer =
+            uniform_buffers::setup_compute(base)?;
 
         // get the structures for commands,
         // they will be filled out later
-        let (graphics_command, transfer_command) = command::setup(base, swap_chain.image_count)?;
+        let (combined_command, transfer_command) = command::setup(base, swap_chain.image_count)?;
 
         // create device buffers from the mesh & load the textures
         // the transfer is done with the transfer command,
         // ownership is transferred afterwards
         let (vertex_device_buffer, index_device_buffer) =
-            mesh_buffers::setup(base, &mesh, &graphics_command, &transfer_command)?;
+            mesh_buffers::setup(base, &mesh, &combined_command, &transfer_command)?;
         let textures = textures::setup(
             base,
             &[(
                 "examples/basic_graphics/assets/meme.jpg".to_string(),
                 "MuskyBoy".to_string(),
             )],
-            &graphics_command,
+            &combined_command,
             &transfer_command,
         )?;
 
         // these sets contain the respective UBOs & combined image samplers
-        let descriptor = descriptor::setup(base, &uniform_buffers, &textures[0])?;
+        let graphics_descriptor = descriptor::setup_graphics(base, &graphics_uniform_buffers, &textures[0])?;
 
+        // this set contains the compute UBO & storage buffers
+        let compute_descriptor = descriptor::setup_compute(base, &compute_uniform_buffer, &vertex_device_buffer)?;
+        
         // just one pipeline, using the vert & frag shader
         let (graphics_pipeline_layout, graphics_pipeline) =
-            pipeline::setup(base, &descriptor, &swap_chain, &render_pass)?;
+            pipeline::setup(base, &graphics_descriptor, &swap_chain, &render_pass)?;
 
         // get timestamp for profiling
         let timestamp = Timestamp::new(
@@ -103,7 +114,7 @@ impl<'a> Setup<'a> {
         )?;
 
         // write to the command buffers
-        for (i, command_buffer) in graphics_command.buffers.iter().enumerate() {
+        for (i, command_buffer) in combined_command.buffers.iter().enumerate() {
             ash_urn::command::draw::indexed(
                 base,
                 &ash_urn::command::DrawIndexedSettings {
@@ -114,7 +125,7 @@ impl<'a> Setup<'a> {
                     extent: swap_chain.extent.0,
                     graphics_pipeline: graphics_pipeline.0,
                     graphics_pipeline_layout: graphics_pipeline_layout.0,
-                    descriptor_set: descriptor.sets[i].0,
+                    descriptor_set: graphics_descriptor.sets[i].0,
                     vertex_buffer: vertex_device_buffer.buffer.0,
                     index_buffer: index_device_buffer.buffer.0,
                     n_indices: mesh.indices.len() as u32,
@@ -137,9 +148,11 @@ impl<'a> Setup<'a> {
             swap_chain,
             render_pass,
             depth_device_image,
-            uniform_buffers,
-            descriptor,
-            graphics_command,
+            graphics_uniform_buffers,
+            compute_uniform_buffer,
+            graphics_descriptor,
+            compute_descriptor,
+            combined_command,
             transfer_command,
             vertex_device_buffer,
             index_device_buffer,
@@ -164,7 +177,7 @@ impl Drop for Setup<'_> {
             sampler.destroy(&self.base);
         }
         self.timestamp.destroy(&self.base);
-        self.graphics_command.destroy(&self.base);
+        self.combined_command.destroy(&self.base);
         self.transfer_command.destroy(&self.base);
         self.semaphore_image_acquired.destroy(&self.base);
         self.semaphore_rendering_finished.destroy(&self.base);
@@ -173,11 +186,13 @@ impl Drop for Setup<'_> {
         self.vertex_device_buffer.destroy(&self.base);
         self.index_device_buffer.destroy(&self.base);
         self.depth_device_image.destroy(&self.base);
-        for uniform_buffer in &self.uniform_buffers {
+        for uniform_buffer in &self.graphics_uniform_buffers {
             uniform_buffer.destroy(&self.base);
         }
+        self.compute_uniform_buffer.destroy(&self.base);
         self.swap_chain.destroy(&self.base);
-        self.descriptor.destroy(&self.base);
+        self.graphics_descriptor.destroy(&self.base);
+        self.compute_descriptor.destroy(&self.base);
         self.graphics_pipeline_layout.destroy(&self.base);
         self.graphics_pipeline.destroy(&self.base);
         self.render_pass.destroy(&self.base);
