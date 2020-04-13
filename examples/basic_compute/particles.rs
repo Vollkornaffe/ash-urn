@@ -1,43 +1,42 @@
 use cgmath::prelude::*;
 
+use ash_urn::memory_alignment::Align16;
 use ash_urn::Mesh;
 use ash_urn::Vertex;
 
-#[repr(C)]
-pub struct Particles {
-    pub n_particles: usize,
-    pub positions: Vec<cgmath::Vector3<f32>>,
-    pub velocities: Vec<cgmath::Vector3<f32>>,
+#[repr(C,align(32))]
+pub struct Particle {
+    pub pos: Align16<cgmath::Vector3<f32>>,
+    pub vel: Align16<cgmath::Vector3<f32>>,
 }
+
+pub struct Particles(pub Vec<Particle>);
 
 impl Particles {
     pub fn new(res: usize) -> Self {
 
         let n_particles = res * res * res;
 
-        let mut positions = Vec::new();
-        let mut velocities = Vec::new();
+        let mut particles = Vec::new();
 
-        positions.reserve(n_particles);
-        velocities.resize(n_particles, cgmath::Vector3::<f32>::zero());
+        particles.reserve(n_particles);
 
         for i in 0..res {
             for j in 0..res {
                 for k in 0..res {
-                    positions.push(cgmath::Vector3::<f32>::new(
-                        (0.5 + i as f32) / res as f32 - 0.5,
-                        (0.5 + j as f32) / res as f32 - 0.5,
-                        (0.5 + k as f32) / res as f32 - 0.5,
-                    ));
+                    particles.push(Particle {
+                        pos: cgmath::Vector3::<f32>::new(
+                            (0.5 + i as f32) / res as f32 - 0.5,
+                            (0.5 + j as f32) / res as f32 - 0.5,
+                            (0.5 + k as f32) / res as f32 - 0.5,
+                        ).into(),
+                        vel: cgmath::Vector3::<f32>::new(0.0,0.0,0.0).into(),
+                    });
                 }
             }
         }
 
-        Self {
-            n_particles,
-            positions,
-            velocities,
-        }
+        Self(particles)
     }
 
     pub fn as_mesh(&self, reference: &Mesh, scale: f32) -> Mesh {
@@ -45,11 +44,12 @@ impl Particles {
         let mut vertices = Vec::new();
         let mut indices = Vec::new();
 
-        vertices.reserve(reference.vertices.len() * self.n_particles);
-        indices.reserve(reference.indices.len() * self.n_particles);
+        vertices.reserve(reference.vertices.len() * self.0.len());
+        indices.reserve(reference.indices.len() * self.0.len());
 
-        for offset in &self.positions {
+        for p in &self.0 {
             let idx_offset = vertices.len() as u32;
+            let offset = p.pos.0;
             for v in &reference.vertices {
                 vertices.push(Vertex {
                     pos: [

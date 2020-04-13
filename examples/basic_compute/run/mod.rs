@@ -13,6 +13,7 @@ pub fn advance_frame(
     setup: &Setup,
     start_instant: &std::time::Instant,
     frame: &mut u64,
+    profiling: bool,
 ) -> Result<(), AppError> {
     // acquire an image
     let image_index = next_image::aquire(&setup.swap_chain, &setup.semaphore_image_acquired)?;
@@ -25,12 +26,12 @@ pub fn advance_frame(
     setup.fence_rendering_finished.wait(&base)?;
     setup.fence_rendering_finished.reset(&base)?;
 
-    /*
-    if *frame != 0 {
-        let stamps = setup.timestamp.query_all(base)?;
-        println!("{:?}", stamps[1] - stamps[0]);
+    if profiling {
+        if *frame != 0 {
+            let stamps = setup.timestamp.query_all(base)?;
+            println!("{:?}", stamps[1] - stamps[0]);
+        }
     }
-    */
 
     // update model matrix based on time
     uniform_buffer::update(

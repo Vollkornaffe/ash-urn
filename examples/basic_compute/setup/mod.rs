@@ -8,9 +8,11 @@ mod swap_chain;
 mod sync;
 mod textures;
 mod uniform_buffers;
+mod particle_buffer;
 
 use crate::AppError;
 use crate::SDL;
+use crate::Particles;
 
 use ash_urn::sync::wait_device_idle;
 use ash_urn::Base;
@@ -43,15 +45,22 @@ pub struct Setup<'a> {
 
     pub combined_command: Command,
     pub transfer_command: Command,
+
     pub vertex_device_buffer: DeviceBuffer,
     pub index_device_buffer: DeviceBuffer,
+
+    pub particle_buffer: DeviceBuffer,
+
     pub graphics_pipeline_layout: PipelineLayout,
     pub graphics_pipeline: GraphicsPipeline,
+
     pub timeline: Timeline,
     pub semaphore_image_acquired: Semaphore,
     pub semaphore_rendering_finished: Semaphore,
     pub fence_rendering_finished: Fence,
+
     pub timestamp: Timestamp,
+
     pub textures: Vec<(DeviceImage, Sampler)>,
 }
 
@@ -62,6 +71,7 @@ impl<'a> Setup<'a> {
         surface_loader: &ash::extensions::khr::Surface,
         surface: ash::vk::SurfaceKHR,
         mesh: &Mesh,
+        particles: &Particles,
     ) -> Result<Self, AppError> {
         wait_device_idle(base)?;
 
@@ -94,6 +104,9 @@ impl<'a> Setup<'a> {
             &combined_command,
             &transfer_command,
         )?;
+
+        // prepare particle storage buffer
+        let particle_buffer = particle_buffer::setup(base, particles, &combined_command, &transfer_command)?;
 
         // these sets contain the respective UBOs & combined image samplers
         let graphics_descriptor = descriptor::setup_graphics(base, &graphics_uniform_buffers, &textures[0])?;
@@ -156,6 +169,7 @@ impl<'a> Setup<'a> {
             transfer_command,
             vertex_device_buffer,
             index_device_buffer,
+            particle_buffer,
             graphics_pipeline_layout,
             graphics_pipeline,
             timeline,
@@ -185,6 +199,7 @@ impl Drop for Setup<'_> {
         self.fence_rendering_finished.destroy(&self.base);
         self.vertex_device_buffer.destroy(&self.base);
         self.index_device_buffer.destroy(&self.base);
+        self.particle_buffer.destroy(&self.base);
         self.depth_device_image.destroy(&self.base);
         for uniform_buffer in &self.graphics_uniform_buffers {
             uniform_buffer.destroy(&self.base);
