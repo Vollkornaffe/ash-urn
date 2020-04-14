@@ -34,7 +34,7 @@ pub fn update_graphics(
 
     uniform_buffer.write(
         &base,
-        GraphicsUBO {
+        &GraphicsUBO {
             model: model.into(),
             view: view.into(),
             proj: proj.into(),

@@ -46,6 +46,6 @@ void main() {
 
   uint index_offset = index * n_reference;
   for (uint i = 0; i < n_reference; i++) {
-    mesh[index_offset + i].pos = particles[index].pos;
+    mesh[index_offset + i].pos = particles[index].pos + scale * reference[i].pos;
   }
 }

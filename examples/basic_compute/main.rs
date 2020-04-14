@@ -14,6 +14,7 @@ use ash_urn::memory_alignment::Align16;
 use ash_urn::wait_device_idle;
 
 #[repr(C)]
+#[derive(Debug)]
 struct GraphicsUBO {
     model: Align16<cgmath::Matrix4<f32>>,
     view: Align16<cgmath::Matrix4<f32>>,
@@ -21,6 +22,7 @@ struct GraphicsUBO {
 }
 
 #[repr(C)]
+#[derive(Debug)]
 struct ComputeUBO {
     n_particles: u32,
     n_reference: u32,
