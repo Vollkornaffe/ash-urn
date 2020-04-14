@@ -35,7 +35,7 @@ fn main() {
     println!("Starting basic_compute.");
 
     // create particles
-    let particles = Particles::new(30);
+    let particles = Particles::new(25);
 
     // load reference mesh
     let reference_mesh = &assets::load_mesh("examples/basic_graphics/assets/test.glb").unwrap();
@@ -48,6 +48,10 @@ fn main() {
         maximized: true,
     })
     .unwrap();
+
+    // wait for go-time
+    let mut s=String::new();
+    std::io::stdin().read_line(&mut s).expect("Did not enter a correct string");
 
     // setup the basic vulkan stuff, this is convoluted with
     // surface stuff, can't really be separated further

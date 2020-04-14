@@ -123,7 +123,7 @@ impl<'a> Setup<'a> {
         let textures = textures::setup(
             base,
             &[(
-                "examples/basic_graphics/assets/meme.jpg".to_string(),
+                "examples/basic_compute/assets/rainbow.jpg".to_string(),
                 "MuskyBoy".to_string(),
             )],
             &graphics_command,

@@ -59,7 +59,7 @@ impl Particles {
                     ].into(),
                     nor: v.nor,
                     col: v.col,
-                    tex: v.tex,
+                    tex: [offset[0], offset[1]].into(),
                 });
             }
             for i in &reference.indices {
