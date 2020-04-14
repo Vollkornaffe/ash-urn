@@ -61,6 +61,8 @@ pub fn setup_graphics(
 pub fn setup_compute(
     base: &Base,
     uniform_buffer: &DeviceBuffer,
+    reference_device_buffer: &DeviceBuffer,
+    particle_device_buffer: &DeviceBuffer,
     vertex_device_buffer: &DeviceBuffer,
 ) -> Result<Descriptor, AppError> {
     let mut setup_map = HashMap::new();
@@ -78,12 +80,29 @@ pub fn setup_compute(
             stage: ash::vk::ShaderStageFlags::COMPUTE,
         },
     );
+    setup_map.insert(
+        2,
+        descriptor::Setup {
+            ty: ash::vk::DescriptorType::STORAGE_BUFFER,
+            stage: ash::vk::ShaderStageFlags::COMPUTE,
+        },
+    );
+    setup_map.insert(
+        3,
+        descriptor::Setup {
+            ty: ash::vk::DescriptorType::STORAGE_BUFFER,
+            stage: ash::vk::ShaderStageFlags::COMPUTE,
+        },
+    );
+
 
     let mut set_usages = Vec::new();
 
     let mut usages = HashMap::new();
     usages.insert(0, descriptor::Usage::Buffer(uniform_buffer.buffer.0));
-    usages.insert(1, descriptor::Usage::Buffer(vertex_device_buffer.buffer.0));
+    usages.insert(1, descriptor::Usage::Buffer(reference_device_buffer.buffer.0));
+    usages.insert(2, descriptor::Usage::Buffer(particle_device_buffer.buffer.0));
+    usages.insert(3, descriptor::Usage::Buffer(vertex_device_buffer.buffer.0));
     set_usages.push(descriptor::SetUsage {
         usages,
         name: "ComputeDescriptorSet".to_string(),

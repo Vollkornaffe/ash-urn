@@ -61,9 +61,9 @@ impl Particles {
                     col: v.col,
                     tex: v.tex,
                 });
-                for i in &reference.indices {
-                    indices.push(i + idx_offset);
-                }
+            }
+            for i in &reference.indices {
+                indices.push(i + idx_offset);
             }
         } 
 

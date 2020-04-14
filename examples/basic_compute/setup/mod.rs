@@ -8,11 +8,12 @@ mod swap_chain;
 mod sync;
 mod textures;
 mod uniform_buffers;
-mod particle_buffer;
+mod storage_buffers;
 
 use crate::AppError;
 use crate::SDL;
 use crate::Particles;
+use crate::ComputeUBO;
 
 use ash_urn::sync::wait_device_idle;
 use ash_urn::Base;
@@ -51,6 +52,7 @@ pub struct Setup<'a> {
     pub vertex_device_buffer: DeviceBuffer,
     pub index_device_buffer: DeviceBuffer,
 
+    pub reference_buffer: DeviceBuffer,
     pub particle_buffer: DeviceBuffer,
 
     pub graphics_pipeline_layout: PipelineLayout,
@@ -75,10 +77,16 @@ impl<'a> Setup<'a> {
         base: &'a Base,
         surface_loader: &ash::extensions::khr::Surface,
         surface: ash::vk::SurfaceKHR,
-        mesh: &Mesh,
+        reference_mesh: &Mesh,
         particles: &Particles,
     ) -> Result<Self, AppError> {
         wait_device_idle(base)?;
+
+        // replicate reference mesh for each particle
+        let mesh = particles.as_mesh(
+            reference_mesh,
+            0.1,
+        ); 
 
         // get swap chain + renderpass & depth image
         // this is also a bit entangled
@@ -90,6 +98,18 @@ impl<'a> Setup<'a> {
             uniform_buffers::setup_graphics(base, swap_chain.image_count)?;
         let compute_uniform_buffer =
             uniform_buffers::setup_compute(base)?;
+
+        // write to the compute ubo
+        compute_uniform_buffer.write(
+            &base,
+            &ComputeUBO {
+                n_particles: particles.0.len() as u32,
+                n_reference: reference_mesh.vertices.len() as u32,
+                scale: 0.1,
+                d_t: 0.001,
+                G: 1.0,
+            },
+        )?;
 
         // get the structures for commands,
         // they will be filled out later
@@ -110,14 +130,14 @@ impl<'a> Setup<'a> {
             &transfer_command,
         )?;
 
-        // prepare particle storage buffer
-        let particle_buffer = particle_buffer::setup(base, particles, &compute_command, &transfer_command)?;
+        // prepare storage buffers
+        let (reference_buffer, particle_buffer) = storage_buffers::setup(base, reference_mesh, particles, &compute_command, &transfer_command)?;
 
         // these sets contain the respective UBOs & combined image samplers
         let graphics_descriptor = descriptor::setup_graphics(base, &graphics_uniform_buffers, &textures[0])?;
 
         // this set contains the compute UBO & storage buffers
-        let compute_descriptor = descriptor::setup_compute(base, &compute_uniform_buffer, &vertex_device_buffer)?;
+        let compute_descriptor = descriptor::setup_compute(base, &compute_uniform_buffer, &reference_buffer, &particle_buffer, &vertex_device_buffer)?;
         
         // just one pipeline, using the vert & frag shader
         let (graphics_pipeline_layout, graphics_pipeline) =
@@ -189,6 +209,7 @@ impl<'a> Setup<'a> {
             transfer_command,
             vertex_device_buffer,
             index_device_buffer,
+            reference_buffer,
             particle_buffer,
             graphics_pipeline_layout,
             graphics_pipeline,
@@ -222,6 +243,7 @@ impl Drop for Setup<'_> {
         self.fence_rendering_finished.destroy(&self.base);
         self.vertex_device_buffer.destroy(&self.base);
         self.index_device_buffer.destroy(&self.base);
+        self.reference_buffer.destroy(&self.base);
         self.particle_buffer.destroy(&self.base);
         self.depth_device_image.destroy(&self.base);
         for uniform_buffer in &self.graphics_uniform_buffers {

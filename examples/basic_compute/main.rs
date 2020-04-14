@@ -23,6 +23,8 @@ struct GraphicsUBO {
 #[repr(C)]
 struct ComputeUBO {
     n_particles: u32,
+    n_reference: u32,
+    scale: f32,
     d_t: f32,
     G: f32,
 }
@@ -31,13 +33,10 @@ fn main() {
     println!("Starting basic_compute.");
 
     // create particles
-    let particles = Particles::new(10);
+    let particles = Particles::new(2);
 
-    // create a mesh to render from particles
-    let mesh = particles.as_mesh(
-        &assets::load_mesh("examples/basic_graphics/assets/test.glb").unwrap(),
-        0.01,
-    ); 
+    // load reference mesh
+    let reference_mesh = &assets::load_mesh("examples/basic_graphics/assets/test.glb").unwrap();
 
     // create sdl context
     let mut sdl = sdl::SDL::new(sdl::WindowSettings {
@@ -54,7 +53,7 @@ fn main() {
 
     // this scope is to ensure base, surface_loader & surface outlive whats inside
     {
-        let mut setup = Setup::new(&sdl, &base, &surface_loader, surface, &mesh, &particles).unwrap();
+        let mut setup = Setup::new(&sdl, &base, &surface_loader, surface, &reference_mesh, &particles).unwrap();
 
         // record starting time
         let start_instant = std::time::Instant::now();
@@ -69,7 +68,7 @@ fn main() {
             // check if the iteration failed due to resize
             match run::advance_frame(&base, &setup, &start_instant, &mut frame, false) {
                 Err(AppError::AshError(ash::vk::Result::ERROR_OUT_OF_DATE_KHR)) => {
-                    setup = Setup::new(&sdl, &base, &surface_loader, surface, &mesh, &particles).unwrap();
+                    setup = Setup::new(&sdl, &base, &surface_loader, surface, &reference_mesh, &particles).unwrap();
                     frame = 0;
                     Ok(())
                 }

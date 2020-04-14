@@ -5,6 +5,7 @@ pub mod next_image;
 pub mod present;
 pub mod render;
 pub mod uniform_buffer;
+pub mod compute;
 
 use ash_urn::Base;
 
@@ -12,29 +13,32 @@ pub fn advance_frame(
     base: &Base,
     setup: &Setup,
     start_instant: &std::time::Instant,
-    frame: &mut u64,
+    time: &mut u64,
     profiling: bool,
 ) -> Result<(), AppError> {
-    // acquire an image
-    let image_index = next_image::aquire(&setup.swap_chain, &setup.semaphore_image_acquired)?;
 
     // wait for last frame to complete rendering before submitting.
-    setup.timeline.wait(&base, *frame)?;
+    setup.timeline.wait(&base, *time)?;
 
     // only waiting on fence because the validation layers don't get timelines
     // if running without validation, the fence is not needed.
     setup.fence_rendering_finished.wait(&base)?;
     setup.fence_rendering_finished.reset(&base)?;
 
-    if profiling {
-        if *frame != 0 {
-            let stamps = setup.timestamp.query_all(base)?;
-            println!("{:?}", stamps[1] - stamps[0]);
-        }
-    }
+    // run computation
+    compute::submit(
+        &base,
+        &setup.compute_command,
+        &setup.timeline,
+        *time,
+    )?;
+    *time += 1;
+
+    // acquire an image
+    let image_index = next_image::aquire(&setup.swap_chain, &setup.semaphore_image_acquired)?;
 
     // update model matrix based on time
-    uniform_buffer::update(
+    uniform_buffer::update_graphics(
         &base,
         &setup.graphics_uniform_buffers[image_index as usize],
         &setup.swap_chain,
@@ -50,9 +54,10 @@ pub fn advance_frame(
         &setup.semaphore_image_acquired,
         &setup.semaphore_rendering_finished,
         &setup.fence_rendering_finished,
-        *frame,
+        *time,
         image_index,
     )?;
+    *time += 1;
 
     // submit to the present queue via the swap chain loader
     // waiting on rendering_finished, doesn't signal anything
@@ -62,8 +67,6 @@ pub fn advance_frame(
         &setup.semaphore_rendering_finished,
         image_index,
     )?;
-
-    *frame += 1;
 
     Ok(())
 }

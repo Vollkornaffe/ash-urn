@@ -13,21 +13,21 @@ pub fn submit(
     semaphore_image_acquired: &Semaphore,
     semaphore_rendering_finished: &Semaphore,
     fence_rendering_finished: &Fence,
-    frame: u64,
+    time: u64,
     image_index: u32,
 ) -> Result<(), AppError> {
     // choose the buffer corresponding to the image
     let graphics_command_buffers = [graphics_command.buffers[image_index as usize].0];
 
     // setup waiting / signaling for rendering
-    let wait_values = [1];
-    let signal_values = [frame + 1, 1];
+    let wait_values = [time, 1];
+    let signal_values = [time + 1, 1];
     let mut timeline_submit_info = ash::vk::TimelineSemaphoreSubmitInfo::builder()
         .wait_semaphore_values(&wait_values)
         .signal_semaphore_values(&signal_values)
         .build();
-    let graphics_wait_semaphores = [semaphore_image_acquired.0];
-    let graphics_wait_stages_mask = [ash::vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT];
+    let graphics_wait_semaphores = [timeline.0, semaphore_image_acquired.0];
+    let graphics_wait_stages_mask = [ash::vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT, ash::vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT];
     let graphics_signal_semaphores = [timeline.0, semaphore_rendering_finished.0];
 
     // setup submit

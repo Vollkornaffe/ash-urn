@@ -5,7 +5,7 @@ use ash_urn::Base;
 use ash_urn::DeviceBuffer;
 use ash_urn::SwapChain;
 
-pub fn update(
+pub fn update_graphics(
     base: &Base,
     uniform_buffer: &DeviceBuffer,
     swap_chain: &SwapChain,
