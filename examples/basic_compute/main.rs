@@ -35,7 +35,7 @@ fn main() {
     println!("Starting basic_compute.");
 
     // create particles
-    let particles = Particles::new(2);
+    let particles = Particles::new(10);
 
     // load reference mesh
     let reference_mesh = &assets::load_mesh("examples/basic_graphics/assets/test.glb").unwrap();

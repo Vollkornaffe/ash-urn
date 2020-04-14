@@ -59,7 +59,8 @@ pub struct Setup<'a> {
     pub graphics_pipeline: GraphicsPipeline,
 
     pub compute_pipeline_layout: PipelineLayout,
-    pub compute_pipeline: ComputePipeline,
+    pub calculate_pipeline: ComputePipeline,
+    pub integrate_pipeline: ComputePipeline,
 
     pub timeline: Timeline,
     pub semaphore_image_acquired: Semaphore,
@@ -104,7 +105,7 @@ impl<'a> Setup<'a> {
             &ComputeUBO {
                 n_particles: particles.0.len() as u32,
                 n_reference: reference_mesh.vertices.len() as u32,
-                scale: 0.1,
+                scale: 0.01,
                 d_t: 0.001,
                 G: 1.0,
             },
@@ -143,7 +144,7 @@ impl<'a> Setup<'a> {
             pipeline::setup_graphics(base, &graphics_descriptor, &swap_chain, &render_pass)?;
 
         // and just one pipeline for the particle update
-        let (compute_pipeline_layout, compute_pipeline) =
+        let (compute_pipeline_layout, calculate_pipeline, integrate_pipeline) =
             pipeline::setup_compute(base, &compute_descriptor)?;
 
         // get timestamp for profiling
@@ -178,7 +179,8 @@ impl<'a> Setup<'a> {
         command::write_compute(
             base,
             &compute_pipeline_layout,
-            &compute_pipeline,
+            &calculate_pipeline,
+            &integrate_pipeline,
             &compute_command,
             &compute_descriptor,
             particles.0.len() as u32,
@@ -214,7 +216,8 @@ impl<'a> Setup<'a> {
             graphics_pipeline_layout,
             graphics_pipeline,
             compute_pipeline_layout,
-            compute_pipeline,
+            calculate_pipeline,
+            integrate_pipeline,
             timeline,
             semaphore_image_acquired,
             semaphore_rendering_finished,
@@ -256,7 +259,8 @@ impl Drop for Setup<'_> {
         self.graphics_pipeline_layout.destroy(&self.base);
         self.graphics_pipeline.destroy(&self.base);
         self.compute_pipeline_layout.destroy(&self.base);
-        self.compute_pipeline.destroy(&self.base);
+        self.calculate_pipeline.destroy(&self.base);
+        self.integrate_pipeline.destroy(&self.base);
         self.render_pass.destroy(&self.base);
     }
 }

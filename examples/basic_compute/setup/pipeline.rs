@@ -41,7 +41,7 @@ pub fn setup_graphics(
 pub fn setup_compute(
     base: &Base,
     descriptor: &Descriptor,
-) -> Result<(PipelineLayout, ComputePipeline), AppError> {
+) -> Result<(PipelineLayout, ComputePipeline, ComputePipeline), AppError> {
     let pipeline_layout = PipelineLayout::new(
         &base,
         &PipelineLayoutSettings {
@@ -51,14 +51,23 @@ pub fn setup_compute(
         },
     )?;
 
-    let pipeline = ComputePipeline::new(
+    let calculate_pipeline = ComputePipeline::new(
         &base,
         &ComputePipelineSettings {
             layout: pipeline_layout.0,
-            comp_spv: "examples/basic_compute/shaders/comp.spv".to_string(),
-            name: "ComputePipeline".to_string(),
+            comp_spv: "examples/basic_compute/shaders/calculate.spv".to_string(),
+            name: "CalculatePipeline".to_string(),
         },
     )?;
 
-    Ok((pipeline_layout, pipeline))
+    let integrate_pipeline = ComputePipeline::new(
+        &base,
+        &ComputePipelineSettings {
+            layout: pipeline_layout.0,
+            comp_spv: "examples/basic_compute/shaders/integrate.spv".to_string(),
+            name: "IntegratePipeline".to_string(),
+        },
+    )?;
+
+    Ok((pipeline_layout, calculate_pipeline, integrate_pipeline))
 }

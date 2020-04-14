@@ -44,7 +44,7 @@ void main() {
 	if (index >= n_particles)
 		return;	
 
-  particles[index].pos *= 1.0001;
+  particles[index].pos += d_t * particles[index].vel;
 
   uint index_offset = index * n_reference;
   for (uint i = 0; i < n_reference; i++) {
