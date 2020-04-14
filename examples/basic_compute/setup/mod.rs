@@ -98,6 +98,17 @@ impl<'a> Setup<'a> {
             uniform_buffers::setup_graphics(base, swap_chain.image_count)?;
         let compute_uniform_buffer =
             uniform_buffers::setup_compute(base)?;
+        // write to the compute ubo
+        compute_uniform_buffer.write(
+            &base,
+            &ComputeUBO {
+                n_particles: particles.0.len() as u32,
+                n_reference: reference_mesh.vertices.len() as u32,
+                scale: 0.1,
+                d_t: 0.001,
+                G: 1.0,
+            },
+        )?;
 
         // get the structures for commands,
         // they will be filled out later
@@ -181,32 +192,8 @@ impl<'a> Setup<'a> {
             fence_rendering_finished,
         ) = sync::setup(base)?;
 
-        wait_device_idle(base)?;
-
-        // write to the compute ubo
-        compute_uniform_buffer.write(
-            &base,
-            &ComputeUBO {
-                n_particles: particles.0.len() as u32,
-                n_reference: reference_mesh.vertices.len() as u32,
-                scale: 0.1,
-                d_t: 0.001,
-                G: 1.0,
-            },
-        )?;
 
         wait_device_idle(base)?;
-
-        // check the compute ubo
-        let mut ubo = ComputeUBO {
-            n_particles: 0,
-            n_reference: 0,
-            scale: 0.0,
-            d_t: 0.0,
-            G: 0.0,
-        };
-        compute_uniform_buffer.read(&base, &mut ubo)?;
-        println!("{:?}", ubo);
 
         Ok(Self {
             base,
