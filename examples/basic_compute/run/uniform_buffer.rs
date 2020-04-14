@@ -19,7 +19,7 @@ pub fn update_graphics(
     let model: cgmath::Matrix4<f32> = rotation.into();
 
     let view = cgmath::Matrix4::look_at(
-        cgmath::Point3::new(2.0, 2.0, 2.0),
+        (t.sin() + 2.0) * 3.0 * cgmath::Point3::new(1.0, 1.0, 1.0),
         cgmath::Point3::new(0.0, 0.0, 0.0),
         cgmath::Vector3::unit_z(),
     );

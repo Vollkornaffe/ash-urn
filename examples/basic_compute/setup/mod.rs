@@ -106,8 +106,8 @@ impl<'a> Setup<'a> {
                 n_particles: particles.0.len() as u32,
                 n_reference: reference_mesh.vertices.len() as u32,
                 scale: 0.01,
-                d_t: 0.001,
-                G: 1.0,
+                d_t: 0.0001,
+                G: 0.01,
             },
         )?;
 
