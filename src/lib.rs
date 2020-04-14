@@ -22,7 +22,7 @@ pub use device_image::{DeviceImage, DeviceImageSettings, Sampler};
 pub use error::UrnError;
 pub use mesh::{Mesh, Vertex};
 pub use pipeline::{
-    GraphicsPipeline, GraphicsPipelineSettings, PipelineLayout, PipelineLayoutSettings,
+    GraphicsPipeline, GraphicsPipelineSettings, ComputePipeline, ComputePipelineSettings,PipelineLayout, PipelineLayoutSettings,
     ShaderModule, ShaderModuleSettings,
 };
 pub use queries::Timestamp;

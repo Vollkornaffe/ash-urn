@@ -1,0 +1,65 @@
+#version 450
+
+struct Particle {
+  vec4 pos;
+  vec4 vel;
+};
+
+layout (std140, binding = 0) uniform UBO
+{
+    uint n_particles;
+    uint n_reference;
+    float scale;
+    float d_t;
+    float G;
+};
+
+layout(std430, binding = 2) buffer Particles
+{
+  Particle particles[];
+};
+
+layout(local_size_x = 512, local_size_y = 1, local_size_z = 1) in;
+
+shared vec4 shared_positions[gl_WorkGroupSize.x];
+
+void main() {
+
+	uint global_index = gl_GlobalInvocationID.x;
+  uint local_index = gl_LocalInvocationIndex;
+
+	if (global_index >= n_particles)
+		return;	
+
+  vec4 pos = particles[global_index].pos;
+  vec4 acc = vec4(0.0,0.0,0.0,0.0);
+  for (uint shared_step = 0; shared_step < (n_particles / gl_WorkGroupSize.x) + 1; shared_step++) {
+
+    uint offset = shared_step * gl_WorkGroupSize.x;
+    uint load_global_index = offset + local_index;
+
+    if (load_global_index < n_particles)
+      shared_positions[local_index] = particles[load_global_index].pos;
+
+		memoryBarrierShared();
+		barrier();
+
+    for (uint other_local_index = 0; other_local_index < gl_WorkGroupSize.x; other_local_index++) {
+
+      uint other_global_index = offset + other_local_index;
+      if (other_global_index < n_particles) {
+        vec4 d = shared_positions[other_local_index] - pos;
+        float d_norm = length(d);
+        if (d_norm > 0.0) {
+          acc += G / d_norm / d_norm / d_norm * d;
+        }
+      }
+
+    }
+
+		barrier();
+
+  }
+
+  particles[global_index].vel += d_t * acc;
+}

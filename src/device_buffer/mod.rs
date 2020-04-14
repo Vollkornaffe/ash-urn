@@ -47,7 +47,7 @@ impl DeviceBuffer {
         Ok(Self { buffer, memory })
     }
 
-    pub fn write<T>(&self, base: &Base, to_write: T) -> Result<(), UrnError> {
+    pub fn write<T>(&self, base: &Base, to_write: &T) -> Result<(), UrnError> {
         let size = std::mem::size_of::<T>() as ash::vk::DeviceSize;
 
         let data_ptr = unsafe {
@@ -60,7 +60,29 @@ impl DeviceBuffer {
         } as *mut T;
 
         unsafe {
-            data_ptr.copy_from_nonoverlapping(&to_write, 1);
+            data_ptr.copy_from_nonoverlapping(to_write, 1);
+            base.logical_device.0.unmap_memory(self.memory.0)
+        };
+
+        Ok(())
+    }
+
+    pub fn read<T>(&self, base: &Base, to_read: &mut T) -> Result<(), UrnError> {
+        let size = std::mem::size_of::<T>() as ash::vk::DeviceSize;
+
+        println!("Size: {}", size);
+
+        let data_ptr = unsafe {
+            base.logical_device.0.map_memory(
+                self.memory.0,
+                0,
+                size,
+                ash::vk::MemoryMapFlags::default(),
+            )?
+        } as *mut T;
+
+        unsafe {
+            (to_read as *mut T).copy_from_nonoverlapping(data_ptr, 1);
             base.logical_device.0.unmap_memory(self.memory.0)
         };
 

@@ -1,0 +1,53 @@
+#version 450
+
+struct Particle {
+  vec4 pos;
+  vec4 vel;
+};
+
+struct Vertex {
+  vec4 pos;
+  vec4 nor;
+  vec4 col;
+  vec4 tex;
+};
+
+layout (std140, binding = 0) uniform UBO
+{
+    uint n_particles;
+    uint n_reference;
+    float scale;
+    float d_t;
+    float G;
+};
+
+layout(std430, binding = 1) buffer readonly Reference
+{
+  Vertex reference[];
+};
+
+layout(std430, binding = 2) buffer Particles
+{
+  Particle particles[];
+};
+
+layout(std430, binding = 3) buffer writeonly Mesh
+{
+  Vertex mesh[];
+};
+
+layout(local_size_x = 512, local_size_y = 1, local_size_z = 1) in;
+
+void main() {
+
+	uint index = gl_GlobalInvocationID.x;
+	if (index >= n_particles)
+		return;	
+
+  particles[index].pos += d_t * particles[index].vel;
+
+  uint index_offset = index * n_reference;
+  for (uint i = 0; i < n_reference; i++) {
+    mesh[index_offset + i].pos = particles[index].pos + scale * reference[i].pos;
+  }
+}
