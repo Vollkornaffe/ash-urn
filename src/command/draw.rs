@@ -105,7 +105,7 @@ pub fn indexed(base: &Base, settings: &DrawIndexedSettings) -> Result<(), UrnErr
         settings.timestamp.mark(
             base,
             settings.command_buffer,
-            ash::vk::PipelineStageFlags::TOP_OF_PIPE,
+            ash::vk::PipelineStageFlags::BOTTOM_OF_PIPE,
             "Done",
         );
 

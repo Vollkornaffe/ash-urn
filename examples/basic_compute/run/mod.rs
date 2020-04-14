@@ -25,6 +25,13 @@ pub fn advance_frame(
     setup.fence_rendering_finished.wait(&base)?;
     setup.fence_rendering_finished.reset(&base)?;
 
+    if *time != 0 {
+        let stamps = setup.timestamp.query_all(base)?;
+        println!("CALCULATE: {}", 1.0e-6 * (stamps[1] - stamps[0]) as f64);
+        println!("INTEGRATE: {}", 1.0e-6 * (stamps[3] - stamps[2]) as f64);
+        println!("RENDER:    {}", 1.0e-6 * (stamps[5] - stamps[4]) as f64);
+    }
+
     // run computation
     compute::submit(
         &base,

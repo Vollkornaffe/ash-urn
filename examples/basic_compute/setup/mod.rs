@@ -150,34 +150,37 @@ impl<'a> Setup<'a> {
         // get timestamp for profiling
         let timestamp = Timestamp::new(
             &base,
-            vec!["Start".to_string(), "Done".to_string()],
+            [
+                "CALCULATE_START",
+                "CALCULATE_DONE",
+                "INTEGRATE_START",
+                "INTEGRATE_DONE",
+                "RENDER_START",
+                "RENDER_DONE",
+            ].iter().map(|s| s.to_string()).collect(),
             base.physical_device.timestamp_period(&base.instance.0)?,
             "Timestamp".to_string(),
         )?;
 
         // write to the graphics command buffers
-        for (i, command_buffer) in graphics_command.buffers.iter().enumerate() {
-            ash_urn::command::draw::indexed(
-                base,
-                &ash_urn::command::DrawIndexedSettings {
-                    command_buffer: command_buffer.0,
-                    timestamp: &timestamp,
-                    render_pass: render_pass.0,
-                    frame_buffer: swap_chain.elements[i].frame_buffer,
-                    extent: swap_chain.extent.0,
-                    graphics_pipeline: graphics_pipeline.0,
-                    graphics_pipeline_layout: graphics_pipeline_layout.0,
-                    descriptor_set: graphics_descriptor.sets[i].0,
-                    vertex_buffer: vertex_device_buffer.buffer.0,
-                    index_buffer: index_device_buffer.buffer.0,
-                    n_indices: mesh.indices.len() as u32,
-                },
-            )?;
-        }
+        command::write_graphics(
+            base,  
+            &graphics_command,
+            &timestamp,
+            &render_pass,
+            &swap_chain,
+            &graphics_pipeline,
+            &graphics_pipeline_layout,
+            &graphics_descriptor,
+            &vertex_device_buffer,
+            &index_device_buffer,
+            &mesh,
+        )?;
 
         // write to the one compute buffer
         command::write_compute(
             base,
+            &timestamp,
             &compute_pipeline_layout,
             &calculate_pipeline,
             &integrate_pipeline,
