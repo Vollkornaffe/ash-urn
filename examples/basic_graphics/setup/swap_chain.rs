@@ -17,11 +17,12 @@ pub fn setup(
         .physical_device
         .query_swap_chain_support(&surface_loader, surface)
         .unwrap();
+    let (w,h) = sdl.get_size();
     let mut swap_chain = SwapChain::new(
         &base,
         &SwapChainSettings {
-            w: sdl.window.size().0,
-            h: sdl.window.size().1,
+            w,
+            h,
             support: swap_chain_support,
             surface: surface,
             image_count: 3,

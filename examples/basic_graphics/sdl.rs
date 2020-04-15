@@ -162,6 +162,21 @@ impl SDL {
         res
     }
 
+    pub fn get_size(
+        &self
+    ) -> (u32, u32) {
+        let mut w = 0;
+        let mut h = 0;
+        unsafe {
+            SDL_Vulkan_GetDrawableSize(
+                self.window,
+                &mut w as *mut c_int,
+                &mut h as *mut c_int,
+            );
+        }
+        (w as u32, h as u32)
+    }
+
     pub fn destroy(&self) {
         unsafe {
             SDL_DestroyWindow(self.window);
