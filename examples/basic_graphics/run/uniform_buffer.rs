@@ -34,7 +34,7 @@ pub fn update(
 
     uniform_buffer.write(
         &base,
-        UBO {
+        &UBO {
             model: model.into(),
             view: view.into(),
             proj: proj.into(),
