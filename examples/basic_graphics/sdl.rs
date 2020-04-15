@@ -1,14 +1,26 @@
+#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+
+use fermium::*;
+
+const SDL_WINDOWPOS_CENTERED: c_int = SDL_WINDOWPOS_CENTERED_MASK as c_int;
+
 use ash::version::InstanceV1_0;
 use ash::vk::Handle;
 
 #[derive(Debug)]
-pub enum SdlError {
-    Generic(String),
-    Window(sdl2::video::WindowBuildError),
-}
-impl From<String> for SdlError {
-    fn from(e: String) -> SdlError {
-        SdlError::Generic(e)
+pub struct SdlError(pub String);
+
+impl SdlError {
+    pub fn new() -> Self {
+        unsafe {
+            let mut c_char_ptr: *const c_char = SDL_GetError();
+            let mut error_msg = String::new();
+            while *c_char_ptr != 0 {
+                error_msg.push(*c_char_ptr as u8 as char);
+                c_char_ptr = c_char_ptr.offset(1);
+            }
+            Self(error_msg)
+        }
     }
 }
 
@@ -22,10 +34,7 @@ pub enum SdlEvent {
 }
 
 pub struct SDL {
-    pub context: sdl2::Sdl,
-    pub window: sdl2::video::Window,
-    surface: Option<sdl2::video::VkSurfaceKHR>, // This needs a vulkan instance
-    event_pump: sdl2::EventPump,
+    window: *mut SDL_Window,
 }
 
 pub struct WindowSettings {
@@ -36,37 +45,53 @@ pub struct WindowSettings {
 }
 
 impl SDL {
+
     fn create_window(
         settings: WindowSettings,
-        context: &mut sdl2::Sdl,
-    ) -> Result<sdl2::video::Window, SdlError> {
-        let mut window = context
-            .video()?
-            .window(settings.title, settings.w, settings.h);
+    ) -> Result<*mut SDL_Window, SdlError> {
 
-        window.vulkan().position_centered().resizable();
+        let window_flags = SDL_WINDOW_SHOWN
+            | SDL_WINDOW_RESIZABLE
+            | SDL_WINDOW_VULKAN
+            | if settings.maximized {
+                SDL_WINDOW_MAXIMIZED
+            } else {
+                0
+            };
 
-        if settings.maximized {
-            window.maximized();
+        let window = unsafe {
+            SDL_CreateWindow(
+                settings.title.as_ptr() as *const c_char,
+                SDL_WINDOWPOS_CENTERED,
+                SDL_WINDOWPOS_CENTERED,
+                settings.w as i32,
+                settings.h as i32,
+                window_flags as u32,
+            )
+        };
+
+        if window.is_null() {
+            Err(SdlError::new())
+        } else {
+            Ok(window)
         }
 
-        window.build().map_err(SdlError::Window)
     }
 
     pub fn new(settings: WindowSettings) -> Result<SDL, SdlError> {
-        let mut context = sdl2::init()?;
-        let window = Self::create_window(settings, &mut context)?;
 
-        let event_pump = context.event_pump()?;
+        if unsafe { SDL_Init(SDL_INIT_VIDEO) } != 0 {
+            return Err(SdlError::new());
+        } 
+
+        let window = Self::create_window(settings)?;
 
         Ok(Self {
-            context,
             window,
-            surface: None, // this is going to be filled later
-            event_pump,
         })
     }
 
+    /*
     pub fn required_extension_names(&self) -> Result<Vec<String>, SdlError> {
         Ok(self
             .window
@@ -106,4 +131,5 @@ impl SDL {
         }
         res
     }
+    */
 }

@@ -1,28 +1,30 @@
-pub mod assets;
+//pub mod assets;
 pub mod error;
-pub mod run;
+//pub mod run;
 pub mod sdl;
-pub mod setup;
+//pub mod setup;
 
 pub use error::AppError;
 pub use sdl::SDL;
-pub use setup::Setup;
+//pub use setup::Setup;
 
-use ash_urn::memory_alignment::Align16;
-use ash_urn::wait_device_idle;
+//use ash_urn::memory_alignment::Align16;
+//use ash_urn::wait_device_idle;
 
-#[repr(C)]
-struct UBO {
-    model: Align16<cgmath::Matrix4<f32>>,
-    view: Align16<cgmath::Matrix4<f32>>,
-    proj: Align16<cgmath::Matrix4<f32>>,
-}
+//#[repr(C)]
+//struct UBO {
+//    model: Align16<cgmath::Matrix4<f32>>,
+//    view: Align16<cgmath::Matrix4<f32>>,
+//    proj: Align16<cgmath::Matrix4<f32>>,
+//}
 
 fn main() {
+    /*
     println!("Starting basic_graphics.");
 
     // create a mesh to render
     let mesh = assets::load_mesh("examples/basic_graphics/assets/test.glb").unwrap();
+    */
 
     // create sdl context
     let mut sdl = sdl::SDL::new(sdl::WindowSettings {
@@ -33,6 +35,7 @@ fn main() {
     })
     .unwrap();
 
+    /*
     // setup the basic vulkan stuff, this is convoluted with
     // surface stuff, can't really be separated further
     let (base, surface_loader, surface) = setup::base::setup(&mut sdl).unwrap();
@@ -70,4 +73,5 @@ fn main() {
     unsafe {
         surface_loader.destroy_surface(surface, None);
     }
+    */
 }
