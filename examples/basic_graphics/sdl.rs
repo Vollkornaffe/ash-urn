@@ -144,24 +144,28 @@ impl SDL {
         Ok(ash::vk::SurfaceKHR::from_raw(surface as u64))
 
     }
-    /*
 
     pub fn get_events(&mut self) -> Vec<SdlEvent> {
         let mut res = Vec::new();
-        for event in self.event_pump.poll_iter() {
-            match event {
-                sdl2::event::Event::Quit { .. }
-                | sdl2::event::Event::KeyDown {
-                    keycode: Some(sdl2::keyboard::Keycode::Escape),
-                    ..
-                } => {
-                    println!("sdl detected close");
-                    res.push(SdlEvent::Close);
+        let mut event = SDL_Event::default();
+        unsafe {
+            while SDL_PollEvent(&mut event) != 0 {
+                match event.type_ as SDL_EventType {
+                    SDL_QUIT => {
+                        println!("sdl detected close");
+                        res.push(SdlEvent::Close);
+                    }
+                    _ => (),
                 }
-                _ => {}
             }
         }
         res
     }
-    */
+
+    pub fn destroy(&self) {
+        unsafe {
+            SDL_DestroyWindow(self.window);
+            SDL_Quit();
+        }
+    }
 }
