@@ -49,10 +49,6 @@ fn main() {
     })
     .unwrap();
 
-    // wait for go-time
-    let mut s=String::new();
-    std::io::stdin().read_line(&mut s).expect("Did not enter a correct string");
-
     // setup the basic vulkan stuff, this is convoluted with
     // surface stuff, can't really be separated further
     let (base, surface_loader, surface) = setup::base::setup(&mut sdl).unwrap();
