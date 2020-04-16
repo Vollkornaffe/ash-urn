@@ -1,8 +1,8 @@
 use cgmath::prelude::*;
 
 use ash_urn::memory_alignment::Align16;
-use ash_urn::Mesh;
-use ash_urn::Vertex;
+use ash_urn::UrnMesh;
+use ash_urn::UrnVertex;
 
 #[repr(C, align(32))]
 pub struct Particle {
@@ -39,7 +39,7 @@ impl Particles {
         Self(particles)
     }
 
-    pub fn as_mesh(&self, reference: &Mesh, scale: f32) -> Mesh {
+    pub fn as_mesh(&self, reference: &UrnMesh, scale: f32) -> UrnMesh {
         let mut vertices = Vec::new();
         let mut indices = Vec::new();
 
@@ -50,7 +50,7 @@ impl Particles {
             let idx_offset = vertices.len() as u32;
             let offset = p.pos.0;
             for v in &reference.vertices {
-                vertices.push(Vertex {
+                vertices.push(UrnVertex {
                     pos: [
                         v.pos.0[0] * scale + offset[0],
                         v.pos.0[1] * scale + offset[1],
@@ -67,6 +67,6 @@ impl Particles {
             }
         }
 
-        Mesh { vertices, indices }
+        UrnMesh { vertices, indices }
     }
 }

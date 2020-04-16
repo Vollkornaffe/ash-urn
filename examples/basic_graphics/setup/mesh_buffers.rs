@@ -4,11 +4,11 @@ use ash_urn::transfer::{create_index_device_buffer, create_vertex_device_buffer,
 use ash_urn::Base;
 use ash_urn::Command;
 use ash_urn::DeviceBuffer;
-use ash_urn::Mesh;
+use ash_urn::UrnMesh;
 
 pub fn setup(
     base: &Base,
-    mesh: &Mesh,
+    mesh: &UrnMesh,
     graphics_command: &Command,
     transfer_command: &Command,
 ) -> Result<(DeviceBuffer, DeviceBuffer), AppError> {

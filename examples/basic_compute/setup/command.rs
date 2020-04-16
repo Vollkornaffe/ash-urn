@@ -5,7 +5,7 @@ use ash_urn::Base;
 use ash_urn::Descriptor;
 use ash_urn::DeviceBuffer;
 use ash_urn::GraphicsPipeline;
-use ash_urn::Mesh;
+use ash_urn::UrnMesh;
 use ash_urn::RenderPass;
 use ash_urn::SwapChain;
 use ash_urn::Timestamp;
@@ -81,7 +81,7 @@ pub fn write_graphics(
     descriptor: &Descriptor,
     vertex_buffer: &DeviceBuffer,
     index_buffer: &DeviceBuffer,
-    mesh: &Mesh,
+    mesh: &UrnMesh,
 ) -> Result<(), AppError> {
     for (i, command_buffer) in command.buffers.iter().enumerate() {
         let command_buffer = command_buffer.0;

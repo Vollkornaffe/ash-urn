@@ -20,7 +20,7 @@ use ash_urn::DeviceBuffer;
 use ash_urn::DeviceImage;
 use ash_urn::Fence;
 use ash_urn::GraphicsPipeline;
-use ash_urn::Mesh;
+use ash_urn::UrnMesh;
 use ash_urn::PipelineLayout;
 use ash_urn::RenderPass;
 use ash_urn::Sampler;
@@ -56,7 +56,7 @@ impl<'a> Setup<'a> {
         base: &'a Base,
         surface_loader: &ash::extensions::khr::Surface,
         surface: ash::vk::SurfaceKHR,
-        mesh: &Mesh,
+        mesh: &UrnMesh,
     ) -> Result<Self, AppError> {
         wait_device_idle(base)?;
 
