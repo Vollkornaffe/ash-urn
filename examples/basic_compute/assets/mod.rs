@@ -1,11 +1,11 @@
 use crate::AppError;
 
-use ash_urn::Mesh;
-use ash_urn::Vertex;
+use ash_urn::UrnMesh;
+use ash_urn::UrnVertex;
 
 use itertools::izip;
 
-pub fn load_mesh(filename: &'static str) -> Result<Mesh, AppError> {
+pub fn load_mesh(filename: &'static str) -> Result<UrnMesh, AppError> {
     let gltf = gltf::Gltf::open(filename)?;
     for mesh in gltf.meshes() {
         println!("Mesh #{}", mesh.index());
@@ -21,14 +21,14 @@ pub fn load_mesh(filename: &'static str) -> Result<Mesh, AppError> {
     let mesh = gltf.meshes().nth(0).unwrap();
     let primitive = mesh.primitives().nth(0).unwrap();
     let reader = primitive.reader(|buffer| Some(&buffers[buffer.index()]));
-    Ok(Mesh {
+    Ok(UrnMesh {
         vertices: izip!(
             reader.read_positions().unwrap(),
             reader.read_normals().unwrap(),
             reader.read_colors(0).unwrap().into_rgba_f32(),
             reader.read_tex_coords(0).unwrap().into_f32(),
         )
-        .map(|(p, n, c, t)| Vertex {
+        .map(|(p, n, c, t)| UrnVertex {
             pos: p.into(),
             nor: n.into(),
             col: c.into(),

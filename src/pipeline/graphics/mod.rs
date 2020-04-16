@@ -1,6 +1,6 @@
-use crate::mesh::Vertex;
 use crate::Base;
 use crate::UrnError;
+use crate::Vertex;
 
 use crate::pipeline::{ShaderModule, ShaderModuleSettings};
 
@@ -26,7 +26,7 @@ pub struct GraphicsPipelineSettings {
 }
 
 impl GraphicsPipeline {
-    pub fn new(base: &Base, settings: &GraphicsPipelineSettings) -> Result<Self, UrnError> {
+    pub fn new<V: Vertex>(base: &Base, settings: &GraphicsPipelineSettings) -> Result<Self, UrnError> {
         let shader_name = std::ffi::CString::new("main").unwrap();
 
         let shader_module_vert = ShaderModule::new(
@@ -54,8 +54,8 @@ impl GraphicsPipeline {
             .name(&shader_name);
         let shader_stage_infos = [vert_stage_info.build(), frag_stage_info.build()];
 
-        let vertex_binding = Vertex::get_binding_description();
-        let vertex_attributes = Vertex::get_attribute_description();
+        let vertex_binding = V::get_binding_description();
+        let vertex_attributes = V::get_attribute_description();
         let vertex_input_info = ash::vk::PipelineVertexInputStateCreateInfo::builder()
             .vertex_binding_descriptions(&vertex_binding)
             .vertex_attribute_descriptions(&vertex_attributes);

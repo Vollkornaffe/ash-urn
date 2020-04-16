@@ -5,7 +5,7 @@ pub mod device_buffer;
 pub mod device_image;
 pub mod error;
 pub mod memory_alignment;
-pub mod mesh;
+pub mod urn_mesh;
 pub mod pipeline;
 pub mod queries;
 pub mod render_pass;
@@ -20,7 +20,7 @@ pub use descriptor::{Descriptor, DescriptorSettings};
 pub use device_buffer::{DeviceBuffer, DeviceBufferSettings};
 pub use device_image::{DeviceImage, DeviceImageSettings, Sampler};
 pub use error::UrnError;
-pub use mesh::{Mesh, Vertex};
+pub use urn_mesh::{UrnMesh, Vertex, UrnVertex};
 pub use pipeline::{
     ComputePipeline, ComputePipelineSettings, GraphicsPipeline, GraphicsPipelineSettings,
     PipelineLayout, PipelineLayoutSettings, ShaderModule, ShaderModuleSettings,

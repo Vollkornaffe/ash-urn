@@ -7,6 +7,7 @@ use ash_urn::SwapChain;
 use ash_urn::{ComputePipeline, ComputePipelineSettings};
 use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
 use ash_urn::{PipelineLayout, PipelineLayoutSettings};
+use ash_urn::UrnVertex;
 
 pub fn setup_graphics(
     base: &Base,
@@ -23,7 +24,7 @@ pub fn setup_graphics(
         },
     )?;
 
-    let pipeline = GraphicsPipeline::new(
+    let pipeline = GraphicsPipeline::new::<UrnVertex>(
         &base,
         &GraphicsPipelineSettings {
             layout: pipeline_layout.0,

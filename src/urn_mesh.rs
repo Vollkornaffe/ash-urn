@@ -1,15 +1,20 @@
 use crate::memory_alignment::Align16;
 
+pub trait Vertex {
+    fn get_binding_description() -> Vec<ash::vk::VertexInputBindingDescription>;
+    fn get_attribute_description() -> Vec<ash::vk::VertexInputAttributeDescription>;
+}
+
 #[repr(C, align(64))]
 #[derive(Debug)]
-pub struct Vertex {
+pub struct UrnVertex {
     pub pos: Align16<[f32; 3]>,
     pub nor: Align16<[f32; 3]>,
     pub col: Align16<[f32; 4]>,
     pub tex: Align16<[f32; 2]>,
 }
 
-impl Default for Vertex {
+impl Default for UrnVertex {
     fn default() -> Self {
         Self {
             pos: [0.0, 0.0, 0.0].into(),
@@ -21,22 +26,22 @@ impl Default for Vertex {
 }
 
 #[repr(C)]
-pub struct Mesh {
-    pub vertices: Vec<Vertex>,
+pub struct UrnMesh {
+    pub vertices: Vec<UrnVertex>,
     pub indices: Vec<u32>,
 }
 
-impl Vertex {
-    pub fn get_binding_description() -> [ash::vk::VertexInputBindingDescription; 1] {
-        [ash::vk::VertexInputBindingDescription::builder()
+impl Vertex for UrnVertex {
+    fn get_binding_description() -> Vec<ash::vk::VertexInputBindingDescription> {
+        vec![ash::vk::VertexInputBindingDescription::builder()
             .binding(0)
             .stride(std::mem::size_of::<Self>() as u32)
             .input_rate(ash::vk::VertexInputRate::VERTEX)
             .build()]
     }
 
-    pub fn get_attribute_description() -> [ash::vk::VertexInputAttributeDescription; 4] {
-        [
+    fn get_attribute_description() -> Vec<ash::vk::VertexInputAttributeDescription> {
+        vec![
             ash::vk::VertexInputAttributeDescription::builder()
                 .binding(0)
                 .location(0)
@@ -65,7 +70,7 @@ impl Vertex {
     }
 }
 
-impl Mesh {
+impl UrnMesh {
     pub fn new() -> Self {
         Self {
             vertices: Vec::new(),
@@ -82,22 +87,22 @@ impl Mesh {
         col: [f32; 4],
     ) -> Self {
         let offset = self.vertices.len() as u32;
-        self.vertices.push(Vertex {
+        self.vertices.push(UrnVertex {
             pos: c0.into(),
             col: col.into(),
             ..Default::default()
         });
-        self.vertices.push(Vertex {
+        self.vertices.push(UrnVertex {
             pos: c1.into(),
             col: col.into(),
             ..Default::default()
         });
-        self.vertices.push(Vertex {
+        self.vertices.push(UrnVertex {
             pos: c2.into(),
             col: col.into(),
             ..Default::default()
         });
-        self.vertices.push(Vertex {
+        self.vertices.push(UrnVertex {
             pos: c3.into(),
             col: col.into(),
             ..Default::default()
