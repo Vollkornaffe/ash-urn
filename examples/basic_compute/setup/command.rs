@@ -2,15 +2,15 @@ use crate::AppError;
 
 use ash_urn::base::queue_families::{COMBINED, DEDICATED_TRANSFER};
 use ash_urn::Base;
-use ash_urn::{Command, CommandSettings};
-use ash_urn::{PipelineLayout, ComputePipeline};
 use ash_urn::Descriptor;
-use ash_urn::Timestamp;
+use ash_urn::DeviceBuffer;
+use ash_urn::GraphicsPipeline;
+use ash_urn::Mesh;
 use ash_urn::RenderPass;
 use ash_urn::SwapChain;
-use ash_urn::GraphicsPipeline;
-use ash_urn::DeviceBuffer;
-use ash_urn::Mesh;
+use ash_urn::Timestamp;
+use ash_urn::{Command, CommandSettings};
+use ash_urn::{ComputePipeline, PipelineLayout};
 
 use ash::version::DeviceV1_0;
 
@@ -83,9 +83,7 @@ pub fn write_graphics(
     index_buffer: &DeviceBuffer,
     mesh: &Mesh,
 ) -> Result<(), AppError> {
-
     for (i, command_buffer) in command.buffers.iter().enumerate() {
-
         let command_buffer = command_buffer.0;
 
         let clear_values = [
@@ -116,7 +114,6 @@ pub fn write_graphics(
         let dynamic_offsets = [];
         let descriptor_sets = [descriptor.sets[i].0];
         let begin_info = ash::vk::CommandBufferBeginInfo::builder();
-
 
         unsafe {
             base.logical_device
@@ -168,9 +165,7 @@ pub fn write_graphics(
                 0,
                 0,
             );
-            base.logical_device
-                .0
-                .cmd_end_render_pass(command_buffer);
+            base.logical_device.0.cmd_end_render_pass(command_buffer);
 
             timestamp.mark(
                 base,
@@ -179,9 +174,7 @@ pub fn write_graphics(
                 "RENDER_DONE",
             );
 
-            base.logical_device
-                .0
-                .end_command_buffer(command_buffer)?;
+            base.logical_device.0.end_command_buffer(command_buffer)?;
         }
     }
 
@@ -198,7 +191,6 @@ pub fn write_compute(
     descriptor: &Descriptor,
     n_particles: u32,
 ) -> Result<(), AppError> {
-
     let command_buffer = command.buffers[0].0;
 
     let begin_info = ash::vk::CommandBufferBeginInfo::builder();
@@ -214,8 +206,8 @@ pub fn write_compute(
     let image_memory_barriers = [];
 
     unsafe {
-
-        base.logical_device.0
+        base.logical_device
+            .0
             .begin_command_buffer(command_buffer, &begin_info)?;
 
         timestamp.reset_pool(base, command_buffer);
@@ -242,12 +234,9 @@ pub fn write_compute(
             "CALCULATE_START",
         );
 
-        base.logical_device.0.cmd_dispatch(
-            command_buffer,
-            1 + n_particles / 512,
-            1,
-            1,
-        );
+        base.logical_device
+            .0
+            .cmd_dispatch(command_buffer, 1 + n_particles / 512, 1, 1);
 
         timestamp.mark(
             base,
@@ -262,7 +251,6 @@ pub fn write_compute(
             ash::vk::PipelineStageFlags::COMPUTE_SHADER,
             "INTEGRATE_START",
         );
-
 
         base.logical_device.0.cmd_pipeline_barrier(
             command_buffer,
@@ -279,12 +267,9 @@ pub fn write_compute(
             ash::vk::PipelineBindPoint::COMPUTE,
             integrate_pipeline.0,
         );
-        base.logical_device.0.cmd_dispatch(
-            command_buffer,
-            1 + n_particles / 512,
-            1,
-            1,
-        );
+        base.logical_device
+            .0
+            .cmd_dispatch(command_buffer, 1 + n_particles / 512, 1, 1);
 
         timestamp.mark(
             base,

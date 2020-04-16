@@ -1,11 +1,11 @@
 use crate::AppError;
 use crate::Setup;
 
+pub mod compute;
 pub mod next_image;
 pub mod present;
 pub mod render;
 pub mod uniform_buffer;
-pub mod compute;
 
 use ash_urn::Base;
 
@@ -16,7 +16,6 @@ pub fn advance_frame(
     time: &mut u64,
     profiling: bool,
 ) -> Result<(), AppError> {
-
     // wait for last frame to complete rendering before submitting.
     setup.timeline.wait(&base, *time)?;
 
@@ -33,12 +32,7 @@ pub fn advance_frame(
     }
 
     // run computation
-    compute::submit(
-        &base,
-        &setup.compute_command,
-        &setup.timeline,
-        *time,
-    )?;
+    compute::submit(&base, &setup.compute_command, &setup.timeline, *time)?;
     *time += 1;
 
     // acquire an image

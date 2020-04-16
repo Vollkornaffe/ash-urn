@@ -4,26 +4,26 @@ mod command;
 mod descriptor;
 mod mesh_buffers;
 mod pipeline;
+mod storage_buffers;
 mod swap_chain;
 mod sync;
 mod textures;
 mod uniform_buffers;
-mod storage_buffers;
 
 use crate::AppError;
-use crate::SDL;
-use crate::Particles;
 use crate::ComputeUBO;
+use crate::Particles;
+use crate::SDL;
 
 use ash_urn::sync::wait_device_idle;
 use ash_urn::Base;
 use ash_urn::Command;
+use ash_urn::ComputePipeline;
 use ash_urn::Descriptor;
 use ash_urn::DeviceBuffer;
 use ash_urn::DeviceImage;
 use ash_urn::Fence;
 use ash_urn::GraphicsPipeline;
-use ash_urn::ComputePipeline;
 use ash_urn::Mesh;
 use ash_urn::PipelineLayout;
 use ash_urn::RenderPass;
@@ -38,7 +38,7 @@ pub struct Setup<'a> {
     pub swap_chain: SwapChain,
     pub render_pass: RenderPass,
     pub depth_device_image: DeviceImage,
-    
+
     pub graphics_uniform_buffers: Vec<DeviceBuffer>,
     pub compute_uniform_buffer: DeviceBuffer,
 
@@ -84,10 +84,7 @@ impl<'a> Setup<'a> {
         wait_device_idle(base)?;
 
         // replicate reference mesh for each particle
-        let mesh = particles.as_mesh(
-            reference_mesh,
-            0.1,
-        ); 
+        let mesh = particles.as_mesh(reference_mesh, 0.1);
 
         // get swap chain + renderpass & depth image
         // this is also a bit entangled
@@ -95,10 +92,9 @@ impl<'a> Setup<'a> {
             swap_chain::setup(base, &sdl, &surface_loader, surface)?;
 
         // an uniform buffer per swapchain image
-        let graphics_uniform_buffers = 
+        let graphics_uniform_buffers =
             uniform_buffers::setup_graphics(base, swap_chain.image_count)?;
-        let compute_uniform_buffer =
-            uniform_buffers::setup_compute(base)?;
+        let compute_uniform_buffer = uniform_buffers::setup_compute(base)?;
         // write to the compute ubo
         compute_uniform_buffer.write(
             &base,
@@ -113,7 +109,8 @@ impl<'a> Setup<'a> {
 
         // get the structures for commands,
         // they will be filled out later
-        let (graphics_command, compute_command, transfer_command) = command::setup(base, swap_chain.image_count)?;
+        let (graphics_command, compute_command, transfer_command) =
+            command::setup(base, swap_chain.image_count)?;
 
         // create device buffers from the mesh & load the textures
         // the transfer is done with the transfer command,
@@ -131,14 +128,27 @@ impl<'a> Setup<'a> {
         )?;
 
         // prepare storage buffers
-        let (reference_buffer, particle_buffer) = storage_buffers::setup(base, reference_mesh, particles, &compute_command, &transfer_command)?;
+        let (reference_buffer, particle_buffer) = storage_buffers::setup(
+            base,
+            reference_mesh,
+            particles,
+            &compute_command,
+            &transfer_command,
+        )?;
 
         // these sets contain the respective UBOs & combined image samplers
-        let graphics_descriptor = descriptor::setup_graphics(base, &graphics_uniform_buffers, &textures[0])?;
+        let graphics_descriptor =
+            descriptor::setup_graphics(base, &graphics_uniform_buffers, &textures[0])?;
 
         // this set contains the compute UBO & storage buffers
-        let compute_descriptor = descriptor::setup_compute(base, &compute_uniform_buffer, &reference_buffer, &particle_buffer, &vertex_device_buffer)?;
-        
+        let compute_descriptor = descriptor::setup_compute(
+            base,
+            &compute_uniform_buffer,
+            &reference_buffer,
+            &particle_buffer,
+            &vertex_device_buffer,
+        )?;
+
         // just one pipeline, using the vert & frag shader
         let (graphics_pipeline_layout, graphics_pipeline) =
             pipeline::setup_graphics(base, &graphics_descriptor, &swap_chain, &render_pass)?;
@@ -157,14 +167,17 @@ impl<'a> Setup<'a> {
                 "INTEGRATE_DONE",
                 "RENDER_START",
                 "RENDER_DONE",
-            ].iter().map(|s| s.to_string()).collect(),
+            ]
+            .iter()
+            .map(|s| s.to_string())
+            .collect(),
             base.physical_device.timestamp_period(&base.instance.0)?,
             "Timestamp".to_string(),
         )?;
 
         // write to the graphics command buffers
         command::write_graphics(
-            base,  
+            base,
             &graphics_command,
             &timestamp,
             &render_pass,
@@ -196,7 +209,6 @@ impl<'a> Setup<'a> {
             semaphore_rendering_finished,
             fence_rendering_finished,
         ) = sync::setup(base)?;
-
 
         wait_device_idle(base)?;
 

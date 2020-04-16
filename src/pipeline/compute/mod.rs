@@ -14,10 +14,7 @@ pub struct ComputePipelineSettings {
 }
 
 impl ComputePipeline {
-    pub fn new(
-        base: &Base,
-        settings: &ComputePipelineSettings,
-    ) -> Result<Self, UrnError> {
+    pub fn new(base: &Base, settings: &ComputePipelineSettings) -> Result<Self, UrnError> {
         let shader_name = std::ffi::CString::new("main").unwrap();
         let shader_module_comp = ShaderModule::new(
             &base,
@@ -46,7 +43,8 @@ impl ComputePipeline {
         base.name_object(pipeline, settings.name.clone())?;
 
         unsafe {
-            base.logical_device.0
+            base.logical_device
+                .0
                 .destroy_shader_module(shader_module_comp.0, None);
         }
 

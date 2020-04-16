@@ -1,6 +1,6 @@
 use crate::AppError;
-use crate::GraphicsUBO;
 use crate::ComputeUBO;
+use crate::GraphicsUBO;
 
 use ash_urn::Base;
 use ash_urn::{DeviceBuffer, DeviceBufferSettings};

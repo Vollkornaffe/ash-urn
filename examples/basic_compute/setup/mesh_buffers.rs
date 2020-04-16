@@ -1,6 +1,8 @@
 use crate::AppError;
 
-use ash_urn::transfer::{create_index_device_buffer, create_vertex_storage_device_buffer, ownership};
+use ash_urn::transfer::{
+    create_index_device_buffer, create_vertex_storage_device_buffer, ownership,
+};
 use ash_urn::Base;
 use ash_urn::Command;
 use ash_urn::DeviceBuffer;

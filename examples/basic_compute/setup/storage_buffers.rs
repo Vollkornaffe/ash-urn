@@ -16,7 +16,6 @@ pub fn setup(
     combined_command: &Command,
     transfer_command: &Command,
 ) -> Result<(DeviceBuffer, DeviceBuffer), AppError> {
-
     let reference_buffer = create_storage_device_buffer::<Vertex>(
         &base,
         reference_mesh.vertices.as_slice(),

@@ -1,14 +1,14 @@
 pub mod assets;
 pub mod error;
+pub mod particles;
 pub mod run;
 pub mod sdl;
 pub mod setup;
-pub mod particles;
 
 pub use error::AppError;
+pub use particles::{Particle, Particles};
 pub use sdl::SDL;
 pub use setup::Setup;
-pub use particles::{Particle,Particles};
 
 use ash_urn::memory_alignment::Align16;
 use ash_urn::wait_device_idle;
@@ -55,7 +55,15 @@ fn main() {
 
     // this scope is to ensure base, surface_loader & surface outlive whats inside
     {
-        let mut setup = Setup::new(&sdl, &base, &surface_loader, surface, &reference_mesh, &particles).unwrap();
+        let mut setup = Setup::new(
+            &sdl,
+            &base,
+            &surface_loader,
+            surface,
+            &reference_mesh,
+            &particles,
+        )
+        .unwrap();
 
         // record starting time
         let start_instant = std::time::Instant::now();
@@ -70,7 +78,15 @@ fn main() {
             // check if the iteration failed due to resize
             match run::advance_frame(&base, &setup, &start_instant, &mut frame, false) {
                 Err(AppError::AshError(ash::vk::Result::ERROR_OUT_OF_DATE_KHR)) => {
-                    setup = Setup::new(&sdl, &base, &surface_loader, surface, &reference_mesh, &particles).unwrap();
+                    setup = Setup::new(
+                        &sdl,
+                        &base,
+                        &surface_loader,
+                        surface,
+                        &reference_mesh,
+                        &particles,
+                    )
+                    .unwrap();
                     frame = 0;
                     Ok(())
                 }

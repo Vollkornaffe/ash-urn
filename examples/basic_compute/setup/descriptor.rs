@@ -95,13 +95,18 @@ pub fn setup_compute(
         },
     );
 
-
     let mut set_usages = Vec::new();
 
     let mut usages = HashMap::new();
     usages.insert(0, descriptor::Usage::Buffer(uniform_buffer.buffer.0));
-    usages.insert(1, descriptor::Usage::Buffer(reference_device_buffer.buffer.0));
-    usages.insert(2, descriptor::Usage::Buffer(particle_device_buffer.buffer.0));
+    usages.insert(
+        1,
+        descriptor::Usage::Buffer(reference_device_buffer.buffer.0),
+    );
+    usages.insert(
+        2,
+        descriptor::Usage::Buffer(particle_device_buffer.buffer.0),
+    );
     usages.insert(3, descriptor::Usage::Buffer(vertex_device_buffer.buffer.0));
     set_usages.push(descriptor::SetUsage {
         usages,

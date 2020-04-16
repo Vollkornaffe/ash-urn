@@ -22,8 +22,8 @@ pub use device_image::{DeviceImage, DeviceImageSettings, Sampler};
 pub use error::UrnError;
 pub use mesh::{Mesh, Vertex};
 pub use pipeline::{
-    GraphicsPipeline, GraphicsPipelineSettings, ComputePipeline, ComputePipelineSettings,PipelineLayout, PipelineLayoutSettings,
-    ShaderModule, ShaderModuleSettings,
+    ComputePipeline, ComputePipelineSettings, GraphicsPipeline, GraphicsPipelineSettings,
+    PipelineLayout, PipelineLayoutSettings, ShaderModule, ShaderModuleSettings,
 };
 pub use queries::Timestamp;
 pub use render_pass::{RenderPass, RenderPassSettings};

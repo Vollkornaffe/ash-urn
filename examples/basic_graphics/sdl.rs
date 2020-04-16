@@ -23,7 +23,7 @@ pub struct SdlError(pub String);
 
 impl SdlError {
     pub fn new() -> Self {
-        Self(c_char_ptr_to_string(unsafe {SDL_GetError()}))
+        Self(c_char_ptr_to_string(unsafe { SDL_GetError() }))
     }
 }
 
@@ -49,11 +49,7 @@ pub struct WindowSettings {
 }
 
 impl SDL {
-
-    fn create_window(
-        settings: WindowSettings,
-    ) -> Result<*mut SDL_Window, SdlError> {
-
+    fn create_window(settings: WindowSettings) -> Result<*mut SDL_Window, SdlError> {
         let window_flags = SDL_WINDOW_SHOWN
             | SDL_WINDOW_RESIZABLE
             | SDL_WINDOW_VULKAN
@@ -79,14 +75,12 @@ impl SDL {
         } else {
             Ok(window)
         }
-
     }
 
     pub fn new(settings: WindowSettings) -> Result<SDL, SdlError> {
-
         if unsafe { SDL_Init(SDL_INIT_VIDEO) } != 0 {
             return Err(SdlError::new());
-        } 
+        }
 
         let window = Self::create_window(settings)?;
 
@@ -97,14 +91,16 @@ impl SDL {
     }
 
     pub fn required_extension_names(&self) -> Result<Vec<String>, SdlError> {
-        
         // first get count
         let mut count: c_uint = 0;
-        if unsafe { SDL_Vulkan_GetInstanceExtensions(
-            self.window,
-            &mut count as *mut c_uint,
-            std::ptr::null_mut(),
-        )} == SDL_FALSE {
+        if unsafe {
+            SDL_Vulkan_GetInstanceExtensions(
+                self.window,
+                &mut count as *mut c_uint,
+                std::ptr::null_mut(),
+            )
+        } == SDL_FALSE
+        {
             return Err(SdlError::new());
         }
 
@@ -113,16 +109,21 @@ impl SDL {
         extensions.resize(count as usize, std::ptr::null());
 
         // get the extensions
-        if unsafe { SDL_Vulkan_GetInstanceExtensions(
-            self.window,
-            &mut count as *mut c_uint,
-            extensions.as_mut_ptr() as *mut *const c_char,
-        )} == SDL_FALSE {
+        if unsafe {
+            SDL_Vulkan_GetInstanceExtensions(
+                self.window,
+                &mut count as *mut c_uint,
+                extensions.as_mut_ptr() as *mut *const c_char,
+            )
+        } == SDL_FALSE
+        {
             return Err(SdlError::new());
         }
 
-        Ok(extensions.iter().map(|c_char_ptr| c_char_ptr_to_string(*c_char_ptr)).collect())
-
+        Ok(extensions
+            .iter()
+            .map(|c_char_ptr| c_char_ptr_to_string(*c_char_ptr))
+            .collect())
     }
 
     pub fn create_surface(
@@ -131,18 +132,20 @@ impl SDL {
     ) -> Result<ash::vk::SurfaceKHR, SdlError> {
         let raw_instance = ash_instance.handle().as_raw();
         let mut surface: VkSurfaceKHR = std::ptr::null_mut();
-        if unsafe { SDL_Vulkan_CreateSurface(
+        if unsafe {
+            SDL_Vulkan_CreateSurface(
                 self.window,
                 raw_instance as VkInstance,
                 &mut surface as *mut VkSurfaceKHR,
-        )} == SDL_FALSE {
+            )
+        } == SDL_FALSE
+        {
             return Err(SdlError::new());
         }
 
         self.surface = &mut surface as *mut VkSurfaceKHR;
 
         Ok(ash::vk::SurfaceKHR::from_raw(surface as u64))
-
     }
 
     pub fn get_events(&mut self) -> Vec<SdlEvent> {
@@ -162,17 +165,11 @@ impl SDL {
         res
     }
 
-    pub fn get_size(
-        &self
-    ) -> (u32, u32) {
+    pub fn get_size(&self) -> (u32, u32) {
         let mut w = 0;
         let mut h = 0;
         unsafe {
-            SDL_Vulkan_GetDrawableSize(
-                self.window,
-                &mut w as *mut c_int,
-                &mut h as *mut c_int,
-            );
+            SDL_Vulkan_GetDrawableSize(self.window, &mut w as *mut c_int, &mut h as *mut c_int);
         }
         (w as u32, h as u32)
     }

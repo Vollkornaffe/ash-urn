@@ -4,7 +4,7 @@ use ash_urn::memory_alignment::Align16;
 use ash_urn::Mesh;
 use ash_urn::Vertex;
 
-#[repr(C,align(32))]
+#[repr(C, align(32))]
 pub struct Particle {
     pub pos: Align16<cgmath::Vector3<f32>>,
     pub vel: Align16<cgmath::Vector3<f32>>,
@@ -14,7 +14,6 @@ pub struct Particles(pub Vec<Particle>);
 
 impl Particles {
     pub fn new(res: usize) -> Self {
-
         let n_particles = res * res * res;
 
         let mut particles = Vec::new();
@@ -29,8 +28,9 @@ impl Particles {
                             (0.5 + i as f32) / res as f32 - 0.5,
                             (0.5 + j as f32) / res as f32 - 0.5,
                             (0.5 + k as f32) / res as f32 - 0.5,
-                        ).into(),
-                        vel: cgmath::Vector3::<f32>::new(0.0,0.0,0.0).into(),
+                        )
+                        .into(),
+                        vel: cgmath::Vector3::<f32>::new(0.0, 0.0, 0.0).into(),
                     });
                 }
             }
@@ -40,7 +40,6 @@ impl Particles {
     }
 
     pub fn as_mesh(&self, reference: &Mesh, scale: f32) -> Mesh {
-
         let mut vertices = Vec::new();
         let mut indices = Vec::new();
 
@@ -56,7 +55,8 @@ impl Particles {
                         v.pos.0[0] * scale + offset[0],
                         v.pos.0[1] * scale + offset[1],
                         v.pos.0[2] * scale + offset[2],
-                    ].into(),
+                    ]
+                    .into(),
                     nor: v.nor,
                     col: v.col,
                     tex: [offset[0], offset[1]].into(),
@@ -65,11 +65,8 @@ impl Particles {
             for i in &reference.indices {
                 indices.push(i + idx_offset);
             }
-        } 
-
-        Mesh {
-            vertices,
-            indices,
         }
+
+        Mesh { vertices, indices }
     }
 }

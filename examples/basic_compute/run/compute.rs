@@ -12,7 +12,6 @@ pub fn submit(
     timeline: &Timeline,
     time: u64,
 ) -> Result<(), AppError> {
-
     let compute_command_buffers = [compute_command.buffers[0].0];
 
     // setup waiting / signaling for computing
@@ -45,5 +44,4 @@ pub fn submit(
     }
 
     Ok(())
-
 }

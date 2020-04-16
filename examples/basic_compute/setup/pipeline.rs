@@ -4,8 +4,8 @@ use ash_urn::Base;
 use ash_urn::Descriptor;
 use ash_urn::RenderPass;
 use ash_urn::SwapChain;
-use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
 use ash_urn::{ComputePipeline, ComputePipelineSettings};
+use ash_urn::{GraphicsPipeline, GraphicsPipelineSettings};
 use ash_urn::{PipelineLayout, PipelineLayoutSettings};
 
 pub fn setup_graphics(
