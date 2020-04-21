@@ -38,6 +38,7 @@ pub fn create_storage_device_buffer<T>(
         &DeviceBufferSettings {
             size,
             usage: ash::vk::BufferUsageFlags::STORAGE_BUFFER
+                | ash::vk::BufferUsageFlags::TRANSFER_SRC
                 | ash::vk::BufferUsageFlags::TRANSFER_DST,
             properties: ash::vk::MemoryPropertyFlags::DEVICE_LOCAL,
             name,
