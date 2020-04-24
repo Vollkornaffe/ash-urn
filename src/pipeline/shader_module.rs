@@ -12,7 +12,10 @@ pub struct ShaderModuleSettings {
 
 impl ShaderModule {
     pub fn new(base: &Base, settings: &ShaderModuleSettings) -> Result<Self, UrnError> {
-        let mut f = std::fs::File::open(settings.file_name.clone())?;
+        let mut f = std::fs::File::open(settings.file_name.clone())
+            .map_err(|_| UrnError::GenericDynamic(format!(
+                        "Failed to open shader file: {}", settings.file_name.clone()
+                        )))?;
         let buffer = ash::util::read_spv(&mut f)?;
 
         let create_info = ash::vk::ShaderModuleCreateInfo::builder().code(buffer.as_slice());
