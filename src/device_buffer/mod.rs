@@ -1,6 +1,8 @@
 use crate::Base;
 use crate::UrnError;
 
+use crate::command::single_time;
+
 mod buffer;
 mod memory;
 
@@ -15,12 +17,15 @@ use ash::version::DeviceV1_0;
 pub struct DeviceBuffer {
     pub buffer: Buffer,
     pub memory: Memory,
+    pub size: ash::vk::DeviceSize,
+    pub shared: bool,
 }
 
 pub struct DeviceBufferSettings {
     pub size: ash::vk::DeviceSize,
     pub usage: ash::vk::BufferUsageFlags,
     pub properties: ash::vk::MemoryPropertyFlags,
+    pub shared: bool,
     pub name: String,
 }
 
@@ -31,6 +36,7 @@ impl DeviceBuffer {
             &BufferSettings {
                 size: settings.size,
                 usage: settings.usage,
+                shared: settings.shared,
                 name: format!("{}Buffer", settings.name.clone()),
             },
         )?;
@@ -44,17 +50,16 @@ impl DeviceBuffer {
             },
         )?;
 
-        Ok(Self { buffer, memory })
+        Ok(Self { buffer, memory, size: settings.size, shared: settings.shared})
     }
 
     pub fn write<T>(&self, base: &Base, to_write: &T) -> Result<(), UrnError> {
-        let size = std::mem::size_of::<T>() as ash::vk::DeviceSize;
 
         let data_ptr = unsafe {
             base.logical_device.0.map_memory(
                 self.memory.0,
                 0,
-                size,
+                self.size,
                 ash::vk::MemoryMapFlags::default(),
             )?
         } as *mut T;
@@ -68,15 +73,12 @@ impl DeviceBuffer {
     }
 
     pub fn read<T>(&self, base: &Base, to_read: &mut T) -> Result<(), UrnError> {
-        let size = std::mem::size_of::<T>() as ash::vk::DeviceSize;
-
-        println!("Size: {}", size);
 
         let data_ptr = unsafe {
             base.logical_device.0.map_memory(
                 self.memory.0,
                 0,
-                size,
+                self.size,
                 ash::vk::MemoryMapFlags::default(),
             )?
         } as *mut T;
@@ -87,6 +89,67 @@ impl DeviceBuffer {
         };
 
         Ok(())
+    }
+
+    pub fn write_slice<T>(&self, base: &Base, to_write: &[T]) -> Result<(), UrnError> {
+
+        let data_ptr = unsafe {
+            base.logical_device.0.map_memory(
+                self.memory.0,
+                0,
+                self.size,
+                ash::vk::MemoryMapFlags::default(),
+            )?
+        } as *mut T;
+
+        unsafe {
+            data_ptr.copy_from_nonoverlapping(to_write.as_ptr(), to_write.len());
+            base.logical_device.0.unmap_memory(self.memory.0)
+        };
+
+        Ok(())
+    }
+
+    pub fn read_slice<T>(&self, base: &Base, to_read: &mut [T]) -> Result<(), UrnError> {
+
+        let data_ptr = unsafe {
+            base.logical_device.0.map_memory(
+                self.memory.0,
+                0,
+                self.size,
+                ash::vk::MemoryMapFlags::default(),
+            )?
+        } as *mut T;
+
+        unsafe {
+            (to_read.as_mut_ptr()).copy_from_nonoverlapping(data_ptr, to_read.len());
+            base.logical_device.0.unmap_memory(self.memory.0)
+        };
+
+        Ok(())
+    }
+
+    pub fn set_zero<T>(
+        &self,
+        base: &Base,
+        queue: ash::vk::Queue,
+        pool: ash::vk::CommandPool,
+    ) -> Result<(), UrnError> {
+        
+        let command_buffer = single_time::begin(base, pool, "SetBufferToZero".to_string())?;
+
+        unsafe {
+            base.logical_device.0.cmd_fill_buffer(
+                command_buffer,
+                self.buffer.0,
+                0,
+                self.size,
+                0,
+            )
+        };
+
+        single_time::end(base, queue, pool, command_buffer)
+
     }
 
     pub fn destroy(&self, base: &Base) {

@@ -41,6 +41,7 @@ pub fn create_vertex_device_buffer<V: Vertex>(
             usage: ash::vk::BufferUsageFlags::VERTEX_BUFFER
                 | ash::vk::BufferUsageFlags::TRANSFER_DST,
             properties: ash::vk::MemoryPropertyFlags::DEVICE_LOCAL,
+            shared: false,
             name,
         },
     )?;
@@ -85,6 +86,7 @@ pub fn create_vertex_storage_device_buffer<V: Vertex>(
                 | ash::vk::BufferUsageFlags::STORAGE_BUFFER
                 | ash::vk::BufferUsageFlags::TRANSFER_DST,
             properties: ash::vk::MemoryPropertyFlags::DEVICE_LOCAL,
+            shared: false,
             name,
         },
     )?;
