@@ -15,6 +15,7 @@ pub fn setup_graphics(base: &Base, n_buffer: u32) -> Result<Vec<DeviceBuffer>, A
                 usage: ash::vk::BufferUsageFlags::UNIFORM_BUFFER,
                 properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
                     | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
+                shared: false,
                 name: format!("UniformBuffer_{}", i),
             },
         )?);
@@ -31,6 +32,7 @@ pub fn setup_compute(base: &Base) -> Result<DeviceBuffer, AppError> {
             usage: ash::vk::BufferUsageFlags::UNIFORM_BUFFER,
             properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
                 | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
+            shared: false,
             name: "ComputeUBO".to_string(),
         },
     )?;

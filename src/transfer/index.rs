@@ -40,6 +40,7 @@ pub fn create_index_device_buffer(
             usage: ash::vk::BufferUsageFlags::INDEX_BUFFER
                 | ash::vk::BufferUsageFlags::TRANSFER_DST,
             properties: ash::vk::MemoryPropertyFlags::DEVICE_LOCAL,
+            shared: false,
             name,
         },
     )?;

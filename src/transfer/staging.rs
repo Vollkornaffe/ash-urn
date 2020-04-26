@@ -12,10 +12,13 @@ pub fn create_staging_device_buffer(
         base,
         &DeviceBufferSettings {
             size,
-            usage: ash::vk::BufferUsageFlags::TRANSFER_SRC,
+            usage: ash::vk::BufferUsageFlags::TRANSFER_SRC
+                | ash::vk::BufferUsageFlags::TRANSFER_DST,
             properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
                 | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
+            shared: true,
             name,
         },
     )
 }
+

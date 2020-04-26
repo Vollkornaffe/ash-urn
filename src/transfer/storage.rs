@@ -41,6 +41,7 @@ pub fn create_storage_device_buffer<T>(
                 | ash::vk::BufferUsageFlags::TRANSFER_SRC
                 | ash::vk::BufferUsageFlags::TRANSFER_DST,
             properties: ash::vk::MemoryPropertyFlags::DEVICE_LOCAL,
+            shared: false,
             name,
         },
     )?;
