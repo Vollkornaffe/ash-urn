@@ -52,3 +52,28 @@ pub fn create_storage_device_buffer<T>(
 
     Ok(storage)
 }
+
+pub fn create_storage_device_buffer_uninitialized<T>(
+    base: &Base,
+    len: usize,
+    queue: ash::vk::Queue,
+    pool: ash::vk::CommandPool,
+    name: String,
+) -> Result<DeviceBuffer, UrnError> {
+    let size = (len * std::mem::size_of::<T>()) as ash::vk::DeviceSize;
+
+    let storage = DeviceBuffer::new(
+        base,
+        &DeviceBufferSettings {
+            size,
+            usage: ash::vk::BufferUsageFlags::STORAGE_BUFFER
+                | ash::vk::BufferUsageFlags::TRANSFER_SRC
+                | ash::vk::BufferUsageFlags::TRANSFER_DST,
+            properties: ash::vk::MemoryPropertyFlags::DEVICE_LOCAL,
+            shared: false,
+            name,
+        },
+    )?;
+
+    Ok(storage)
+}
