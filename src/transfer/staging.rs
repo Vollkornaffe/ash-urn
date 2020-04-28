@@ -16,9 +16,9 @@ pub fn create_staging_device_buffer(
                 | ash::vk::BufferUsageFlags::TRANSFER_DST,
             properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
                 | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
-            shared: true,
+            shared: false,
+            map: true,
             name,
         },
     )
 }
-

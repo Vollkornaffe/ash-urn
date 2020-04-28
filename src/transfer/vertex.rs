@@ -20,19 +20,7 @@ pub fn create_vertex_device_buffer<V: Vertex>(
 
     let staging = create_staging_device_buffer(base, size, format!("{}Staging", name.clone()))?;
 
-    let data_ptr = unsafe {
-        base.logical_device.0.map_memory(
-            staging.memory.0,
-            0,
-            size,
-            ash::vk::MemoryMapFlags::default(),
-        )?
-    } as *mut V;
-
-    unsafe {
-        data_ptr.copy_from_nonoverlapping(vertices.as_ptr(), vertices.len());
-        base.logical_device.0.unmap_memory(staging.memory.0);
-    }
+    staging.write_slice(base, vertices)?;
 
     let vertex = DeviceBuffer::new(
         base,
@@ -41,6 +29,7 @@ pub fn create_vertex_device_buffer<V: Vertex>(
             usage: ash::vk::BufferUsageFlags::VERTEX_BUFFER
                 | ash::vk::BufferUsageFlags::TRANSFER_DST,
             properties: ash::vk::MemoryPropertyFlags::DEVICE_LOCAL,
+            map: false,
             shared: false,
             name,
         },
@@ -64,19 +53,7 @@ pub fn create_vertex_storage_device_buffer<V: Vertex>(
 
     let staging = create_staging_device_buffer(base, size, format!("{}Staging", name.clone()))?;
 
-    let data_ptr = unsafe {
-        base.logical_device.0.map_memory(
-            staging.memory.0,
-            0,
-            size,
-            ash::vk::MemoryMapFlags::default(),
-        )?
-    } as *mut V;
-
-    unsafe {
-        data_ptr.copy_from_nonoverlapping(vertices.as_ptr(), vertices.len());
-        base.logical_device.0.unmap_memory(staging.memory.0);
-    }
+    staging.write_slice(base, vertices)?;
 
     let vertex = DeviceBuffer::new(
         base,
@@ -86,6 +63,7 @@ pub fn create_vertex_storage_device_buffer<V: Vertex>(
                 | ash::vk::BufferUsageFlags::STORAGE_BUFFER
                 | ash::vk::BufferUsageFlags::TRANSFER_DST,
             properties: ash::vk::MemoryPropertyFlags::DEVICE_LOCAL,
+            map: false,
             shared: false,
             name,
         },

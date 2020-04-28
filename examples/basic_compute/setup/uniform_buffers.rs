@@ -16,6 +16,7 @@ pub fn setup_graphics(base: &Base, n_buffer: u32) -> Result<Vec<DeviceBuffer>, A
                 properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
                     | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
                 shared: false,
+                map: true,
                 name: format!("UniformBuffer_{}", i),
             },
         )?);
@@ -33,6 +34,7 @@ pub fn setup_compute(base: &Base) -> Result<DeviceBuffer, AppError> {
             properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
                 | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
             shared: false,
+            map: true,
             name: "ComputeUBO".to_string(),
         },
     )?;

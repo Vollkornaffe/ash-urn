@@ -18,20 +18,8 @@ pub fn create_storage_device_buffer<T>(
     let size = (data.len() * std::mem::size_of::<T>()) as ash::vk::DeviceSize;
 
     let staging = create_staging_device_buffer(base, size, format!("{}Staging", name.clone()))?;
-
-    let data_ptr = unsafe {
-        base.logical_device.0.map_memory(
-            staging.memory.0,
-            0,
-            size,
-            ash::vk::MemoryMapFlags::default(),
-        )?
-    } as *mut T;
-
-    unsafe {
-        data_ptr.copy_from_nonoverlapping(data.as_ptr(), data.len());
-        base.logical_device.0.unmap_memory(staging.memory.0);
-    }
+    
+    staging.write_slice(base, data)?;
 
     let storage = DeviceBuffer::new(
         base,
@@ -41,6 +29,7 @@ pub fn create_storage_device_buffer<T>(
                 | ash::vk::BufferUsageFlags::TRANSFER_SRC
                 | ash::vk::BufferUsageFlags::TRANSFER_DST,
             properties: ash::vk::MemoryPropertyFlags::DEVICE_LOCAL,
+            map: false,
             shared: false,
             name,
         },
@@ -70,6 +59,7 @@ pub fn create_storage_device_buffer_uninitialized<T>(
                 | ash::vk::BufferUsageFlags::TRANSFER_SRC
                 | ash::vk::BufferUsageFlags::TRANSFER_DST,
             properties: ash::vk::MemoryPropertyFlags::DEVICE_LOCAL,
+            map: false,
             shared: false,
             name,
         },

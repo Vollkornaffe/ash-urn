@@ -27,7 +27,7 @@ pub fn advance_frame(
 
     if *frame != 0 {
         let stamps = setup.timestamp.query_all(base)?;
-        //println!("{:?}", stamps[1] - stamps[0]);
+        println!("RENDER: {}", 1.0e-6 * (stamps[1] - stamps[0]) as f64);
     }
 
     // update model matrix based on time

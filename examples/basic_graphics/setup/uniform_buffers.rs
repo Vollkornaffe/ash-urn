@@ -14,6 +14,7 @@ pub fn setup(base: &Base, n_buffer: u32) -> Result<Vec<DeviceBuffer>, AppError> 
                 usage: ash::vk::BufferUsageFlags::UNIFORM_BUFFER,
                 properties: ash::vk::MemoryPropertyFlags::HOST_VISIBLE
                     | ash::vk::MemoryPropertyFlags::HOST_COHERENT,
+                map: true,
                 shared: false,
                 name: format!("UniformBuffer_{}", i),
             },

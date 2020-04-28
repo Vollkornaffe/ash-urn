@@ -19,19 +19,7 @@ pub fn create_index_device_buffer(
 
     let staging = create_staging_device_buffer(base, size, format!("{}Staging", name.clone()))?;
 
-    let data_ptr = unsafe {
-        base.logical_device.0.map_memory(
-            staging.memory.0,
-            0,
-            size,
-            ash::vk::MemoryMapFlags::default(),
-        )?
-    } as *mut u32;
-
-    unsafe {
-        data_ptr.copy_from_nonoverlapping(indices.as_ptr(), indices.len());
-        base.logical_device.0.unmap_memory(staging.memory.0);
-    }
+    staging.write_slice(base, indices)?;
 
     let index = DeviceBuffer::new(
         base,
@@ -40,6 +28,7 @@ pub fn create_index_device_buffer(
             usage: ash::vk::BufferUsageFlags::INDEX_BUFFER
                 | ash::vk::BufferUsageFlags::TRANSFER_DST,
             properties: ash::vk::MemoryPropertyFlags::DEVICE_LOCAL,
+            map: false,
             shared: false,
             name,
         },
