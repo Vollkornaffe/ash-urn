@@ -29,7 +29,7 @@ fn main() {
         title: "Basic Graphics",
         w: 800,
         h: 800,
-        maximized: false,
+        maximized: true,
     })
     .unwrap();
 

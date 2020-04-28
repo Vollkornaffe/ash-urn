@@ -165,6 +165,7 @@ impl SDL {
         res
     }
 
+    // this returns wrong values in case of maximized window
     pub fn get_size(&self) -> (u32, u32) {
         let mut w = 0;
         let mut h = 0;
