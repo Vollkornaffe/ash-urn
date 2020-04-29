@@ -18,7 +18,7 @@ pub fn create_storage_device_buffer<T>(
     let size = (data.len() * std::mem::size_of::<T>()) as ash::vk::DeviceSize;
 
     let staging = create_staging_device_buffer(base, size, format!("{}Staging", name.clone()))?;
-    
+
     staging.write_slice(base, data)?;
 
     let storage = DeviceBuffer::new(

@@ -26,7 +26,10 @@ pub struct GraphicsPipelineSettings {
 }
 
 impl GraphicsPipeline {
-    pub fn new<V: Vertex>(base: &Base, settings: &GraphicsPipelineSettings) -> Result<Self, UrnError> {
+    pub fn new<V: Vertex>(
+        base: &Base,
+        settings: &GraphicsPipelineSettings,
+    ) -> Result<Self, UrnError> {
         let shader_name = std::ffi::CString::new("main").unwrap();
 
         let shader_module_vert = ShaderModule::new(

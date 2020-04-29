@@ -53,8 +53,8 @@ impl DeviceBuffer {
         )?;
 
         let mut res = Self {
-            buffer, 
-            memory, 
+            buffer,
+            memory,
             size: settings.size,
             shared: settings.shared,
             data_ptr: std::ptr::null_mut(),
@@ -96,9 +96,7 @@ impl DeviceBuffer {
     }
 
     pub fn write<T>(&self, base: &Base, to_write: &T) -> Result<(), UrnError> {
-
         if self.data_ptr.is_null() {
-
             let data_ptr = unsafe {
                 base.logical_device.0.map_memory(
                     self.memory.0,
@@ -112,20 +110,17 @@ impl DeviceBuffer {
                 data_ptr.copy_from_nonoverlapping(to_write, 1);
                 base.logical_device.0.unmap_memory(self.memory.0)
             };
-
         } else {
-             unsafe {
+            unsafe {
                 (self.data_ptr as *mut T).copy_from_nonoverlapping(to_write, 1);
-             }
+            }
         }
 
         Ok(())
     }
 
     pub fn write_slice<T>(&self, base: &Base, to_write: &[T]) -> Result<(), UrnError> {
-
         if self.data_ptr.is_null() {
-        
             let data_ptr = unsafe {
                 base.logical_device.0.map_memory(
                     self.memory.0,
@@ -139,20 +134,18 @@ impl DeviceBuffer {
                 data_ptr.copy_from_nonoverlapping(to_write.as_ptr(), to_write.len());
                 base.logical_device.0.unmap_memory(self.memory.0)
             };
-
         } else {
-             unsafe {
-                (self.data_ptr as *mut T).copy_from_nonoverlapping(to_write.as_ptr(), to_write.len());
-             }
+            unsafe {
+                (self.data_ptr as *mut T)
+                    .copy_from_nonoverlapping(to_write.as_ptr(), to_write.len());
+            }
         }
 
         Ok(())
     }
 
     pub fn read<T>(&self, base: &Base, to_read: &mut T) -> Result<(), UrnError> {
-
         if self.data_ptr.is_null() {
-
             let data_ptr = unsafe {
                 base.logical_device.0.map_memory(
                     self.memory.0,
@@ -166,20 +159,17 @@ impl DeviceBuffer {
                 (to_read as *mut T).copy_from_nonoverlapping(data_ptr, 1);
                 base.logical_device.0.unmap_memory(self.memory.0)
             };
-
-        }  else {
-             unsafe {
+        } else {
+            unsafe {
                 (to_read as *mut T).copy_from_nonoverlapping(self.data_ptr as *const T, 1);
-             }
+            }
         }
 
         Ok(())
     }
 
     pub fn read_slice<T>(&self, base: &Base, to_read: &mut [T]) -> Result<(), UrnError> {
-
         if self.data_ptr.is_null() {
-
             let data_ptr = unsafe {
                 base.logical_device.0.map_memory(
                     self.memory.0,
@@ -193,11 +183,11 @@ impl DeviceBuffer {
                 (to_read.as_mut_ptr()).copy_from_nonoverlapping(data_ptr, to_read.len());
                 base.logical_device.0.unmap_memory(self.memory.0)
             };
-
         } else {
-             unsafe {
-                (to_read.as_mut_ptr()).copy_from_nonoverlapping(self.data_ptr as *const T, to_read.len());
-             }
+            unsafe {
+                (to_read.as_mut_ptr())
+                    .copy_from_nonoverlapping(self.data_ptr as *const T, to_read.len());
+            }
         }
 
         Ok(())
@@ -209,21 +199,15 @@ impl DeviceBuffer {
         queue: ash::vk::Queue,
         pool: ash::vk::CommandPool,
     ) -> Result<(), UrnError> {
-        
         let command_buffer = single_time::begin(base, pool, "SetBufferToZero".to_string())?;
 
         unsafe {
-            base.logical_device.0.cmd_fill_buffer(
-                command_buffer,
-                self.buffer.0,
-                0,
-                self.size,
-                0,
-            )
+            base.logical_device
+                .0
+                .cmd_fill_buffer(command_buffer, self.buffer.0, 0, self.size, 0)
         };
 
         single_time::end(base, queue, pool, command_buffer)
-
     }
 
     pub fn destroy(&self, base: &Base) {

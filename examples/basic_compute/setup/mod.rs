@@ -24,7 +24,6 @@ use ash_urn::DeviceBuffer;
 use ash_urn::DeviceImage;
 use ash_urn::Fence;
 use ash_urn::GraphicsPipeline;
-use ash_urn::UrnMesh;
 use ash_urn::PipelineLayout;
 use ash_urn::RenderPass;
 use ash_urn::Sampler;
@@ -32,6 +31,7 @@ use ash_urn::Semaphore;
 use ash_urn::SwapChain;
 use ash_urn::Timeline;
 use ash_urn::Timestamp;
+use ash_urn::UrnMesh;
 
 pub struct Setup<'a> {
     pub base: &'a Base,
