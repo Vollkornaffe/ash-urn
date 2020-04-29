@@ -18,9 +18,6 @@ pub fn setup(
         .query_swap_chain_support(&surface_loader, surface)
         .unwrap();
     let (w, h) = sdl.get_size();
-
-    println!("Size: {:?}", (w,h));
-
     let mut swap_chain = SwapChain::new(
         &base,
         &SwapChainSettings {

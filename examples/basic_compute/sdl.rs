@@ -165,14 +165,12 @@ impl SDL {
         res
     }
 
-    // this returns wrong values in case of maximized window
     pub fn get_size(&self) -> (u32, u32) {
-        let mut w = 0;
-        let mut h = 0;
+        let mut display_mode = SDL_DisplayMode::default();
         unsafe {
-            SDL_Vulkan_GetDrawableSize(self.window, &mut w as *mut c_int, &mut h as *mut c_int);
+            SDL_GetDesktopDisplayMode(0, &mut display_mode as *mut SDL_DisplayMode);
         }
-        (w as u32, h as u32)
+        (display_mode.w as u32, display_mode.h as u32)
     }
 
     pub fn destroy(&self) {
