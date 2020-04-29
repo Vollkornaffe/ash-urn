@@ -26,14 +26,11 @@ impl Timestamp {
         };
         base.name_object(query_pool, name)?;
 
-        // reset the pool just to be sure
-        let timestamp = Self {
+        Ok(Self {
             pool: query_pool,
             names: stamp_names,
             timestamp_period,
-        };
-
-        Ok(timestamp)
+        })
     }
 
     pub fn reset_pool(&self, base: &Base, command_buffer: ash::vk::CommandBuffer) {
