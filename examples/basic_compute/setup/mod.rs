@@ -171,7 +171,6 @@ impl<'a> Setup<'a> {
             .iter()
             .map(|s| s.to_string())
             .collect(),
-            base.physical_device.timestamp_period(&base.instance.0)?,
             "Timestamp".to_string(),
         )?;
 

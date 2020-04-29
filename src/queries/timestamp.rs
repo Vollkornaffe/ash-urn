@@ -10,12 +10,7 @@ pub struct Timestamp {
 }
 
 impl Timestamp {
-    pub fn new(
-        base: &Base,
-        stamp_names: Vec<String>,
-        timestamp_period: f32,
-        name: String,
-    ) -> Result<Self, UrnError> {
+    pub fn new(base: &Base, stamp_names: Vec<String>, name: String) -> Result<Self, UrnError> {
         let query_pool_info = ash::vk::QueryPoolCreateInfo::builder()
             .query_type(ash::vk::QueryType::TIMESTAMP)
             .query_count(stamp_names.len() as u32);
@@ -29,7 +24,7 @@ impl Timestamp {
         Ok(Self {
             pool: query_pool,
             names: stamp_names,
-            timestamp_period,
+            timestamp_period: base.physical_device.timestamp_period(&base.instance.0)?,
         })
     }
 

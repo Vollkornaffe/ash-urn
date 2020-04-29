@@ -98,7 +98,6 @@ impl<'a> Setup<'a> {
         let timestamp = Timestamp::new(
             &base,
             vec!["Start".to_string(), "Done".to_string()],
-            base.physical_device.timestamp_period(&base.instance.0)?,
             "Timestamp".to_string(),
         )?;
 
