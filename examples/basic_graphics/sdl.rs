@@ -165,14 +165,11 @@ impl SDL {
         res
     }
 
-    // this returns wrong values in case of maximized window
     pub fn get_size(&self) -> (u32, u32) {
-
         let mut display_mode = SDL_DisplayMode::default();
         unsafe {
             SDL_GetDesktopDisplayMode(0, &mut display_mode as *mut SDL_DisplayMode);
         }
-
         (display_mode.w as u32, display_mode.h as u32)
     }
 
