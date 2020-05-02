@@ -7,8 +7,6 @@ use crate::command::image_layout;
 use crate::command::image_layout::TransitionImageLayoutSettings;
 use crate::{DeviceImage, DeviceImageSettings};
 
-use ash::version::DeviceV1_0;
-
 pub fn create_texture_device_image(
     base: &Base,
     filename: String,

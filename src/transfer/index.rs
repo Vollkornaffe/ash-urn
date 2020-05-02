@@ -6,8 +6,6 @@ use crate::{DeviceBuffer, DeviceBufferSettings};
 use super::copy_buffer_to_buffer;
 use super::create_staging_device_buffer;
 
-use ash::version::DeviceV1_0;
-
 pub fn create_index_device_buffer(
     base: &Base,
     indices: &[u32],

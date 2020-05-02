@@ -7,8 +7,6 @@ use crate::{DeviceBuffer, DeviceBufferSettings};
 use super::copy_buffer_to_buffer;
 use super::create_staging_device_buffer;
 
-use ash::version::DeviceV1_0;
-
 pub fn create_vertex_device_buffer<V: Vertex>(
     base: &Base,
     vertices: &[V],

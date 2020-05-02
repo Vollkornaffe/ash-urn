@@ -6,8 +6,6 @@ use crate::{DeviceBuffer, DeviceBufferSettings};
 use super::copy_buffer_to_buffer;
 use super::create_staging_device_buffer;
 
-use ash::version::DeviceV1_0;
-
 pub fn create_storage_device_buffer<T>(
     base: &Base,
     data: &[T],
@@ -45,8 +43,6 @@ pub fn create_storage_device_buffer<T>(
 pub fn create_storage_device_buffer_uninitialized<T>(
     base: &Base,
     len: usize,
-    queue: ash::vk::Queue,
-    pool: ash::vk::CommandPool,
     name: String,
 ) -> Result<DeviceBuffer, UrnError> {
     let size = (len * std::mem::size_of::<T>()) as ash::vk::DeviceSize;
