@@ -14,12 +14,15 @@ use memory::MemorySettings;
 
 use ash::version::DeviceV1_0;
 
+unsafe impl Send for DeviceBuffer {}
+unsafe impl Sync for DeviceBuffer {}
+
 pub struct DeviceBuffer {
     pub buffer: Buffer,
     pub memory: Memory,
     pub size: ash::vk::DeviceSize,
     pub shared: bool,
-    pub data_ptr: *mut std::ffi::c_void,
+    data_ptr: *mut std::ffi::c_void,
 }
 
 pub struct DeviceBufferSettings {
