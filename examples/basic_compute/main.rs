@@ -42,7 +42,7 @@ fn main() {
 
     // create sdl context
     let mut sdl = sdl::SDL::new(sdl::WindowSettings {
-        title: "Basic Graphics",
+        title: "Basic Compute",
         w: 800,
         h: 800,
         maximized: true,

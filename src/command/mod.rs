@@ -25,6 +25,7 @@ pub struct Command {
 
 pub struct CommandSettings {
     pub queue_family_idx: u32,
+    pub queue_idx: u32,
     pub n_buffer: u32,
     pub name: String,
 }
@@ -34,6 +35,7 @@ impl Command {
         let queue = Queue::new(
             &base,
             settings.queue_family_idx,
+            settings.queue_idx,
             format!("{}Queue", settings.name.clone()),
         )?;
 

@@ -59,9 +59,10 @@ impl SDL {
                 0
             };
 
+        let c_string = std::ffi::CString::new(settings.title).unwrap();
         let window = unsafe {
             SDL_CreateWindow(
-                settings.title.as_ptr() as *const c_char,
+                c_string.as_ptr() as *const c_char,
                 SDL_WINDOWPOS_CENTERED,
                 SDL_WINDOWPOS_CENTERED,
                 settings.w as i32,

@@ -4,7 +4,7 @@ use crate::SDL;
 const ENABLE_VALIDATION: bool = cfg!(debug_assertions);
 
 use ash_urn::base::{
-    Base, Entry, Instance, InstanceSettings, LogicalDevice, LogicalDeviceSettings, PhysicalDevice,
+    Base, Entry, Instance, InstanceSettings, LogicalDevice, LogicalDeviceSettings, QueueSetting, PhysicalDevice,
     PhysicalDeviceSettings, Validation,
 };
 
@@ -82,7 +82,16 @@ pub fn setup(
             extension_names: device_extensions,
             enable_validation: ENABLE_VALIDATION,
             validation_layer_names: validation_layer_names.clone(),
-            queues: vec![transfer_queue_family_idx, combined_queue_family_idx],
+            queue_settings: vec![
+                QueueSetting {
+                    family_idx: transfer_queue_family_idx,
+                    priorities: vec![1.0],
+                },
+                QueueSetting {
+                    family_idx: combined_queue_family_idx,
+                    priorities: vec![1.0],
+                },
+            ],
             timelines,
         },
     )?;

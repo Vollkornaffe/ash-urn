@@ -28,7 +28,7 @@ pub fn submit(
         .build();
     let graphics_wait_semaphores = [timeline.0, semaphore_image_acquired.0];
     let graphics_wait_stages_mask = [
-        ash::vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT,
+        ash::vk::PipelineStageFlags::VERTEX_INPUT,
         ash::vk::PipelineStageFlags::COLOR_ATTACHMENT_OUTPUT,
     ];
     let graphics_signal_semaphores = [timeline.0, semaphore_rendering_finished.0];

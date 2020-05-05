@@ -30,6 +30,7 @@ pub fn setup_graphics(base: &Base, n_buffer: u32) -> Result<Command, AppError> {
         &base,
         &CommandSettings {
             queue_family_idx: combined_queue_family_idx,
+            queue_idx: 0,
             n_buffer: n_buffer,
             name: "GraphicsCommand".to_string(),
         },
@@ -46,6 +47,7 @@ pub fn setup_compute(base: &Base) -> Result<Command, AppError> {
         &base,
         &CommandSettings {
             queue_family_idx: combined_queue_family_idx,
+            queue_idx: 0,
             n_buffer: 1,
             name: "ComputeCommand".to_string(),
         },
@@ -62,6 +64,7 @@ pub fn setup_transfer(base: &Base) -> Result<Command, AppError> {
         &base,
         &CommandSettings {
             queue_family_idx: transfer_queue_family_idx,
+            queue_idx: 0,
             n_buffer: 0,
             name: "TransferCommand".to_string(),
         },

@@ -5,11 +5,16 @@ use ash::version::InstanceV1_0;
 
 pub struct LogicalDevice(pub ash::Device);
 
+pub struct QueueSetting {
+    pub family_idx: u32,
+    pub priorities: Vec<f32>,
+}
+
 pub struct LogicalDeviceSettings {
     pub extension_names: Vec<String>,
     pub enable_validation: bool,
     pub validation_layer_names: Vec<String>,
-    pub queues: Vec<u32>,
+    pub queue_settings: Vec<QueueSetting>,
     pub timelines: bool,
 }
 
@@ -20,11 +25,10 @@ impl LogicalDevice {
         settings: LogicalDeviceSettings,
     ) -> Result<Self, UrnError> {
         let mut queue_create_infos = vec![];
-        let queue_priority = [1.0_f32];
-        for &queue_idx in settings.queues.iter() {
+        for queue_setting in settings.queue_settings.iter() {
             let queue_create_info = ash::vk::DeviceQueueCreateInfo::builder()
-                .queue_family_index(queue_idx)
-                .queue_priorities(&queue_priority)
+                .queue_family_index(queue_setting.family_idx)
+                .queue_priorities(queue_setting.priorities.as_slice())
                 .build();
             queue_create_infos.push(queue_create_info);
         }
