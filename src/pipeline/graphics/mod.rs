@@ -16,10 +16,10 @@ mod viewport;
 
 pub struct GraphicsPipeline(pub ash::vk::Pipeline);
 
-pub struct GraphicsPipelineSettings {
+pub struct GraphicsPipelineSettings<'a> {
     pub layout: ash::vk::PipelineLayout,
-    pub vert_spv: String,
-    pub frag_spv: String,
+    pub vert_spv: &'a std::path::Path,
+    pub frag_spv: &'a std::path::Path,
     pub extent: ash::vk::Extent2D,
     pub render_pass: ash::vk::RenderPass,
     pub name: String,

@@ -27,8 +27,8 @@ pub fn setup(
         &base,
         &GraphicsPipelineSettings {
             layout: graphics_pipeline_layout.0,
-            vert_spv: "examples/basic_graphics/shaders/vert.spv".to_string(),
-            frag_spv: "examples/basic_graphics/shaders/frag.spv".to_string(),
+            vert_spv: &std::path::Path::new("examples/basic_graphics/shaders/vert.spv"),
+            frag_spv: &std::path::Path::new("examples/basic_graphics/shaders/frag.spv"),
             extent: swap_chain.extent.0,
             render_pass: render_pass.0,
             name: "GraphicsPipeline".to_string(),

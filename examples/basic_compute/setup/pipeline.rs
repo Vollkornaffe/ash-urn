@@ -28,8 +28,8 @@ pub fn setup_graphics(
         &base,
         &GraphicsPipelineSettings {
             layout: pipeline_layout.0,
-            vert_spv: "examples/basic_compute/shaders/vert.spv".to_string(),
-            frag_spv: "examples/basic_compute/shaders/frag.spv".to_string(),
+            vert_spv: &std::path::Path::new("examples/basic_compute/shaders/vert.spv"),
+            frag_spv: &std::path::Path::new("examples/basic_compute/shaders/frag.spv"),
             extent: swap_chain.extent.0,
             render_pass: render_pass.0,
             name: "GraphicsPipeline".to_string(),
@@ -56,7 +56,7 @@ pub fn setup_compute(
         &base,
         &ComputePipelineSettings {
             layout: pipeline_layout.0,
-            comp_spv: "examples/basic_compute/shaders/calculate.spv".to_string(),
+            comp_spv: &std::path::Path::new("examples/basic_compute/shaders/calculate.spv"),
             name: "CalculatePipeline".to_string(),
         },
     )?;
@@ -65,7 +65,7 @@ pub fn setup_compute(
         &base,
         &ComputePipelineSettings {
             layout: pipeline_layout.0,
-            comp_spv: "examples/basic_compute/shaders/integrate.spv".to_string(),
+            comp_spv: &std::path::Path::new("examples/basic_compute/shaders/integrate.spv"),
             name: "IntegratePipeline".to_string(),
         },
     )?;

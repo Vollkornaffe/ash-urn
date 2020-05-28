@@ -7,9 +7,9 @@ use ash::version::DeviceV1_0;
 
 pub struct ComputePipeline(pub ash::vk::Pipeline);
 
-pub struct ComputePipelineSettings {
+pub struct ComputePipelineSettings<'a> {
     pub layout: ash::vk::PipelineLayout,
-    pub comp_spv: String,
+    pub comp_spv: &'a std::path::Path,
     pub name: String,
 }
 
@@ -19,7 +19,7 @@ impl ComputePipeline {
         let shader_module_comp = ShaderModule::new(
             &base,
             &ShaderModuleSettings {
-                file_name: settings.comp_spv.clone(),
+                file_name: settings.comp_spv,
                 name: format!("{}Shader", settings.name.clone()),
             },
         )?;

@@ -5,17 +5,17 @@ use ash::version::DeviceV1_0;
 
 pub struct ShaderModule(pub ash::vk::ShaderModule);
 
-pub struct ShaderModuleSettings {
-    pub file_name: String,
+pub struct ShaderModuleSettings<'a> {
+    pub file_name: &'a std::path::Path,
     pub name: String,
 }
 
 impl ShaderModule {
     pub fn new(base: &Base, settings: &ShaderModuleSettings) -> Result<Self, UrnError> {
-        let mut f = std::fs::File::open(settings.file_name.clone()).map_err(|_| {
+        let mut f = std::fs::File::open(settings.file_name).map_err(|_| {
             UrnError::GenericDynamic(format!(
                 "Failed to open shader file: {}",
-                settings.file_name.clone()
+                settings.file_name.display()
             ))
         })?;
         let buffer = ash::util::read_spv(&mut f)?;
