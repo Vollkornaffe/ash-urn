@@ -49,9 +49,11 @@ void main() {
       uint other_global_index = offset + other_local_index;
       if (other_global_index < n_particles) {
         vec4 d = shared_positions[other_local_index] - pos;
-        float d_norm = length(d);
-        if (d_norm > 0.0) {
+        float d_norm = length(d) + 0.001;
+        if (d_norm > 0.1) {
           acc += G / d_norm / d_norm / d_norm * d;
+        } else {
+          acc -= G / d_norm / d_norm / d_norm * d;
         }
       }
 

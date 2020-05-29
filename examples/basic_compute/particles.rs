@@ -23,14 +23,16 @@ impl Particles {
         for i in 0..res {
             for j in 0..res {
                 for k in 0..res {
+
+                    let pos = cgmath::Vector3::<f32>::new(
+                        (0.5 + i as f32) / res as f32 - 0.5,
+                        (0.5 + j as f32) / res as f32 - 0.5,
+                        (0.5 + k as f32) / res as f32 - 0.5,
+                    );
+
                     particles.push(Particle {
-                        pos: cgmath::Vector3::<f32>::new(
-                            (0.5 + i as f32) / res as f32 - 0.5,
-                            (0.5 + j as f32) / res as f32 - 0.5,
-                            (0.5 + k as f32) / res as f32 - 0.5,
-                        )
-                        .into(),
-                        vel: cgmath::Vector3::<f32>::new(0.0, 0.0, 0.0).into(),
+                        pos: pos.into(),
+                        vel: cgmath::Vector3::<f32>::new(-15.0 * pos.y, 5.0 * pos.x, -pos.z).into(),
                     });
                 }
             }
