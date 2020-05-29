@@ -8,7 +8,7 @@ pub mod pool;
 pub mod queue;
 pub mod single_time;
 
-pub use buffer::Buffer;
+pub use buffer::CommandBuffer;
 pub use draw::DrawIndexedSettings;
 pub use image_layout::TransitionImageLayoutSettings;
 pub use pool::Pool;
@@ -20,13 +20,11 @@ pub struct Command {
     pub family_idx: u32,
     pub queue: Queue,
     pub pool: Pool,
-    pub buffers: Vec<Buffer>,
 }
 
 pub struct CommandSettings {
     pub queue_family_idx: u32,
     pub queue_idx: u32,
-    pub n_buffer: u32,
     pub name: String,
 }
 
@@ -45,18 +43,10 @@ impl Command {
             format!("{}Pool", settings.name.clone()),
         )?;
 
-        let buffers = Buffer::alloc_vec(
-            &base,
-            pool.0,
-            settings.n_buffer,
-            format!("{}Buffer", settings.name.clone()),
-        )?;
-
         Ok(Self {
             family_idx: settings.queue_family_idx,
             queue,
             pool,
-            buffers,
         })
     }
 

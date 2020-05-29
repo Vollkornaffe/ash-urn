@@ -15,7 +15,7 @@ pub mod urn_mesh;
 pub mod util;
 
 pub use base::Base;
-pub use command::{Command, CommandSettings};
+pub use command::{Command, CommandBuffer, CommandSettings};
 pub use descriptor::{Descriptor, DescriptorSettings};
 pub use device_buffer::{DeviceBuffer, DeviceBufferSettings};
 pub use device_image::{DeviceImage, DeviceImageSettings, Sampler};

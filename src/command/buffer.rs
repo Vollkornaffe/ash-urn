@@ -3,9 +3,9 @@ use crate::UrnError;
 
 use ash::version::DeviceV1_0;
 
-pub struct Buffer(pub ash::vk::CommandBuffer);
+pub struct CommandBuffer(pub ash::vk::CommandBuffer);
 
-impl Buffer {
+impl CommandBuffer {
     pub fn alloc(base: &Base, pool: ash::vk::CommandPool, name: String) -> Result<Self, UrnError> {
         let alloc_info = ash::vk::CommandBufferAllocateInfo::builder()
             .command_pool(pool)
