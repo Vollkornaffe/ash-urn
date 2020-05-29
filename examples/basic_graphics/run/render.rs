@@ -2,6 +2,7 @@ use crate::AppError;
 
 use ash_urn::Base;
 use ash_urn::Command;
+use ash_urn::CommandBuffer;
 use ash_urn::{Fence, Semaphore, Timeline};
 
 use ash::version::DeviceV1_0;
@@ -9,6 +10,7 @@ use ash::version::DeviceV1_0;
 pub fn submit(
     base: &Base,
     graphics_command: &Command,
+    graphics_command_buffers: &[CommandBuffer],
     timeline: &Timeline,
     semaphore_image_acquired: &Semaphore,
     semaphore_rendering_finished: &Semaphore,
@@ -17,7 +19,7 @@ pub fn submit(
     image_index: u32,
 ) -> Result<(), AppError> {
     // choose the buffer corresponding to the image
-    let graphics_command_buffers = [graphics_command.buffers[image_index as usize].0];
+    let graphics_command_buffers = [graphics_command_buffers[image_index as usize].0];
 
     // setup waiting / signaling for rendering
     let wait_values = [1];

@@ -43,6 +43,7 @@ pub fn advance_frame(
     render::submit(
         &base,
         &setup.graphics_command,
+        &setup.graphics_command_buffers,
         &setup.timeline,
         &setup.semaphore_image_acquired,
         &setup.semaphore_rendering_finished,

@@ -15,6 +15,7 @@ use crate::SDL;
 use ash_urn::sync::wait_device_idle;
 use ash_urn::Base;
 use ash_urn::Command;
+use ash_urn::CommandBuffer;
 use ash_urn::Descriptor;
 use ash_urn::DeviceBuffer;
 use ash_urn::DeviceImage;
@@ -37,6 +38,7 @@ pub struct Setup<'a> {
     pub uniform_buffers: Vec<DeviceBuffer>,
     pub descriptor: Descriptor,
     pub graphics_command: Command,
+    pub graphics_command_buffers: Vec<CommandBuffer>,
     pub transfer_command: Command,
     pub vertex_device_buffer: DeviceBuffer,
     pub index_device_buffer: DeviceBuffer,
@@ -70,7 +72,7 @@ impl<'a> Setup<'a> {
 
         // get the structures for commands,
         // they will be filled out later
-        let (graphics_command, transfer_command) = command::setup(base, swap_chain.image_count)?;
+        let (graphics_command, graphics_command_buffers, transfer_command) = command::setup(base, swap_chain.image_count)?;
 
         // create device buffers from the mesh & load the textures
         // the transfer is done with the transfer command,
@@ -102,7 +104,7 @@ impl<'a> Setup<'a> {
         )?;
 
         // write to the command buffers
-        for (i, command_buffer) in graphics_command.buffers.iter().enumerate() {
+        for (i, command_buffer) in graphics_command_buffers.iter().enumerate() {
             ash_urn::command::draw::indexed(
                 base,
                 &ash_urn::command::DrawIndexedSettings {
@@ -139,6 +141,7 @@ impl<'a> Setup<'a> {
             uniform_buffers,
             descriptor,
             graphics_command,
+            graphics_command_buffers,
             transfer_command,
             vertex_device_buffer,
             index_device_buffer,
