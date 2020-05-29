@@ -18,6 +18,7 @@ use crate::SDL;
 use ash_urn::sync::wait_device_idle;
 use ash_urn::Base;
 use ash_urn::Command;
+use ash_urn::CommandBuffer;
 use ash_urn::ComputePipeline;
 use ash_urn::Descriptor;
 use ash_urn::DeviceBuffer;
@@ -46,7 +47,9 @@ pub struct Setup<'a> {
     pub compute_descriptor: Descriptor,
 
     pub graphics_command: Command,
+    pub graphics_command_buffers: Vec<CommandBuffer>,
     pub compute_command: Command,
+    pub compute_command_buffer: CommandBuffer,
     pub transfer_command: Command,
 
     pub vertex_device_buffer: DeviceBuffer,
@@ -102,15 +105,20 @@ impl<'a> Setup<'a> {
                 n_particles: particles.0.len() as u32,
                 n_reference: reference_mesh.vertices.len() as u32,
                 scale: 0.01,
-                d_t: 0.0001,
-                G: 0.01,
+                d_t: 0.001,
+                G: 0.001,
             },
         )?;
 
         // get the structures for commands,
         // they will be filled out later
-        let (graphics_command, compute_command, transfer_command) =
-            command::setup(base, swap_chain.image_count)?;
+        let (
+            graphics_command,
+            graphics_command_buffers,
+            compute_command,
+            compute_command_buffer,
+            transfer_command
+        ) = command::setup(base, swap_chain.image_count)?;
 
         // create device buffers from the mesh & load the textures
         // the transfer is done with the transfer command,
@@ -178,6 +186,7 @@ impl<'a> Setup<'a> {
         command::write_graphics(
             base,
             &graphics_command,
+            &graphics_command_buffers,
             &timestamp,
             &render_pass,
             &swap_chain,
@@ -197,6 +206,7 @@ impl<'a> Setup<'a> {
             &calculate_pipeline,
             &integrate_pipeline,
             &compute_command,
+            &compute_command_buffer,
             &compute_descriptor,
             particles.0.len() as u32,
         )?;
@@ -221,7 +231,9 @@ impl<'a> Setup<'a> {
             graphics_descriptor,
             compute_descriptor,
             graphics_command,
+            graphics_command_buffers,
             compute_command,
+            compute_command_buffer,
             transfer_command,
             vertex_device_buffer,
             index_device_buffer,

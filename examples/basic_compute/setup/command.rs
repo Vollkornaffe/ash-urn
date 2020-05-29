@@ -9,17 +9,28 @@ use ash_urn::RenderPass;
 use ash_urn::SwapChain;
 use ash_urn::Timestamp;
 use ash_urn::UrnMesh;
-use ash_urn::{Command, CommandSettings};
+use ash_urn::{Command, CommandBuffer, CommandSettings};
 use ash_urn::{ComputePipeline, PipelineLayout};
 
 use ash::version::DeviceV1_0;
 
-pub fn setup(base: &Base, n_buffer: u32) -> Result<(Command, Command, Command), AppError> {
+pub fn setup(base: &Base, n_buffer: u32) -> Result<(Command, Vec<CommandBuffer>, Command, CommandBuffer, Command), AppError> {
     let graphics_command = setup_graphics(base, n_buffer)?;
+    let graphics_command_buffers = CommandBuffer::alloc_vec(
+        base,
+        graphics_command.pool.0,
+        n_buffer,
+        "GraphicsCommandBuffer".to_string(),
+    )?;
     let compute_command = setup_compute(base)?;
+    let compute_command_buffer = CommandBuffer::alloc(
+        base,
+        compute_command.pool.0,
+        "ComputeCommandBuffer".to_string(),
+    )?;
     let transfer_command = setup_transfer(base)?;
 
-    Ok((graphics_command, compute_command, transfer_command))
+    Ok((graphics_command, graphics_command_buffers, compute_command, compute_command_buffer, transfer_command))
 }
 
 pub fn setup_graphics(base: &Base, n_buffer: u32) -> Result<Command, AppError> {
@@ -31,7 +42,6 @@ pub fn setup_graphics(base: &Base, n_buffer: u32) -> Result<Command, AppError> {
         &CommandSettings {
             queue_family_idx: combined_queue_family_idx,
             queue_idx: 0,
-            n_buffer: n_buffer,
             name: "GraphicsCommand".to_string(),
         },
     )?;
@@ -48,7 +58,6 @@ pub fn setup_compute(base: &Base) -> Result<Command, AppError> {
         &CommandSettings {
             queue_family_idx: combined_queue_family_idx,
             queue_idx: 0,
-            n_buffer: 1,
             name: "ComputeCommand".to_string(),
         },
     )?;
@@ -65,7 +74,6 @@ pub fn setup_transfer(base: &Base) -> Result<Command, AppError> {
         &CommandSettings {
             queue_family_idx: transfer_queue_family_idx,
             queue_idx: 0,
-            n_buffer: 0,
             name: "TransferCommand".to_string(),
         },
     )?;
@@ -76,6 +84,7 @@ pub fn setup_transfer(base: &Base) -> Result<Command, AppError> {
 pub fn write_graphics(
     base: &Base,
     command: &Command,
+    command_buffers: &[CommandBuffer],
     timestamp: &Timestamp,
     render_pass: &RenderPass,
     swap_chain: &SwapChain,
@@ -86,7 +95,7 @@ pub fn write_graphics(
     index_buffer: &DeviceBuffer,
     mesh: &UrnMesh,
 ) -> Result<(), AppError> {
-    for (i, command_buffer) in command.buffers.iter().enumerate() {
+    for (i, command_buffer) in command_buffers.iter().enumerate() {
         let command_buffer = command_buffer.0;
 
         let clear_values = [
@@ -191,10 +200,11 @@ pub fn write_compute(
     calculate_pipeline: &ComputePipeline,
     integrate_pipeline: &ComputePipeline,
     command: &Command,
+    command_buffer: &CommandBuffer,
     descriptor: &Descriptor,
     n_particles: u32,
 ) -> Result<(), AppError> {
-    let command_buffer = command.buffers[0].0;
+    let command_buffer = command_buffer.0;
 
     let begin_info = ash::vk::CommandBufferBeginInfo::builder();
 

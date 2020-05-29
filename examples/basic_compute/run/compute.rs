@@ -2,6 +2,7 @@ use crate::AppError;
 
 use ash_urn::Base;
 use ash_urn::Command;
+use ash_urn::CommandBuffer;
 use ash_urn::Timeline;
 
 use ash::version::DeviceV1_0;
@@ -9,10 +10,11 @@ use ash::version::DeviceV1_0;
 pub fn submit(
     base: &Base,
     compute_command: &Command,
+    compute_command_buffer: &CommandBuffer,
     timeline: &Timeline,
     time: u64,
 ) -> Result<(), AppError> {
-    let compute_command_buffers = [compute_command.buffers[0].0];
+    let compute_command_buffers = [compute_command_buffer.0];
 
     // setup waiting / signaling for computing
     let wait_values = [time];
