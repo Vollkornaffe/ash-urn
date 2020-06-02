@@ -76,7 +76,7 @@ impl DeviceBuffer {
                 base.logical_device.0.map_memory(
                     self.memory.0,
                     0,
-                    self.size,
+                    ash::vk::WHOLE_SIZE,
                     ash::vk::MemoryMapFlags::default(),
                 )?
             };
@@ -104,7 +104,7 @@ impl DeviceBuffer {
                 base.logical_device.0.map_memory(
                     self.memory.0,
                     0,
-                    self.size,
+                    ash::vk::WHOLE_SIZE,
                     ash::vk::MemoryMapFlags::default(),
                 )?
             } as *mut T;
@@ -128,7 +128,7 @@ impl DeviceBuffer {
                 base.logical_device.0.map_memory(
                     self.memory.0,
                     0,
-                    self.size,
+                    ash::vk::WHOLE_SIZE,
                     ash::vk::MemoryMapFlags::default(),
                 )?
             } as *mut T;
@@ -153,7 +153,7 @@ impl DeviceBuffer {
                 base.logical_device.0.map_memory(
                     self.memory.0,
                     0,
-                    self.size,
+                    ash::vk::WHOLE_SIZE,
                     ash::vk::MemoryMapFlags::default(),
                 )?
             } as *const T;
@@ -177,7 +177,7 @@ impl DeviceBuffer {
                 base.logical_device.0.map_memory(
                     self.memory.0,
                     0,
-                    self.size,
+                    ash::vk::WHOLE_SIZE,
                     ash::vk::MemoryMapFlags::default(),
                 )?
             } as *const T;

@@ -55,6 +55,8 @@ pub fn check_validation_layer_support(
         return Err(UrnError::Generic("No available layers."));
     }
 
+    println!("{:?}", layer_properties);
+
     for layer_needed in validation_layer_names.iter() {
         let mut is_layer_found = false;
         for layer in layer_properties.iter() {
