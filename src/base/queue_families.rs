@@ -15,7 +15,7 @@ pub const COMBINED: QueueFamilyKey = QueueFamilyKey {
 };
 pub const DEDICATED_TRANSFER: QueueFamilyKey = QueueFamilyKey {
     graphics: false,
-    present: false,
+    present: true,
     transfer: true,
     compute: false,
 };
